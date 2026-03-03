@@ -1,0 +1,56 @@
+<div class="dashboard">
+
+  <!-- HEADER CARD -->
+  <div class="header card">
+    <div class="logo">E-Clinic System</div>
+
+    <div class="datetime">
+      <div class="date">{{ tanggal }}</div>
+      <div class="jam">{{ jam }} WIB</div>
+      <button class="audio-btn" (click)="aktifkanAudio()">
+        🔊 Aktifkan Suara
+      </button>
+    </div>
+  </div>
+
+  <!-- CARD ANTRIAN UTAMA -->
+  <div class="main-card card">
+
+    <div class="title">ANTRIAN TERAKHIR</div>
+
+    <div class="nomor" [class.calling]="isCalling">
+      {{ nomor }}
+    </div>
+
+    <div class="nama">{{ nama }}</div>
+
+    <div class="ruangan">
+      Menuju ruangan <b>{{ ruangan }}</b>
+    </div>
+
+  </div>
+
+  <!-- CARD POLI -->
+  <div class="poli-grid">
+
+    <div class="poli-card card">
+      <div class="icon">🦷</div>
+      <div class="poli-title">DENTAL</div>
+      <div class="poli-nomor">-</div>
+    </div>
+
+    <div class="poli-card card">
+      <div class="icon">👶</div>
+      <div class="poli-title">ANAK</div>
+      <div class="poli-nomor">-</div>
+    </div>
+
+    <div class="poli-card card">
+      <div class="icon">🩺</div>
+      <div class="poli-title">UMUM</div>
+      <div class="poli-nomor">-</div>
+    </div>
+
+  </div>
+
+</div>

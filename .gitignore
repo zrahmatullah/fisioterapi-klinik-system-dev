@@ -1,0 +1,16 @@
+# Laravel
+backend/vendor/
+backend/node_modules/
+backend/.env
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Viewer
+viewer-antrian/node_modules/
+viewer-antrian/dist/
+
+# OS
+.DS_Store
+Thumbs.db
