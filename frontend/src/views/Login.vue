@@ -7,18 +7,23 @@ import api from '../axios'
 const router = useRouter()
 const toast = useToast()
 
-// LOGIN STATE
+// LOGIN
 const username = ref('')
 const password = ref('')
 const loading = ref(false)
 const error = ref('')
 
-// FORGOT PASSWORD STATE
+// FULLSCREEN LOADING
+const pageLoading = ref(false)
+
+// FORGOT PASSWORD
 const showForgot = ref(false)
-const step = ref(1) // 1: cek username, 2: update password
+const step = ref(1)
+
 const fpUsername = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
+
 const fpLoading = ref(false)
 const fpError = ref('')
 
@@ -32,6 +37,7 @@ const login = async () => {
   loading.value = true
 
   try {
+
     const res = await api.post('/login', {
       username: username.value,
       password: password.value
@@ -45,122 +51,104 @@ const login = async () => {
 
     toast.success(`Selamat datang ${username.value}`)
 
-    if (user.role_id === 15) router.push('/dashboard-orang-tua')
-    else if (user.role_id === 14) router.push('/dashboard-terapis')
-    else router.push('/dashboard')
+    // SHOW LOADING SCREEN
+    pageLoading.value = true
+
+    setTimeout(() => {
+
+      if (user.role_id === 15) {
+        router.push('/dashboard-orang-tua')
+      }
+
+      else if (user.role_id === 14) {
+        router.push('/dashboard-terapis')
+      }
+
+      else {
+        router.push('/dashboard')
+      }
+
+    }, 1800)
 
   } catch (err) {
+
     const msg = err.response?.data?.error || 'Login gagal'
+
     error.value = msg
+
     toast.error(msg)
+
   } finally {
     loading.value = false
   }
 }
 
-// STEP 1 – CEK USERNAME
+// CEK USERNAME
 const checkUsername = async () => {
+
   fpError.value = ''
   fpLoading.value = true
 
   try {
+
     const res = await api.post('/forgot-password/check-username', {
       username: fpUsername.value
     })
 
-    // backend harus kirim email user
     fpEmail.value = res.data.email
 
-    // kirim OTP reset
-    await api.post('/otp-email/reset/send', { email: fpEmail.value })
-
-    step.value = 2
-    toast.success('Kode OTP dikirim ke email')
-  } catch (err) {
-    fpError.value = err.response?.data?.error || 'Email tidak ditemukan'
-  } finally {
-    fpLoading.value = false
-  }
-}
-
-
-// STEP 2 – UPDATE PASSWORD
-const updatePassword = async () => {
-  fpError.value = ''
-
-  if (newPassword.value !== confirmPassword.value) {
-    fpError.value = 'Konfirmasi password tidak sama'
-    return
-  }
-
-  fpLoading.value = true
-
-  try {
-    await api.post('/reset-password', {
-      email: fpEmail.value,
-      reset_token: resetToken.value,
-      password: newPassword.value,
-      password_confirmation: confirmPassword.value
+    await api.post('/otp-email/reset/send', {
+      email: fpEmail.value
     })
 
-    toast.success('Password berhasil diperbarui, silakan login')
-    showForgot.value = false
-    step.value = 1
-    fpUsername.value = ''
-    fpEmail.value = ''
-    newPassword.value = ''
-    confirmPassword.value = ''
-
-  } catch (err) {
-    fpError.value = err.response?.data?.message || 'Gagal update password'
-  } finally {
-    fpLoading.value = false
-  }
-}
-
-
-// === OTP RESET FLOW ===
-
-// STEP 1 - KIRIM OTP KE EMAIL
-const sendOtp = async () => {
-  fpError.value = ''
-  fpLoading.value = true
-
-  try {
-    await api.post('/otp/send', { email: fpEmail.value })
     step.value = 2
-    toast.success('Kode reset dikirim ke email')
+
+    toast.success('Kode OTP dikirim ke email')
+
   } catch (err) {
-    fpError.value = err.response?.data?.message || 'Gagal kirim kode'
+
+    fpError.value =
+      err.response?.data?.error || 'Email tidak ditemukan'
+
   } finally {
+
     fpLoading.value = false
   }
 }
 
-// STEP 2 - VERIFIKASI OTP
+// VERIFY OTP
 const verifyOtp = async () => {
+
   fpError.value = ''
   fpLoading.value = true
 
   try {
+
     const res = await api.post('/otp-email/reset/verify', {
       email: fpEmail.value,
       kode_otp: otpCode.value
     })
 
     resetToken.value = res.data.reset_token
+
     step.value = 3
+
     toast.success('Kode valid')
+
   } catch (err) {
-    fpError.value = err.response?.data?.message || 'OTP salah'
+
+    fpError.value =
+      err.response?.data?.message || 'OTP salah'
+
   } finally {
+
     fpLoading.value = false
   }
 }
 
-
-// STEP 3 - RESET PASSWORD
+// RESET PASSWORD
 const resetPasswordOtp = async () => {
+
   fpError.value = ''
 
   if (newPassword.value !== confirmPassword.value) {
@@ -171,6 +159,7 @@ const resetPasswordOtp = async () => {
   fpLoading.value = true
 
   try {
+
     await api.post('/reset-password', {
       email: fpEmail.value,
       reset_token: resetToken.value,
@@ -179,254 +168,447 @@ const resetPasswordOtp = async () => {
     })
 
     toast.success('Password berhasil diubah')
+
     showForgot.value = false
+
     step.value = 1
+
     fpEmail.value = ''
     otpCode.value = ''
     newPassword.value = ''
     confirmPassword.value = ''
 
   } catch (err) {
-    fpError.value = err.response?.data?.message || 'Gagal reset password'
+
+    fpError.value =
+      err.response?.data?.message || 'Gagal reset password'
+
   } finally {
+
     fpLoading.value = false
   }
 }
-
 </script>
 
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-700 via-purple-700 to-fuchsia-600 px-4">
+
+  <div
+    class="
+      min-h-screen
+      flex
+      items-center
+      justify-center
+      bg-gradient-to-br
+      from-indigo-700
+      via-purple-700
+      to-fuchsia-600
+      px-4
+      overflow-hidden
+      relative
+    "
+  >
+
+    <!-- BG BLUR -->
+    <div
+      class="
+        absolute
+        top-[-100px]
+        right-[-100px]
+        w-96 h-96
+        bg-white/10
+        rounded-full
+        blur-3xl
+      "
+    ></div>
+
+    <div
+      class="
+        absolute
+        bottom-[-120px]
+        left-[-120px]
+        w-96 h-96
+        bg-pink-300/20
+        rounded-full
+        blur-3xl
+      "
+    ></div>
 
     <!-- CARD -->
-    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 relative overflow-hidden">
+    <div
+      class="
+        relative
+        w-full
+        max-w-md
+        bg-white/95
+        backdrop-blur-xl
+        rounded-[32px]
+        shadow-2xl
+        border border-white/30
+        p-8
+      "
+    >
 
-      <!-- DECORATION -->
-      <div class="absolute -top-24 -right-24 w-48 h-48 bg-indigo-100 rounded-full"></div>
-      <div class="absolute -bottom-24 -left-24 w-48 h-48 bg-purple-100 rounded-full"></div>
+      <!-- LOGO -->
+      <div class="flex justify-center mb-6">
 
-      <!-- CONTENT -->
-      <div class="relative">
-
-        <!-- LOGO -->
-        <div class="flex justify-center mb-6">
+        <div
+          class="
+            w-28 h-28
+            rounded-3xl
+            bg-gradient-to-br
+            from-indigo-50
+            to-purple-50
+            shadow-inner
+            flex items-center justify-center
+          "
+        >
           <img
             src="/logo-abqary.png"
-            alt="Logo Klinik Abqary"
-            class="w-28 h-28 object-contain"
-            />
+            alt="Logo"
+            class="w-20 h-20 object-contain"
+          />
         </div>
 
-        <!-- TITLE -->
-        <h1 class="text-2xl font-bold text-center text-gray-800">
+      </div>
+
+      <!-- TITLE -->
+      <div class="text-center mb-8">
+
+        <h1 class="text-3xl font-bold text-slate-800">
           KLINIK ABQARY
         </h1>
-        <p class="text-center text-sm text-gray-500 mb-8">
+
+        <p class="text-slate-500 mt-2 text-sm">
           Sistem Informasi Tumbuh Kembang Anak
         </p>
 
-        <!-- ERROR -->
-        <div
-          v-if="error"
-          class="mb-5 flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl"
+      </div>
+
+      <!-- ERROR -->
+      <div
+        v-if="error"
+        class="
+          mb-5
+          rounded-2xl
+          border border-red-200
+          bg-red-50
+          px-4 py-3
+          text-sm
+          text-red-600
+          flex items-center gap-2
+        "
+      >
+        <i class="pi pi-exclamation-circle"></i>
+        {{ error }}
+      </div>
+
+      <!-- FORM -->
+      <form
+        @submit.prevent="login"
+        class="space-y-5"
+      >
+
+        <!-- USERNAME -->
+        <div>
+
+          <label class="text-sm font-semibold text-slate-600">
+            Username
+          </label>
+
+          <div class="relative mt-2">
+
+            <i
+              class="
+                pi pi-user
+                absolute
+                left-4
+                top-1/2
+                -translate-y-1/2
+                text-slate-400
+              "
+            ></i>
+
+            <input
+              v-model="username"
+              type="text"
+              placeholder="Masukkan username"
+              class="
+                w-full
+                h-14
+                rounded-2xl
+                border border-slate-200
+                bg-slate-50
+                pl-12 pr-4
+                text-slate-700
+                outline-none
+                transition-all
+                focus:bg-white
+                focus:ring-4
+                focus:ring-indigo-100
+                focus:border-indigo-500
+              "
+            />
+
+          </div>
+
+        </div>
+
+        <!-- PASSWORD -->
+        <div>
+
+          <label class="text-sm font-semibold text-slate-600">
+            Password
+          </label>
+
+          <div class="relative mt-2">
+
+            <i
+              class="
+                pi pi-lock
+                absolute
+                left-4
+                top-1/2
+                -translate-y-1/2
+                text-slate-400
+              "
+            ></i>
+
+            <input
+              v-model="password"
+              type="password"
+              placeholder="Masukkan password"
+              class="
+                w-full
+                h-14
+                rounded-2xl
+                border border-slate-200
+                bg-slate-50
+                pl-12 pr-4
+                text-slate-700
+                outline-none
+                transition-all
+                focus:bg-white
+                focus:ring-4
+                focus:ring-indigo-100
+                focus:border-indigo-500
+              "
+            />
+
+          </div>
+
+        </div>
+
+        <!-- BUTTON -->
+        <button
+          type="submit"
+          :disabled="loading"
+          class="
+            w-full
+            h-14
+            rounded-2xl
+            bg-gradient-to-r
+            from-indigo-600
+            to-purple-600
+            text-white
+            font-semibold
+            shadow-xl
+            shadow-indigo-500/30
+            hover:scale-[1.01]
+            hover:shadow-2xl
+            active:scale-[0.99]
+            transition-all
+            disabled:opacity-60
+            disabled:cursor-not-allowed
+          "
         >
-          <i class="pi pi-exclamation-circle"></i>
-          <span>{{ error }}</span>
-        </div>
 
-        <!-- FORM -->
-        <form @submit.prevent="login" class="space-y-5">
-
-          <!-- USERNAME -->
-          <div>
-            <label class="text-sm font-medium text-gray-600">Username</label>
-            <div class="mt-1 relative">
-              <i class="pi pi-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-              <input
-                v-model="username"
-                type="text"
-                placeholder="Masukkan username"
-                class="w-full h-12 pl-11 pr-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-              />
-            </div>
-          </div>
-
-          <!-- PASSWORD -->
-          <div>
-            <label class="text-sm font-medium text-gray-600">Password</label>
-            <div class="mt-1 relative">
-              <i class="pi pi-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-              <input
-                v-model="password"
-                type="password"
-                placeholder="Masukkan password"
-                class="w-full h-12 pl-11 pr-4 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"
-              />
-            </div>
-          </div>
-
-          <!-- BUTTON -->
-          <button
-            type="submit"
-            :disabled="loading"
-            class="w-full h-12 rounded-xl font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow-lg transition disabled:opacity-60 disabled:cursor-not-allowed"
+          <span
+            v-if="!loading"
+            class="flex items-center justify-center gap-2"
           >
-            <span v-if="!loading">Masuk</span>
-            <span v-else class="flex items-center justify-center gap-2">
-              <i class="pi pi-spin pi-spinner"></i>
-              Memproses...
-            </span>
-          </button>
+            <i class="pi pi-sign-in"></i>
+            Masuk
+          </span>
 
-          <div
-            v-if="showForgot"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+          <span
+            v-else
+            class="flex items-center justify-center gap-2"
           >
-            <div
-              class="w-full max-w-sm bg-white rounded-2xl shadow-2xl p-6 relative animate-fade-in"
-            >
+            <i class="pi pi-spin pi-spinner"></i>
+            Memproses...
+          </span>
 
-              <button
-                @click="showForgot = false"
-                class="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
-              >
-                <i class="pi pi-times"></i>
-              </button>
+        </button>
 
-              <div class="text-center mb-6">
-                <div
-                  class="mx-auto mb-3 w-14 h-14 flex items-center justify-center rounded-xl bg-indigo-100 text-indigo-600"
-                >
-                  <i class="pi pi-key text-2xl"></i>
-                </div>
+      </form>
 
-                <h2 class="text-lg font-semibold text-gray-800">
-                  <!-- {{ step === 1 ? 'Lupa Password' : 'Buat Password Baru' }} -->
-                  {{ step === 1 ? 'Lupa Password' : step === 2 ? 'Verifikasi Kode' : 'Buat Password Baru' }}
-                </h2>
-                <p class="text-sm text-gray-500 mt-1">
-                  {{ step === 1
-                    ? 'Masukkan username untuk kirim OTP'
-                    : step === 2
-                      ? 'Masukkan kode dari email'
-                      : 'Masukkan password baru Anda' }}
-                </p>
-              </div>
+      <!-- FORGOT -->
+      <div class="mt-5 text-center">
 
-              <div
-                v-if="fpError"
-                class="mb-4 flex items-center gap-2 bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl"
-              >
-                <i class="pi pi-exclamation-circle"></i>
-                <span>{{ fpError }}</span>
-              </div>
+        <button
+          type="button"
+          @click="showForgot = true"
+          class="
+            text-sm
+            font-medium
+            text-indigo-600
+            hover:text-indigo-700
+            hover:underline
+          "
+        >
+          Lupa Password?
+        </button>
 
-              <!-- STEP 1 -->
-              <div v-if="step === 1" class="space-y-4">
-                <div class="relative">
-                  <i class="pi pi-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                  <input
-                    v-model="fpUsername"
-                    type="text"
-                    placeholder="Username"
-                    class="w-full h-12 pl-11 pr-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                </div>
+      </div>
 
-                <button
-                  @click="checkUsername"
-                  :disabled="fpLoading"
-                  class="w-full h-12 rounded-xl font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow disabled:opacity-60"
-                >
-                  {{ fpLoading ? 'Mengirim OTP...' : 'Kirim Kode' }}
-                </button>
-              </div>
+      <!-- FOOTER -->
+      <div class="mt-8 text-center">
 
-              <!-- STEP 2 -->
-              <div v-else-if="step === 2" class="space-y-4">
-                <div class="relative">
-                  <i class="pi pi-shield absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                  <input
-                    v-model="otpCode"
-                    placeholder="Kode OTP"
-                    class="w-full h-12 pl-11 pr-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                </div>
-
-                <button
-                  @click="verifyOtp"
-                  :disabled="fpLoading"
-                  class="w-full h-12 rounded-xl font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow disabled:opacity-60"
-                >
-                  {{ fpLoading ? 'Memverifikasi...' : 'Verifikasi' }}
-                </button>
-              </div>
-
-              <!-- STEP 3 -->
-              <div v-else class="space-y-4">
-                <div class="relative">
-                  <i class="pi pi-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                  <input
-                    v-model="newPassword"
-                    type="password"
-                    placeholder="Password baru"
-                    class="w-full h-12 pl-11 pr-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                </div>
-
-                <div class="relative">
-                  <i class="pi pi-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
-                  <input
-                    v-model="confirmPassword"
-                    type="password"
-                    placeholder="Konfirmasi password"
-                    class="w-full h-12 pl-11 pr-4 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-                  />
-                </div>
-
-                <button
-                  @click="resetPasswordOtp"
-                  :disabled="fpLoading"
-                  class="w-full h-12 rounded-xl font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 shadow disabled:opacity-60"
-                >
-                  {{ fpLoading ? 'Menyimpan...' : 'Simpan Password' }}
-                </button>
-              </div>
-
-              <button
-                class="mt-5 text-sm text-gray-500 w-full hover:underline"
-                @click="showForgot = false"
-              >
-                Batal</button>
-
-
-            </div>
-          </div>
-
-
-        </form>
-
-        <div class="mt-4 text-center">
-          <button
-            type="button"
-            @click="showForgot = true"
-            class="text-sm text-indigo-600 hover:underline"
-          >
-            Lupa Password?
-          </button>
-        </div>
-
-
-        <!-- FOOTER -->
-        <p class="text-center text-xs text-gray-400 mt-8">
-          © {{ new Date().getFullYear() }} Klinik Abqary 
+        <p class="text-xs text-slate-400">
+          © {{ new Date().getFullYear() }} Klinik Abqary
         </p>
 
       </div>
+
     </div>
+
+    <!-- FULLSCREEN LOADING -->
+    <transition name="fade">
+
+      <div
+        v-if="pageLoading"
+        class="
+          fixed inset-0 z-[9999]
+          bg-gradient-to-br
+          from-indigo-700
+          via-purple-700
+          to-fuchsia-600
+          flex items-center justify-center
+        "
+      >
+
+        <div
+          class="
+            absolute
+            w-96 h-96
+            bg-white/10
+            rounded-full
+            blur-3xl
+            animate-pulse
+          "
+        ></div>
+
+        <div
+          class="
+            relative
+            bg-white/10
+            backdrop-blur-xl
+            border border-white/20
+            rounded-[32px]
+            px-12 py-10
+            shadow-2xl
+            flex flex-col items-center
+          "
+        >
+
+          <!-- LOGO -->
+          <div
+            class="
+              w-28 h-28
+              rounded-3xl
+              bg-white
+              flex items-center justify-center
+              shadow-2xl
+              animate-bounce
+            "
+          >
+
+            <img
+              src="/logo-abqary.png"
+              class="w-16 h-16 object-contain"
+            />
+
+          </div>
+
+          <h2 class="mt-6 text-2xl font-bold text-white">
+            Memuat Dashboard
+          </h2>
+
+          <p class="mt-2 text-white/70 text-sm">
+            Mohon tunggu sebentar...
+          </p>
+
+          <!-- BAR -->
+          <div
+            class="
+              mt-6
+              w-64
+              h-2
+              bg-white/20
+              rounded-full
+              overflow-hidden
+            "
+          >
+
+            <div
+              class="
+                h-full
+                bg-white
+                rounded-full
+                animate-loading-bar
+              "
+            ></div>
+
+          </div>
+
+          <i
+            class="
+              pi pi-spin pi-spinner
+              text-3xl
+              text-white
+              mt-6
+            "
+          ></i>
+
+        </div>
+
+      </div>
+
+    </transition>
+
   </div>
+
 </template>
 
 <style scoped>
-/* Full Tailwind – no custom CSS needed */
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity .4s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+@keyframes loadingBar {
+
+  0% {
+    width: 0%;
+  }
+
+  50% {
+    width: 70%;
+  }
+
+  100% {
+    width: 100%;
+  }
+}
+
+.animate-loading-bar {
+  animation: loadingBar 1.8s ease forwards;
+}
+
 </style>

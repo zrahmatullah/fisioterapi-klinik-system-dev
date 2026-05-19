@@ -1,33 +1,114 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-indigo-50 via-white to-sky-50 p-6">
+  <div class="min-h-screen bg-[#f6f8fc] p-6">
 
     <!-- HEADER -->
-    <div class="mb-6">
-      <h2 class="text-3xl font-bold text-slate-800">Data User</h2>
-      <p class="text-slate-600 text-sm mt-1">Kelola data user, role, dan akses login</p>
-    </div>
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
 
-    <!-- CARD -->
-    <div class="bg-white shadow-xl ring-1 ring-slate-200 rounded-2xl p-6">
+      <div>
+        <h1 class="text-4xl font-bold tracking-tight text-slate-900">
+          Data User
+        </h1>
 
-      <!-- TOOLBAR -->
-      <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+        <p class="text-slate-500 mt-1">
+          Kelola user, role, akses login, dan verifikasi email
+        </p>
+      </div>
+
+      <div class="mt-4 md:mt-0 flex gap-3">
+
+        <Button
+          icon="pi pi-download"
+          severity="secondary"
+          outlined
+          class="rounded-xl"
+        />
 
         <Button
           label="Tambah User"
-          icon="pi pi-user-plus"
-          severity="success"
-          class="font-semibold px-5 py-2 rounded-xl"
+          icon="pi pi-plus"
+          class="rounded-xl px-5 bg-slate-900 border-slate-900 hover:bg-slate-800"
           @click="openAdd"
         />
 
-        <div class="relative w-full md:w-72">
-          <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+
+      <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
+        <div class="text-slate-500 text-sm">Total User</div>
+        <div class="text-3xl font-bold mt-2">
+          {{ data.length }}
+        </div>
+      </div>
+
+      <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
+        <div class="text-slate-500 text-sm">Email Verified</div>
+        <div class="text-3xl font-bold mt-2 text-emerald-600">
+          {{ data.filter(d => d.email_verified_at).length }}
+        </div>
+      </div>
+
+      <div class="bg-white rounded-3xl p-5 shadow-sm border border-slate-100">
+        <div class="text-slate-500 text-sm">Belum Verifikasi</div>
+        <div class="text-3xl font-bold mt-2 text-red-500">
+          {{ data.filter(d => !d.email_verified_at).length }}
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CARD -->
+    <div
+      class="
+        bg-white/80
+        backdrop-blur-xl
+        border border-white/20
+        shadow-[0_8px_30px_rgb(0,0,0,0.06)]
+        rounded-3xl
+        overflow-hidden
+      "
+    >
+
+      <!-- TOOLBAR -->
+      <div
+        class="
+          flex flex-col md:flex-row
+          md:items-center
+          md:justify-between
+          gap-4
+          p-5
+          border-b
+          border-slate-100
+          bg-white/70
+          backdrop-blur
+        "
+      >
+
+        <div class="relative w-full md:w-80">
+
+          <i
+            class="pi pi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+          ></i>
+
           <InputText
             v-model="search"
-            placeholder="Cari user..."
-            class="w-full pl-10 rounded-xl border-slate-300 bg-white focus:ring-2 focus:ring-indigo-400"
+            placeholder="Cari nama user..."
+            class="
+              w-full
+              pl-11
+              py-3
+              rounded-2xl
+              border-slate-200
+              bg-slate-50
+              focus:bg-white
+              focus:ring-4
+              focus:ring-indigo-100
+              transition-all
+            "
           />
+
         </div>
 
       </div>
@@ -38,68 +119,179 @@
         paginator
         :rows="10"
         rowHover
-        class="rounded-xl overflow-hidden text-sm"
+        stripedRows
+        responsiveLayout="scroll"
+        class="modern-table"
       >
-        <Column field="nama" header="Nama" />
 
-        <Column header="Email">
+        <!-- USER -->
+        <Column header="User">
+
           <template #body="{ data }">
-            <span
-              v-if="data.email_verified_at"
-              class="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold"
-            >
-              <i class="pi pi-check-circle"></i> {{ data.email }}
-            </span>
-            <span v-else class="text-slate-400">{{ data.email || '-' }}</span>
+
+            <div class="flex items-center gap-3">
+
+              <div
+                class="
+                  h-11 w-11 rounded-2xl
+                  bg-gradient-to-br from-indigo-500 to-sky-500
+                  text-white
+                  flex items-center justify-center
+                  font-bold shadow-lg
+                "
+              >
+                {{ data.nama?.charAt(0) }}
+              </div>
+
+              <div>
+
+                <div class="font-semibold text-slate-800">
+                  {{ data.nama }}
+                </div>
+
+                <div class="text-xs text-slate-500">
+                  {{ data.userLogin?.username || '-' }}
+                </div>
+
+              </div>
+
+            </div>
+
           </template>
+
         </Column>
 
+        <!-- EMAIL -->
+        <Column header="Email">
+
+          <template #body="{ data }">
+
+            <span
+              v-if="data.email_verified_at"
+              class="
+                inline-flex items-center gap-2
+                px-3 py-1.5
+                rounded-full
+                bg-emerald-50
+                text-emerald-700
+                text-xs
+                font-semibold
+                border border-emerald-100
+              "
+            >
+              <i class="pi pi-check-circle"></i>
+              {{ data.email }}
+            </span>
+
+            <span
+              v-else
+              class="text-slate-400"
+            >
+              {{ data.email || '-' }}
+            </span>
+
+          </template>
+
+        </Column>
+
+        <!-- TELEPON -->
         <Column header="Telepon">
+
           <template #body="{ data }">
             {{ data.no_telepon || '-' }}
           </template>
+
         </Column>
 
+        <!-- SPESIALISASI -->
         <Column header="Spesialisasi">
+
           <template #body="{ data }">
             {{ data.spesialisasi || '-' }}
           </template>
+
         </Column>
 
-        <Column header="Username">
+        <!-- ROLE -->
+        <Column header="Role">
+
           <template #body="{ data }">
-            {{ data.userLogin?.username || '-' }}
+
+            <span
+              class="
+                px-3 py-1 rounded-full
+                bg-indigo-50 text-indigo-700
+                text-xs font-semibold
+              "
+            >
+              {{ data.userLogin?.role?.role || '-' }}
+            </span>
+
           </template>
+
         </Column>
 
+        <!-- AKSI -->
         <Column header="Aksi">
+
           <template #body="{ data }">
-            <div class="flex gap-1">
-              <Button icon="pi pi-pencil" rounded text severity="warning" @click="openEdit(data)" />
-              <Button icon="pi pi-trash" rounded text severity="danger" @click="deleteRow(data)" />
+
+            <div class="flex gap-2">
+
+              <Button
+                icon="pi pi-pencil"
+                rounded
+                text
+                severity="contrast"
+                class="hover:bg-amber-50"
+                @click="openEdit(data)"
+              />
+
+              <Button
+                icon="pi pi-trash"
+                rounded
+                text
+                severity="danger"
+                class="hover:bg-red-50"
+                @click="deleteRow(data)"
+              />
+
             </div>
+
           </template>
+
         </Column>
+
       </DataTable>
+
     </div>
 
-    <!-- MODAL -->
+    <!-- DIALOG -->
     <Dialog
       v-model:visible="dialog"
       modal
       :header="isEdit ? 'Edit User' : 'Tambah User'"
-      :style="{ width: '70vw' }"
+      :style="{ width: '75vw' }"
       :breakpoints="{ '960px': '95vw', '640px': '100vw' }"
-      appendTo="body"
+      class="modern-dialog"
     >
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        <!-- KIRI -->
-        <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
+        <!-- LEFT -->
+        <div
+          class="
+            bg-slate-50/80
+            border border-slate-100
+            rounded-3xl
+            p-6
+            space-y-5
+          "
+        >
 
           <h3 class="font-semibold text-slate-800 flex items-center gap-2">
-            <i class="pi pi-id-card text-indigo-500"></i> Data Diri & Email
+            <i class="pi pi-id-card text-indigo-500"></i>
+            Data Diri
           </h3>
 
           <div>
@@ -109,7 +301,10 @@
 
           <div>
             <label class="label">Alamat</label>
-            <textarea v-model="form.alamat" class="textarea"></textarea>
+            <textarea
+              v-model="form.alamat"
+              class="textarea"
+            ></textarea>
           </div>
 
           <div>
@@ -119,13 +314,14 @@
 
           <div>
             <label class="label">Jenis User</label>
+
             <Dropdown
               v-model="form.jenis_user_id"
               :options="jenisUser"
               optionLabel="jenis_user"
               optionValue="id"
               placeholder="Pilih jenis user"
-              class="input"
+              class="w-full"
             />
           </div>
 
@@ -135,19 +331,65 @@
           </div>
 
           <!-- OTP -->
-          <div v-if="form.email" class="bg-slate-50 border rounded-xl p-4 space-y-3">
+          <div
+            v-if="form.email"
+            class="
+              bg-white
+              border border-slate-200
+              rounded-2xl
+              p-4
+              space-y-3
+            "
+          >
 
             <div class="flex justify-between items-center">
-              <span class="font-medium text-slate-700">Verifikasi Email</span>
-              <span v-if="emailVerified" class="text-emerald-600 font-semibold text-sm">✔ Terverifikasi</span>
-              <span v-else class="text-red-500 text-sm">Belum diverifikasi</span>
+
+              <span class="font-medium text-slate-700">
+                Verifikasi Email
+              </span>
+
+              <span
+                v-if="emailVerified"
+                class="text-emerald-600 font-semibold text-sm"
+              >
+                ✔ Terverifikasi
+              </span>
+
+              <span
+                v-else
+                class="text-red-500 text-sm"
+              >
+                Belum diverifikasi
+              </span>
+
             </div>
 
-            <div v-if="!emailVerified" class="space-y-2">
-              <Button label="Kirim OTP" icon="pi pi-envelope" size="small" severity="info" class="w-full" @click="sendOtp" />
-              <InputText v-model="otpCode" placeholder="Masukkan kode OTP" class="input" />
-              <Button label="Verifikasi OTP" icon="pi pi-check" size="small" severity="success" class="w-full" @click="verifyOtp" />
+            <div v-if="!emailVerified" class="space-y-3">
+
+              <Button
+                label="Kirim OTP"
+                icon="pi pi-envelope"
+                severity="info"
+                class="w-full rounded-xl"
+                @click="sendOtp"
+              />
+
+              <InputText
+                v-model="otpCode"
+                placeholder="Masukkan kode OTP"
+                class="input"
+              />
+
+              <Button
+                label="Verifikasi OTP"
+                icon="pi pi-check"
+                severity="success"
+                class="w-full rounded-xl"
+                @click="verifyOtp"
+              />
+
             </div>
+
           </div>
 
           <div>
@@ -157,13 +399,14 @@
 
           <div>
             <label class="label">Jenis Kelamin</label>
+
             <Dropdown
               v-model="form.jenis_kelamin_id"
               :options="jenisKelamin"
               optionLabel="nama"
               optionValue="id"
               placeholder="Pilih jenis kelamin"
-              class="input"
+              class="w-full"
             />
           </div>
 
@@ -174,11 +417,20 @@
 
         </div>
 
-        <!-- KANAN -->
-        <div class="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 shadow-sm">
+        <!-- RIGHT -->
+        <div
+          class="
+            bg-slate-50/80
+            border border-slate-100
+            rounded-3xl
+            p-6
+            space-y-5
+          "
+        >
 
           <h3 class="font-semibold text-slate-800 flex items-center gap-2">
-            <i class="pi pi-lock text-amber-500"></i> Data Login
+            <i class="pi pi-lock text-amber-500"></i>
+            Data Login
           </h3>
 
           <div>
@@ -188,19 +440,33 @@
 
           <div>
             <label class="label">Password</label>
-            <Password v-model="form.password" toggleMask :feedback="false" class="input" />
-            <small v-if="isEdit" class="text-xs text-slate-400">Kosongkan jika tidak ingin mengubah password</small>
+
+            <Password
+              v-model="form.password"
+              toggleMask
+              :feedback="false"
+              class="w-full"
+            />
+
+            <small
+              v-if="isEdit"
+              class="text-xs text-slate-400"
+            >
+              Kosongkan jika tidak ingin mengubah password
+            </small>
+
           </div>
 
           <div>
             <label class="label">Role</label>
+
             <Dropdown
               v-model="form.role_id"
               :options="roles"
               optionLabel="role"
               optionValue="id"
               placeholder="Pilih role"
-              class="input"
+              class="w-full"
             />
           </div>
 
@@ -209,15 +475,32 @@
       </div>
 
       <template #footer>
+
         <div class="flex justify-end gap-3">
-          <Button label="Batal" severity="secondary" @click="dialog=false" />
+
+          <Button
+            label="Batal"
+            severity="secondary"
+            outlined
+            class="rounded-xl"
+            @click="dialog=false"
+          />
+
           <Button
             label="Simpan"
-            class="bg-gradient-to-r from-indigo-600 to-blue-600 border-0 text-white font-semibold px-5 py-2 rounded-xl hover:from-indigo-700 hover:to-blue-700"
+            class="
+              rounded-xl
+              px-5
+              bg-slate-900
+              border-slate-900
+              hover:bg-slate-800
+            "
             :disabled="form.email && !emailVerified"
             @click="save"
           />
+
         </div>
+
       </template>
 
     </Dialog>
@@ -226,7 +509,6 @@
 </template>
 
 <script setup>
-/* SCRIPT ASLI — TIDAK DIUBAH */
 import { ref, computed, onMounted } from 'vue'
 import api from '../axios'
 import { useToast } from 'vue-toastification'
@@ -280,7 +562,9 @@ async function loadData() {
 
 const filteredData = computed(() =>
   search.value
-    ? data.value.filter(d => d.nama.toLowerCase().includes(search.value.toLowerCase()))
+    ? data.value.filter(d =>
+        d.nama.toLowerCase().includes(search.value.toLowerCase())
+      )
     : data.value
 )
 
@@ -295,9 +579,10 @@ const openAdd = () => {
 const openEdit = (row) => {
   form.value = {
     ...row,
-    username: row.userLogin?.username,
+    username: row.userLogin?.username,  
     role_id: row.userLogin?.role?.id
   }
+
   emailVerified.value = !!row.email_verified_at
   isEdit.value = true
   dialog.value = true
@@ -305,13 +590,17 @@ const openEdit = (row) => {
 
 const save = async () => {
   try {
+
     isEdit.value
       ? await api.put(`/master-user/${form.value.id}`, form.value)
       : await api.post('/master-user', form.value)
 
     toast.success('Data berhasil disimpan')
+
     dialog.value = false
+
     loadData()
+
   } catch {
     toast.error('Gagal menyimpan data')
   }
@@ -319,8 +608,13 @@ const save = async () => {
 
 const sendOtp = async () => {
   try {
-    await api.post('/otp-email/send', { email: form.value.email })
+
+    await api.post('/otp-email/send', {
+      email: form.value.email
+    })
+
     toast.success('OTP dikirim ke email')
+
   } catch {
     toast.error('Gagal mengirim OTP')
   }
@@ -328,41 +622,81 @@ const sendOtp = async () => {
 
 const verifyOtp = async () => {
   try {
+
     await api.post('/otp-email/verify', {
       email: form.value.email,
       kode_otp: otpCode.value
     })
+
     emailVerified.value = true
+
     toast.success('Email berhasil diverifikasi')
+
   } catch {
     toast.error('OTP tidak valid')
   }
 }
 
 const deleteRow = async (row) => {
+
   if (!confirm(`Hapus user "${row.nama}" ?`)) return
+
   await api.delete(`/master-user/${row.id}`)
+
   toast.success('User dihapus')
+
   loadData()
 }
 </script>
 
 <style scoped>
 .label {
-  @apply block text-sm font-semibold text-slate-700 mb-1;
+  @apply block text-sm font-semibold text-slate-700 mb-2;
 }
 
 .input {
-  @apply w-full border border-slate-300 rounded-lg px-3 py-2
+  @apply w-full border border-slate-200 rounded-2xl px-4 py-3
          bg-white text-slate-800
-         focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-         transition;
+         shadow-sm
+         focus:ring-4 focus:ring-indigo-100
+         focus:border-indigo-400
+         transition-all duration-200;
 }
 
 .textarea {
-  @apply w-full border border-slate-300 rounded-lg p-2
+  @apply w-full border border-slate-200 rounded-2xl p-4
          bg-white text-slate-800
-         focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500
-         transition;
+         shadow-sm
+         focus:ring-4 focus:ring-indigo-100
+         focus:border-indigo-400
+         transition-all duration-200;
+}
+
+.modern-table .p-datatable-header {
+  @apply bg-transparent border-0;
+}
+
+.modern-table .p-datatable-thead > tr > th {
+  @apply bg-slate-50 text-slate-500 font-semibold border-0 py-4;
+}
+
+.modern-table .p-datatable-tbody > tr {
+  @apply transition-all duration-200;
+}
+
+.modern-table .p-datatable-tbody > tr:hover {
+  @apply bg-indigo-50/40;
+}
+
+.modern-table .p-datatable-tbody > tr > td {
+  @apply border-0 py-4;
+}
+
+.modern-dialog .p-dialog-header {
+  @apply border-b border-slate-100 pb-4;
+}
+
+.modern-dialog .p-dialog-content {
+  @apply pt-6;
 }
 </style>
