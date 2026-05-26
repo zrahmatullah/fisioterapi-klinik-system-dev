@@ -26,7 +26,23 @@
         <Button
           label="Tambah User"
           icon="pi pi-plus"
-          class="rounded-xl px-5 bg-slate-900 border-slate-900 hover:bg-slate-800"
+          class="
+            rounded-2xl
+            px-5
+            py-3
+            bg-indigo-600
+            border-indigo-600
+            hover:bg-indigo-700
+            hover:border-indigo-700
+            shadow-md
+            shadow-indigo-500/20
+            hover:shadow-lg
+            transition-all
+            duration-300
+            hover:-translate-y-0.5
+            active:scale-[0.98]
+            font-semibold
+          "
           @click="openAdd"
         />
 
