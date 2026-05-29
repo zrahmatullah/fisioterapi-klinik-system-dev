@@ -2,148 +2,345 @@
   <div class="min-h-screen bg-slate-100 p-6 space-y-6">
 
     <!-- HEADER -->
-    <div class="bg-white rounded-2xl shadow-md p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <div>
-        <h1 class="text-2xl font-bold text-indigo-600">
-          Laporan Transaksi Pembayaran
-        </h1>
-        <p class="text-sm text-slate-500">
-          Periode: {{ periode }}
-        </p>
+    <div
+      class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 p-8 shadow-2xl"
+    >
+      <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+
+        <div>
+          <h1 class="text-3xl font-bold text-white">
+            Laporan Transaksi Pembayaran
+          </h1>
+
+          <p class="text-indigo-100 mt-2">
+            Monitoring seluruh transaksi pembayaran pasien
+          </p>
+
+          <div class="mt-4 inline-flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/20 px-4 py-2 rounded-2xl text-white text-sm">
+            📅 {{ periode }}
+          </div>
+        </div>
+
+        <!-- GRAND TOTAL -->
+        <div
+          class="bg-white/15 backdrop-blur-xl border border-white/20 rounded-3xl p-6 min-w-[280px]"
+        >
+          <div class="text-indigo-100 text-sm mb-2">
+            Grand Total Pembayaran
+          </div>
+
+          <div class="text-4xl font-black text-white tracking-tight">
+            Rp {{ format(grandTotal) }}
+          </div>
+
+          <div class="mt-3 text-xs text-indigo-100">
+            Total seluruh transaksi pembayaran
+          </div>
+        </div>
       </div>
 
-      <div class="bg-indigo-50 text-indigo-600 px-4 py-2 rounded-xl text-sm font-semibold">
-        Grand Total:
-        <span class="ml-2 text-lg font-bold">
-          Rp. {{ format(grandTotal) }}
-        </span>
-      </div>
+      <!-- ORNAMENT -->
+      <div class="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
+      <div class="absolute bottom-0 left-0 w-56 h-56 bg-pink-500/20 rounded-full blur-3xl"></div>
     </div>
 
-    <!-- FILTER RANGE -->
-    <div class="bg-white rounded-2xl shadow-md p-6 grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+    <!-- FILTER -->
+    <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-6">
 
-      <div>
-        <label class="label">Tanggal Mulai</label>
-        <input type="date" v-model="startDate" class="input" />
+      <div class="flex items-center justify-between mb-5">
+        <div>
+          <h2 class="text-lg font-bold text-slate-800">
+            Filter Laporan
+          </h2>
+
+          <p class="text-sm text-slate-500">
+            Gunakan filter untuk mencari data transaksi
+          </p>
+        </div>
+
+        <div class="hidden md:flex items-center gap-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-xl text-sm font-semibold">
+          📊 {{ filteredRows.length }} Data
+        </div>
       </div>
 
-      <div>
-        <label class="label">Tanggal Akhir</label>
-        <input type="date" v-model="endDate" class="input" />
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-6 gap-4">
+
+        <!-- START DATE -->
+        <div>
+          <label class="label">Tanggal Mulai</label>
+
+          <div class="relative">
+            <input
+              type="date"
+              v-model="startDate"
+              class="input"
+            />
+          </div>
+        </div>
+
+        <!-- END DATE -->
+        <div>
+          <label class="label">Tanggal Akhir</label>
+
+          <input
+            type="date"
+            v-model="endDate"
+            class="input"
+          />
+        </div>
+
+        <!-- SEARCH -->
+        <div class="xl:col-span-2">
+          <label class="label">Cari Data</label>
+
+          <div class="relative">
+            <svg
+              class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-4.35-4.35M16 10.5a5.5 5.5 0 11-11 0 5.5 5.5 0 0111 0z"
+              />
+            </svg>
+
+            <input
+              v-model="search"
+              type="text"
+              placeholder="Nama pasien / No Invoice"
+              class="input-search"
+            />
+          </div>
+        </div>
+
+        <!-- KATEGORI -->
+        <div>
+          <label class="label">Kategori</label>
+
+          <select v-model="filterKategori" class="input">
+            <option value="">Semua</option>
+
+            <option
+              v-for="k in kategoriList"
+              :key="k"
+              :value="k"
+            >
+              {{ k }}
+            </option>
+          </select>
+        </div>
+
+        <!-- JENIS -->
+        <div>
+          <label class="label">Jenis Layanan</label>
+
+          <select v-model="filterJenis" class="input">
+            <option value="">Semua</option>
+
+            <option
+              v-for="j in jenisList"
+              :key="j"
+              :value="j"
+            >
+              {{ j }}
+            </option>
+          </select>
+        </div>
       </div>
 
-      <div>
-        <label class="label">Cari Nama / Invoice</label>
-        <input
-          v-model="search"
-          type="text"
-          placeholder="Nama pasien / No Invoice"
-          class="input"
-        />
-      </div>
+      <!-- ACTION BUTTON -->
+      <div class="flex flex-wrap gap-3 mt-6">
 
-      <div>
-        <label class="label">Kategori Layanan</label>
-        <select v-model="filterKategori" class="input">
-          <option value="">Semua</option>
-          <option v-for="k in kategoriList" :key="k" :value="k">
-            {{ k }}
-          </option>
-        </select>
-      </div>
-
-      <div>
-        <label class="label">Jenis Layanan</label>
-        <select v-model="filterJenis" class="input">
-          <option value="">Semua</option>
-          <option v-for="j in jenisList" :key="j" :value="j">
-            {{ j }}
-          </option>
-        </select>
-      </div>
-
-      <!-- TOMBOL -->
-      <div class="flex items-end gap-2 h-full">
-        <button @click="loadData" class="btn-primary flex items-center gap-2">
-          🔍
+        <button
+          @click="loadData"
+          class="btn-primary"
+        >
+          🔍 Filter
         </button>
 
-        <button @click="resetFilter" class="btn-secondary flex items-center gap-2">
-          🔄
+        <button
+          @click="resetFilter"
+          class="btn-secondary"
+        >
+          🔄 Reset
         </button>
 
-        <button @click="exportExcel" class="btn-excel flex items-center gap-2">
-          ⬇
+        <button
+          @click="exportExcel"
+          class="btn-excel"
+        >
+          📗 Export Excel
         </button>
 
-        <button @click="cetakPdf" class="btn-pdf flex items-center gap-2">
-          🖨
+        <button
+          @click="cetakPdf"
+          class="btn-pdf"
+        >
+          🖨 Cetak PDF
         </button>
       </div>
-
     </div>
 
     <!-- TABLE -->
-    <div class="bg-white rounded-2xl shadow-md overflow-x-auto">
-      <table class="w-full text-sm">
-        <thead class="bg-slate-100 sticky top-0">
-          <tr>
-            <th class="th">No</th>
-            <th class="th">No Invoice</th>
-            <th class="th">Nama Pasien</th>
-            <th class="th">Tanggal Bayar</th>
-            <th class="th">Kategori Layanan</th>
-            <th class="th">Jenis Layanan</th>
-            <th class="th text-center">Sesi</th>
-            <th class="th text-right">Total</th>
-            <th class="th text-right">Sub Total</th>
-          </tr>
-        </thead>
+    <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
 
-        <tbody>
-          <tr
-            v-for="row in paginatedRows"
-            :key="row.no"
-            class="border-b even:bg-slate-50 hover:bg-indigo-50"
-          >
-            <td class="td">{{ row.no }}</td>
-            <td class="td font-medium text-indigo-600">
-              {{ row.no_invoice }}
-            </td>
-            <td class="td">{{ row.nama_pasien }}</td>
-            <td class="td">{{ row.tanggal_bayar }}</td>
-            <td class="td">{{ row.kategori_layanan }}</td>
-            <td class="td">{{ row.jenis_layanan }}</td>
-            <td class="td text-center">
-              <span class="badge">{{ row.jumlah_sesi }}</span>
-            </td>
-            <td class="td text-right font-semibold">
-              Rp. {{ format(row.total) }}
-            </td>
-            <td class="td text-right">
-              Rp. {{ format(row.subtotal) }}
-            </td>
-          </tr>
+      <!-- TABLE HEADER -->
+      <div class="px-6 py-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div>
+          <h3 class="font-bold text-slate-800">
+            Data Transaksi
+          </h3>
 
-          <tr v-if="filteredRows.length === 0">
-            <td colspan="9" class="py-12 text-center text-slate-400">
-              Tidak ada data
-            </td>
-          </tr>
-        </tbody>
-      </table>
+          <p class="text-sm text-slate-500 mt-1">
+            Menampilkan seluruh transaksi pembayaran
+          </p>
+        </div>
+
+        <div class="hidden md:flex items-center gap-2">
+          <div class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
+          <span class="text-sm text-slate-500">
+            Data realtime
+          </span>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+
+          <thead class="bg-slate-100 text-slate-700">
+            <tr>
+              <th class="th text-center">No</th>
+              <th class="th">No Invoice</th>
+              <th class="th">Nama Pasien</th>
+              <th class="th">Tanggal Bayar</th>
+              <th class="th">Kategori</th>
+              <th class="th">Jenis Layanan</th>
+              <th class="th text-center">Sesi</th>
+              <th class="th text-right">Total</th>
+              <th class="th text-right">Sub Total</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr
+              v-for="row in paginatedRows"
+              :key="row.no"
+              class="border-b border-slate-100 hover:bg-indigo-50/40 transition duration-200"
+            >
+              <td class="td text-center font-semibold text-slate-600">
+                {{ row.no }}
+              </td>
+
+              <td class="td">
+                <div class="font-bold text-indigo-600">
+                  {{ row.no_invoice }}
+                </div>
+              </td>
+
+              <td class="td">
+                <div class="flex items-center gap-3">
+
+                  <div
+                    class="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 text-white flex items-center justify-center font-bold"
+                  >
+                    {{ row.nama_pasien.charAt(0) }}
+                  </div>
+
+                  <div>
+                    <div class="font-semibold text-slate-800">
+                      {{ row.nama_pasien }}
+                    </div>
+
+                    <div class="text-xs text-slate-400">
+                      Pasien
+                    </div>
+                  </div>
+                </div>
+              </td>
+
+              <td class="td text-slate-600">
+                {{ row.tanggal_bayar }}
+              </td>
+
+              <td class="td">
+                <span class="badge-indigo">
+                  {{ row.kategori_layanan }}
+                </span>
+              </td>
+
+              <td class="td">
+                <span class="badge-slate">
+                  {{ row.jenis_layanan }}
+                </span>
+              </td>
+
+              <td class="td text-center">
+                <span class="badge-session">
+                  {{ row.jumlah_sesi }}
+                </span>
+              </td>
+
+              <td class="td text-right">
+                <div class="font-bold text-slate-800">
+                  Rp {{ format(row.total) }}
+                </div>
+              </td>
+
+              <td class="td text-right">
+                <div class="font-bold text-emerald-600">
+                  Rp {{ format(row.subtotal) }}
+                </div>
+              </td>
+            </tr>
+
+            <!-- EMPTY -->
+            <tr v-if="filteredRows.length === 0">
+              <td colspan="9" class="py-20 text-center">
+
+                <div class="flex flex-col items-center">
+                  <div
+                    class="w-24 h-24 rounded-full bg-slate-100 flex items-center justify-center text-4xl mb-4"
+                  >
+                    📄
+                  </div>
+
+                  <div class="text-lg font-bold text-slate-500">
+                    Tidak ada data transaksi
+                  </div>
+
+                  <div class="text-sm text-slate-400 mt-1">
+                    Silakan ubah filter pencarian
+                  </div>
+                </div>
+
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <!-- PAGINATION -->
       <div
         v-if="totalPages > 1"
-        class="flex justify-between items-center px-6 py-4 border-t bg-slate-50"
+        class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 px-6 py-5 border-t border-slate-200 bg-slate-50"
       >
         <div class="text-sm text-slate-500">
-          Halaman {{ currentPage }} dari {{ totalPages }}
+          Menampilkan halaman
+          <span class="font-bold text-slate-700">
+            {{ currentPage }}
+          </span>
+          dari
+          <span class="font-bold text-slate-700">
+            {{ totalPages }}
+          </span>
         </div>
 
-        <div class="flex gap-2">
+        <div class="flex items-center gap-2 flex-wrap">
+
           <button
             class="page-btn"
             :disabled="currentPage === 1"
@@ -169,6 +366,7 @@
           >
             Next
           </button>
+
         </div>
       </div>
     </div>
@@ -184,6 +382,7 @@ const today = new Date().toISOString().slice(0, 10)
 
 const startDate = ref(today)
 const endDate = ref(today)
+
 const rows = ref([])
 const periode = ref('-')
 const grandTotal = ref(0)
@@ -212,7 +411,9 @@ const loadData = async () => {
     rows.value = res.data.data
     grandTotal.value = res.data.grand_total
     periode.value = `${startDate.value} s/d ${endDate.value}`
+
     currentPage.value = 1
+
   } catch (err) {
     console.error(err)
     alert('Gagal mengambil data laporan')
@@ -226,13 +427,16 @@ const resetFilter = () => {
   search.value = ''
   filterKategori.value = ''
   filterJenis.value = ''
+
   loadData()
 }
 
-/* FILTERED DATA */
+/* FILTER */
 const filteredRows = computed(() => {
   return rows.value.filter(r => {
+
     const q = search.value.toLowerCase()
+
     const matchSearch =
       r.nama_pasien.toLowerCase().includes(q) ||
       r.no_invoice.toLowerCase().includes(q)
@@ -249,7 +453,7 @@ const filteredRows = computed(() => {
   })
 })
 
-/* UNIQUE OPTION LIST */
+/* OPTION */
 const kategoriList = computed(() => {
   return [...new Set(rows.value.map(r => r.kategori_layanan))]
 })
@@ -287,10 +491,16 @@ const exportExcel = async () => {
   )
 
   const blob = new Blob([response.data])
+
   const url = window.URL.createObjectURL(blob)
+
   const link = document.createElement('a')
+
   link.href = url
-  link.download = `laporan_pembayaran_${startDate.value}_${endDate.value}.xlsx`
+
+  link.download =
+    `laporan_pembayaran_${startDate.value}_${endDate.value}.xlsx`
+
   link.click()
 }
 
@@ -303,6 +513,7 @@ const cetakPdf = () => {
 
 const format = (val) => {
   if (!val) return '0'
+
   return new Intl.NumberFormat('id-ID').format(val)
 }
 
@@ -311,106 +522,62 @@ loadData()
 
 <style scoped>
 .label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  margin-bottom: 6px;
-  color: #475569;
-}
-
-.th {
-  padding: 12px;
-  font-weight: 600;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.td {
-  padding: 12px;
+  @apply block text-sm font-semibold text-slate-700 mb-2;
 }
 
 .input {
-  width: 100%;
-  border: 1px solid #c7d2fe;
-  border-radius: 12px;
-  padding: 10px 12px;
+  @apply w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500;
 }
 
-/* === BUTTON STYLE DIRAPIHKAN === */
-.btn-primary,
-.btn-secondary,
-.btn-excel,
-.btn-pdf {
-  height: 34px;              /* lebih pendek */
-  min-width: 38px;           /* lebih kecil */
-  padding: 0 10px;           /* rapih */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;        /* lebih kecil */
-  font-weight: 500;
-  font-size: 13px;
-  transition: all 0.2s ease;
+.input-search {
+  @apply w-full rounded-2xl border border-slate-200 bg-slate-50 pl-12 pr-4 py-3 outline-none transition focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500;
 }
 
+/* TABLE */
+.th {
+  @apply px-5 py-4 font-bold text-left whitespace-nowrap;
+}
 
+.td {
+  @apply px-5 py-4 whitespace-nowrap;
+}
+
+/* BUTTON */
 .btn-primary {
-  background-color: #6366f1;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #4f46e5;
+  @apply px-5 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold shadow-lg hover:scale-105 transition;
 }
 
 .btn-secondary {
-  background-color: #e5e7eb;
-  color: #374151;
-}
-
-.btn-secondary:hover {
-  background-color: #d1d5db;
+  @apply px-5 py-3 rounded-2xl bg-slate-200 text-slate-700 font-semibold hover:bg-slate-300 transition;
 }
 
 .btn-excel {
-  background-color: #16a34a;
-  color: white;
-}
-
-.btn-excel:hover {
-  background-color: #15803d;
+  @apply px-5 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-green-600 text-white font-semibold shadow-lg hover:scale-105 transition;
 }
 
 .btn-pdf {
-  background-color: #dc2626;
-  color: white;
+  @apply px-5 py-3 rounded-2xl bg-gradient-to-r from-rose-600 to-red-600 text-white font-semibold shadow-lg hover:scale-105 transition;
 }
 
-.btn-pdf:hover {
-  background-color: #b91c1c;
+/* BADGE */
+.badge-indigo {
+  @apply inline-flex px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold;
 }
 
+.badge-slate {
+  @apply inline-flex px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold;
+}
+
+.badge-session {
+  @apply inline-flex items-center justify-center min-w-[32px] h-8 px-3 rounded-full bg-emerald-100 text-emerald-700 text-sm font-bold;
+}
+
+/* PAGINATION */
 .page-btn {
-  padding: 6px 12px;
-  border-radius: 8px;
-  background: #e5e7eb;
-  font-size: 14px;
+  @apply px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 font-medium hover:bg-indigo-50 hover:border-indigo-300 transition disabled:opacity-40 disabled:cursor-not-allowed;
 }
 
 .page-btn.active {
-  background: #6366f1;
-  color: white;
-  font-weight: 600;
-}
-
-.page-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.badge {
-  background: #e0e7ff;
-  color: #4338ca;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 12px;
+  @apply bg-gradient-to-r from-indigo-600 to-violet-600 text-white border-transparent;
 }
 </style>
