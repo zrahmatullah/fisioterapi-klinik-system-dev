@@ -1,134 +1,167 @@
 <template>
-  <div class="min-h-screen bg-slate-100 p-6 space-y-6">
+  <div class="min-h-screen bg-slate-50 p-4 md:p-8 space-y-6">
 
     <!-- HEADER -->
-    <div
-      class="bg-white rounded-2xl shadow-md p-6
-             flex flex-col md:flex-row md:items-center md:justify-between gap-4"
-    >
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
       <div>
-        <h1 class="text-2xl font-bold text-indigo-600">
-          Laporan Histori Promosi
+        <div class="flex items-center gap-2 text-xs font-semibold text-indigo-500 uppercase tracking-wide mb-1">
+          <i class="ti ti-discount-2"></i>
+          Laporan
+        </div>
+        <h1 class="text-2xl md:text-3xl font-bold text-slate-800">
+          Histori Promosi
         </h1>
-        <p class="text-sm text-slate-500">
-          Periode: {{ periode }}
+        <p class="text-sm text-slate-500 mt-0.5">
+          Periode: <span class="font-medium text-slate-700">{{ periode }}</span>
         </p>
+      </div>
+
+      <button class="btn-pdf" @click="cetakPdf">
+        <i class="ti ti-printer"></i>
+        Cetak PDF
+      </button>
+    </div>
+
+    <!-- SUMMARY STATS -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="stat-card">
+        <div class="stat-icon bg-indigo-50 text-indigo-600">
+          <i class="ti ti-ticket"></i>
+        </div>
+        <div>
+          <p class="stat-label">Total Promosi</p>
+          <p class="stat-value">{{ summary.totalPromo }}</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon bg-emerald-50 text-emerald-600">
+          <i class="ti ti-repeat"></i>
+        </div>
+        <div>
+          <p class="stat-label">Total Dipakai</p>
+          <p class="stat-value">{{ summary.totalDipakai }}x</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon bg-amber-50 text-amber-600">
+          <i class="ti ti-coin"></i>
+        </div>
+        <div>
+          <p class="stat-label">Total Nominal</p>
+          <p class="stat-value">{{ formatCurrency(summary.totalNominal) }}</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon bg-rose-50 text-rose-600">
+          <i class="ti ti-trending-up"></i>
+        </div>
+        <div>
+          <p class="stat-label">Promosi Terpopuler</p>
+          <p class="stat-value text-base truncate">{{ summary.topPromo || '-' }}</p>
+        </div>
       </div>
     </div>
 
     <!-- FILTER -->
-    <div
-      class="bg-white rounded-2xl shadow-md p-6
-             grid grid-cols-1 md:grid-cols-4 gap-4 items-end"
-    >
-      <div>
-        <label class="label">Tanggal Mulai</label>
-        <input type="date" v-model="startDate" class="input" />
-      </div>
+    <div class="card p-5">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+        <div>
+          <label class="label">Tanggal Mulai</label>
+          <input type="date" v-model="startDate" class="input" />
+        </div>
 
-      <div>
-        <label class="label">Tanggal Akhir</label>
-        <input type="date" v-model="endDate" class="input" />
-      </div>
+        <div>
+          <label class="label">Tanggal Akhir</label>
+          <input type="date" v-model="endDate" class="input" />
+        </div>
 
-      <div class="md:col-span-2 flex gap-3">
-        <button class="btn-primary" @click="loadData">
-          Search
-        </button>
+        <div class="md:col-span-2 flex gap-3">
+          <button class="btn-primary" @click="loadData">
+            <i class="ti ti-search"></i>
+            Cari
+          </button>
 
-        <button class="btn-secondary" @click="resetFilter">
-          Reset
-        </button>
-
-        <button class="btn-pdf" @click="cetakPdf">
-          🖨 Cetak PDF
-        </button>
+          <button class="btn-secondary" @click="resetFilter">
+            <i class="ti ti-refresh"></i>
+            Reset
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- TABLE -->
-    <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-    <table class="w-full text-sm">
-      <thead class="bg-gradient-to-r from-indigo-50 to-slate-100">
-      <tr>
-        <th class="th text-center w-12">No</th>
-        <th class="th w-32">Kode Promosi</th>
-        <th class="th w-48">Nama Promosi</th>
-        <th class="th text-right w-28">Nominal</th>
-        <th class="th w-72">Isi Promosi</th>
-        <th class="th w-44">Tanggal</th>
-        <th class="th text-center w-24">Waktu</th>
-        <th class="th text-center w-24">Dipakai</th>
-      </tr>
-    </thead>
+    <div class="card overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr>
+              <th class="th text-center w-12">No</th>
+              <th class="th w-32">Kode Promosi</th>
+              <th class="th w-48">Nama Promosi</th>
+              <th class="th text-right w-28">Nominal</th>
+              <th class="th w-72">Isi Promosi</th>
+              <th class="th w-44">Tanggal</th>
+              <th class="th text-center w-24">Waktu</th>
+              <th class="th text-center w-24">Dipakai</th>
+            </tr>
+          </thead>
 
-    <tbody>
-      <tr
-        v-for="row in paginatedRows"
-        :key="row.no"
-        class="border-b transition even:bg-slate-50 hover:bg-indigo-50/70"
-      >
-        <td class="td text-center w-12">{{ row.no }}</td>
-        <td class="td w-32 font-semibold text-indigo-600">{{ row.kode_promo }}</td>
-        <td class="td w-48">{{ row.nama_promo }}</td>
-        <td class="td text-right w-28 font-semibold">{{ row.nominal_promo }}</td>
-        <td class="td w-72">{{ row.isi_promo }}</td>
-        <td class="td w-44">{{ row.tanggal_promo }}</td>
-        <td class="td text-center w-24">{{ row.waktu_promo }}</td>
-        <td class="td text-center w-24">
-          <span
-            class="inline-flex items-center justify-center
-                  min-w-[40px] px-2 py-1 rounded-full
-                  text-xs font-bold bg-indigo-100 text-indigo-700"
-          >
-            {{ row.total_dipakai }} x
-          </span>
-        </td>
-      </tr>
-    </tbody>
+          <tbody>
+            <tr v-if="paginatedRows.length === 0">
+              <td colspan="8" class="py-12 text-center text-slate-400">
+                <i class="ti ti-mood-empty text-3xl block mb-2"></i>
+                Tidak ada data untuk periode ini
+              </td>
+            </tr>
 
-    </table>
-
-    <!-- PAGINATION -->
-    <div
-      v-if="totalPages > 1"
-      class="flex justify-between items-center
-            px-6 py-4 border-t bg-slate-50"
-    >
-      <div class="text-sm text-slate-500">
-        Halaman {{ currentPage }} dari {{ totalPages }}
+            <tr v-for="row in paginatedRows" :key="row.no" class="row">
+              <td class="td text-center text-slate-400">{{ row.no }}</td>
+              <td class="td">
+                <span class="code-badge">{{ row.kode_promo }}</span>
+              </td>
+              <td class="td font-medium text-slate-700">{{ row.nama_promo }}</td>
+              <td class="td text-right font-semibold text-slate-700">{{ row.nominal_promo }}</td>
+              <td class="td text-slate-500">{{ row.isi_promo }}</td>
+              <td class="td text-slate-500">{{ row.tanggal_promo }}</td>
+              <td class="td text-center text-slate-500">{{ row.waktu_promo }}</td>
+              <td class="td text-center">
+                <span class="usage-badge">{{ row.total_dipakai }}x</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
-      <div class="flex gap-2">
-        <button
-          class="page-btn"
-          :disabled="currentPage === 1"
-          @click="changePage(currentPage - 1)"
-        >
-          Prev
-        </button>
+      <!-- PAGINATION -->
+      <div v-if="totalPages > 1" class="flex justify-between items-center px-5 py-4 border-t border-slate-100">
+        <div class="text-sm text-slate-500">
+          Halaman {{ currentPage }} dari {{ totalPages }}
+        </div>
 
-        <button
-          v-for="p in totalPages"
-          :key="p"
-          @click="changePage(p)"
-          class="page-btn"
-          :class="{ active: p === currentPage }"
-        >
-          {{ p }}
-        </button>
+        <div class="flex gap-1.5">
+          <button class="page-btn" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">
+            <i class="ti ti-chevron-left"></i>
+          </button>
 
-        <button
-          class="page-btn"
-          :disabled="currentPage === totalPages"
-          @click="changePage(currentPage + 1)"
-        >
-          Next
-        </button>
+          <button
+            v-for="p in totalPages"
+            :key="p"
+            @click="changePage(p)"
+            class="page-btn"
+            :class="{ active: p === currentPage }"
+          >
+            {{ p }}
+          </button>
+
+          <button class="page-btn" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">
+            <i class="ti ti-chevron-right"></i>
+          </button>
+        </div>
       </div>
     </div>
-</div>
-
 
   </div>
 </template>
@@ -155,6 +188,39 @@ const paginatedRows = computed(() => {
 const totalPages = computed(() =>
   Math.ceil(rows.value.length / perPage.value)
 )
+
+// Parse nominal string (e.g. "Rp 50.000" or "50000") into a number for aggregation
+const parseNominal = (val) => {
+  if (typeof val === 'number') return val
+  if (!val) return 0
+  const cleaned = String(val).replace(/[^0-9]/g, '')
+  return cleaned ? parseInt(cleaned, 10) : 0
+}
+
+const summary = computed(() => {
+  if (rows.value.length === 0) {
+    return { totalPromo: 0, totalDipakai: 0, totalNominal: 0, topPromo: '' }
+  }
+
+  const totalDipakai = rows.value.reduce((acc, r) => acc + (Number(r.total_dipakai) || 0), 0)
+  const totalNominal = rows.value.reduce((acc, r) => acc + parseNominal(r.nominal_promo), 0)
+
+  const top = rows.value.reduce((best, r) => {
+    const usage = Number(r.total_dipakai) || 0
+    return usage > (best.usage || -1) ? { name: r.nama_promo, usage } : best
+  }, {})
+
+  return {
+    totalPromo: rows.value.length,
+    totalDipakai,
+    totalNominal,
+    topPromo: top.name || ''
+  }
+})
+
+const formatCurrency = (val) => {
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val || 0)
+}
 
 const changePage = (p) => {
   if (p < 1 || p > totalPages.value) return
@@ -191,70 +257,208 @@ loadData()
 </script>
 
 <style scoped>
+.card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #eef0f4;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.stat-card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #eef0f4;
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 2px;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.2;
+}
+
 .label {
-  font-size: 0.875rem;
+  display: block;
+  font-size: 0.8rem;
   font-weight: 600;
   margin-bottom: 6px;
-  color: #475569;
+  color: #64748b;
 }
 
 .th {
-  padding: 12px;
+  padding: 14px 12px;
   font-weight: 600;
-  border-bottom: 1px solid #e5e7eb;
-  white-space: normal;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: #94a3b8;
+  background: #f8fafc;
+  border-bottom: 1px solid #eef0f4;
+  white-space: nowrap;
+  text-align: left;
 }
 
 .td {
-  padding: 12px;
+  padding: 14px 12px;
   white-space: normal;
+}
+
+.row {
+  border-bottom: 1px solid #f1f4f8;
+  transition: background-color 0.15s ease;
+}
+
+.row:hover {
+  background-color: #f8fafc;
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.code-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 8px;
+  background: #eef0ff;
+  color: #4f46e5;
+  font-weight: 600;
+  font-size: 12.5px;
+}
+
+.usage-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 38px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: #059669;
+  font-size: 12.5px;
+  font-weight: 700;
 }
 
 .input {
   width: 100%;
-  border: 1px solid #c7d2fe;
-  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
   padding: 10px 12px;
+  font-size: 14px;
+  color: #334155;
+  background: #fff;
+  transition: border-color 0.15s ease;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.btn-primary,
+.btn-secondary,
+.btn-pdf {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.btn-primary:active,
+.btn-secondary:active,
+.btn-pdf:active {
+  transform: scale(0.98);
 }
 
 .btn-primary {
-  background-color: #6366f1;
+  background-color: #4f46e5;
   color: white;
-  padding: 12px 18px;
-  border-radius: 14px;
-  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background-color: #4338ca;
 }
 
 .btn-secondary {
-  background-color: #e5e7eb;
-  color: #374151;
-  padding: 12px 18px;
-  border-radius: 14px;
-  font-weight: 600;
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.btn-secondary:hover {
+  background-color: #e2e8f0;
 }
 
 .btn-pdf {
-  background-color: #dc2626;
-  color: white;
-  padding: 12px 18px;
-  border-radius: 14px;
-  font-weight: 600;
+  background-color: #fff;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.btn-pdf:hover {
+  background-color: #fef2f2;
 }
 
 .page-btn {
-  padding: 6px 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  height: 34px;
+  padding: 0 8px;
   border-radius: 8px;
-  background: #e5e7eb;
-  font-size: 14px;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.page-btn:hover:not(:disabled) {
+  background: #eef0ff;
 }
 
 .page-btn.active {
-  background: #6366f1;
+  background: #4f46e5;
   color: white;
   font-weight: 600;
 }
 
 .page-btn:disabled {
   opacity: 0.4;
+  cursor: default;
 }
 </style>
