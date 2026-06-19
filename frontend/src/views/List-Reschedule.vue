@@ -1,51 +1,32 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-indigo-50 p-6 space-y-6">
+  <div class="page">
 
     <!-- HEADER -->
-    <div
-      class="relative overflow-hidden rounded-3xl
-            bg-gradient-to-r from-amber-500 via-orange-500 to-red-500
-            p-7 shadow-xl"
-    >
-      <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-
-        <div>
-          <h1 class="text-3xl font-bold text-white">
-            🔄 Request Reschedule
-          </h1>
-
-          <p class="text-white/80 mt-2">
-            Daftar permintaan perubahan jadwal terapi dari orang tua
-          </p>
+    <div class="page-header">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="pi pi-calendar-times"></i>
         </div>
 
-        <div
-          class="bg-white/20 backdrop-blur-md
-                px-5 py-3 rounded-2xl border border-white/20"
-        >
-          <p class="text-sm text-white/80">
-            Pending Request
-          </p>
-
-          <h2 class="text-3xl font-bold text-white">
-            {{ list.length }}
-          </h2>
+        <div>
+          <h1 class="page-title">Request Reschedule</h1>
+          <p class="page-sub">Daftar permintaan perubahan jadwal terapi dari orang tua</p>
         </div>
       </div>
 
-      <div
-        class="absolute right-0 top-0 w-72 h-72 bg-white/10 rounded-full blur-3xl"
-      />
+      <div class="stat-card">
+        <p class="stat-label">Pending Request</p>
+        <h2 class="stat-value">{{ list.length }}</h2>
+      </div>
     </div>
 
     <!-- TABLE -->
-    <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+    <div class="panel table-panel">
 
-      <div class="overflow-x-auto">
+      <div class="table-scroll">
+        <table class="data-table">
 
-        <table class="w-full text-sm">
-
-          <thead class="bg-slate-100 sticky top-0 z-10">
+          <thead>
             <tr>
               <th class="th">Anak</th>
               <th class="th">Layanan</th>
@@ -59,156 +40,82 @@
 
           <tbody>
 
-            <tr
-              v-for="(row, i) in list"
-              :key="i"
-              class="border-b hover:bg-orange-50/50 transition duration-200"
-            >
+            <tr v-for="(row, i) in list" :key="i" class="row">
 
               <!-- ANAK -->
               <td class="td">
-
-                <div class="flex items-center gap-3">
-
-                  <div
-                    class="w-11 h-11 rounded-2xl
-                          bg-gradient-to-r from-orange-400 to-red-500
-                          text-white flex items-center justify-center
-                          font-bold shadow"
-                  >
-                    {{
-                      row.registrasi?.profile_anak?.nama_anak?.charAt(0) || '?'
-                    }}
+                <div class="patient-cell">
+                  <div class="avatar">
+                    {{ row.registrasi?.profile_anak?.nama_anak?.charAt(0) || '?' }}
                   </div>
 
                   <div>
-                    <p class="font-semibold text-gray-800">
-                      {{ row.registrasi?.profile_anak?.nama_anak || '-' }}
-                    </p>
-
-                    <p class="text-xs text-gray-500 mt-1">
-                      {{ row.registrasi?.no_regis || '-' }}
-                    </p>
+                    <p class="cell-strong">{{ row.registrasi?.profile_anak?.nama_anak || '-' }}</p>
+                    <p class="cell-faint">{{ row.registrasi?.no_regis || '-' }}</p>
                   </div>
-
                 </div>
-
               </td>
 
               <!-- LAYANAN -->
               <td class="td">
-                <span class="badge-service">
-                  {{ row.layanan?.layanan || '-' }}
-                </span>
+                <span class="tag">{{ row.layanan?.layanan || '-' }}</span>
               </td>
 
               <!-- TERAPIS -->
               <td class="td">
-
-                <div class="flex items-center gap-2">
-
-                  <div
-                    class="w-8 h-8 rounded-full bg-indigo-100
-                          flex items-center justify-center text-indigo-600 text-xs font-bold"
-                  >
-                    👩‍⚕️
-                  </div>
-
-                  <span class="font-medium text-gray-700">
-                    {{ row.terapis?.nama || '-' }}
-                  </span>
-
+                <div class="therapist-cell">
+                  <div class="therapist-icon"><i class="pi pi-user"></i></div>
+                  <span class="cell-strong">{{ row.terapis?.nama || '-' }}</span>
                 </div>
-
               </td>
 
               <!-- TANGGAL LAMA -->
               <td class="td">
-
-                <div class="flex flex-col">
-                  <span class="text-gray-400 text-xs">
-                    Jadwal Lama
-                  </span>
-
-                  <span class="font-medium text-gray-700">
-                    {{ formatDate(row.tanggal_penjadwalan) }}
-                  </span>
+                <div class="date-stack">
+                  <span class="cell-faint">Jadwal Lama</span>
+                  <span class="cell-strong">{{ formatDate(row.tanggal_penjadwalan) }}</span>
                 </div>
-
               </td>
 
               <!-- TANGGAL BARU -->
               <td class="td">
-
-                <div class="flex flex-col">
-                  <span class="text-xs text-indigo-500">
-                    Request Baru
-                  </span>
-
-                  <span class="font-bold text-indigo-600">
-                    {{ formatDate(row.tanggal_reschedule_request) }}
-                  </span>
+                <div class="date-stack">
+                  <span class="cell-faint cell-faint--accent">Request Baru</span>
+                  <span class="cell-strong cell-strong--accent">{{ formatDate(row.tanggal_reschedule_request) }}</span>
                 </div>
-
               </td>
 
               <!-- STATUS -->
               <td class="td text-center">
-
-                <span class="badge-pending">
-                  Pending
-                </span>
-
+                <span class="badge badge--amber">Pending</span>
               </td>
 
               <!-- AKSI -->
               <td class="td">
-
                 <div class="flex justify-center gap-2">
-
-                  <button
-                    @click="openModal(row, 'approve')"
-                    class="btn-approve"
-                  >
-                    ✓ Approve
+                  <button @click="openModal(row, 'approve')" class="btn-approve">
+                    <i class="pi pi-check"></i>
+                    Approve
                   </button>
 
-                  <button
-                    @click="openModal(row, 'reject')"
-                    class="btn-reject"
-                  >
-                    ✕ Reject
+                  <button @click="openModal(row, 'reject')" class="btn-reject">
+                    <i class="pi pi-times"></i>
+                    Reject
                   </button>
-
                 </div>
-
               </td>
 
             </tr>
 
             <!-- EMPTY -->
             <tr v-if="list.length === 0">
-
               <td colspan="7">
-
-                <div class="flex flex-col items-center py-16">
-
-                  <div class="text-6xl mb-4">
-                    📭
-                  </div>
-
-                  <p class="text-lg font-semibold text-gray-600">
-                    Tidak ada request reschedule
-                  </p>
-
-                  <p class="text-sm text-gray-400 mt-2">
-                    Semua permintaan perubahan jadwal sudah diproses
-                  </p>
-
+                <div class="empty-state">
+                  <div class="empty-icon"><i class="pi pi-inbox"></i></div>
+                  <p class="empty-title">Tidak ada request reschedule</p>
+                  <p class="empty-sub">Semua permintaan perubahan jadwal sudah diproses</p>
                 </div>
-
               </td>
-
             </tr>
 
           </tbody>
@@ -217,139 +124,78 @@
     </div>
 
     <!-- MODAL -->
-    <div
-      v-if="showModal"
-      class="fixed inset-0 bg-black/50 backdrop-blur-sm
-            flex items-center justify-center z-50 p-4"
-    >
+    <div v-if="showModal" class="modal-overlay">
+      <div class="modal-backdrop" @click="closeModal"></div>
 
-      <div
-        class="bg-white rounded-3xl w-full max-w-lg
-              shadow-2xl border border-gray-100
-              overflow-hidden animate-modal"
-      >
+      <div class="modal-wrapper">
+        <div class="modal-card animate-modal">
 
-        <!-- HEADER MODAL -->
-        <div
-          :class="[
-            'p-5 text-white',
-            actionType === 'approve'
-              ? 'bg-gradient-to-r from-green-500 to-emerald-600'
-              : 'bg-gradient-to-r from-red-500 to-rose-600'
-          ]"
-        >
+          <!-- HEADER MODAL -->
+          <div class="modal-header" :class="actionType === 'approve' ? 'modal-header--approve' : 'modal-header--reject'">
 
-          <div class="flex justify-between items-center">
+            <div class="modal-header-icon" :class="actionType === 'approve' ? 'modal-header-icon--approve' : 'modal-header-icon--reject'">
+              <i :class="actionType === 'approve' ? 'pi pi-check' : 'pi pi-times'"></i>
+            </div>
 
-            <div>
-              <h3 class="text-xl font-bold">
-
-                {{
-                  actionType === 'approve'
-                    ? '✅ Konfirmasi Approve'
-                    : '❌ Konfirmasi Reject'
-                }}
-
+            <div class="flex-1">
+              <h3 class="modal-title">
+                {{ actionType === 'approve' ? 'Konfirmasi approve' : 'Konfirmasi reject' }}
               </h3>
 
-              <p class="text-white/80 text-sm mt-1">
-
-                {{
-                  actionType === 'approve'
-                    ? 'Setujui perubahan jadwal terapi'
-                    : 'Tolak permintaan perubahan jadwal'
-                }}
-
+              <p class="modal-sub">
+                {{ actionType === 'approve' ? 'Setujui perubahan jadwal terapi' : 'Tolak permintaan perubahan jadwal' }}
               </p>
             </div>
 
-            <button
-              @click="closeModal"
-              class="text-white/80 hover:text-white text-xl"
-            >
-              ✖
+            <button @click="closeModal" class="modal-close">
+              <i class="pi pi-times"></i>
             </button>
-
           </div>
-        </div>
 
-        <!-- CONTENT -->
-        <div class="p-6">
+          <!-- CONTENT -->
+          <div class="modal-content">
 
-          <div
-            class="bg-gray-50 rounded-2xl p-5 border border-gray-100"
-          >
-
-            <div class="space-y-4">
-
-              <div class="flex justify-between gap-4">
-                <span class="text-gray-500">Nama Anak</span>
-
-                <span class="font-semibold text-right">
-                  {{ selectedRow?.registrasi?.profile_anak?.nama_anak || '-' }}
-                </span>
+            <div class="info-card">
+              <div class="info-row">
+                <span class="cell-faint">Nama Anak</span>
+                <span class="cell-strong">{{ selectedRow?.registrasi?.profile_anak?.nama_anak || '-' }}</span>
               </div>
 
-              <div class="flex justify-between gap-4">
-                <span class="text-gray-500">Layanan</span>
-
-                <span class="font-semibold text-right">
-                  {{ selectedRow?.layanan?.layanan || '-' }}
-                </span>
+              <div class="info-row">
+                <span class="cell-faint">Layanan</span>
+                <span class="cell-strong">{{ selectedRow?.layanan?.layanan || '-' }}</span>
               </div>
 
-              <div class="flex justify-between gap-4">
-                <span class="text-gray-500">Tanggal Lama</span>
-
-                <span class="font-semibold text-right">
-                  {{ formatDate(selectedRow?.tanggal_penjadwalan) }}
-                </span>
+              <div class="info-row">
+                <span class="cell-faint">Tanggal Lama</span>
+                <span class="cell-strong">{{ formatDate(selectedRow?.tanggal_penjadwalan) }}</span>
               </div>
 
-              <div class="flex justify-between gap-4">
-                <span class="text-gray-500">Tanggal Baru</span>
-
-                <span class="font-bold text-indigo-600 text-right">
-                  {{ formatDate(selectedRow?.tanggal_reschedule_request) }}
-                </span>
+              <div class="info-row">
+                <span class="cell-faint">Tanggal Baru</span>
+                <span class="cell-strong cell-strong--accent">{{ formatDate(selectedRow?.tanggal_reschedule_request) }}</span>
               </div>
+            </div>
 
+            <!-- FOOTER -->
+            <div class="modal-footer">
+              <button class="btn-secondary" @click="closeModal">Batal</button>
+
+              <button v-if="actionType === 'approve'" class="btn-confirm-approve" @click="confirmApprove">
+                <i class="pi pi-check"></i>
+                Ya, approve
+              </button>
+
+              <button v-if="actionType === 'reject'" class="btn-confirm-reject" @click="confirmReject">
+                <i class="pi pi-times"></i>
+                Ya, reject
+              </button>
             </div>
 
           </div>
 
-          <!-- FOOTER -->
-          <div class="flex justify-end gap-3 mt-6">
-
-            <button
-              class="btn-cancel"
-              @click="closeModal"
-            >
-              Batal
-            </button>
-
-            <button
-              v-if="actionType === 'approve'"
-              class="btn-confirm-approve"
-              @click="confirmApprove"
-            >
-              ✓ Ya, Approve
-            </button>
-
-            <button
-              v-if="actionType === 'reject'"
-              class="btn-confirm-reject"
-              @click="confirmReject"
-            >
-              ✕ Ya, Reject
-            </button>
-
-          </div>
-
         </div>
-
       </div>
-
     </div>
 
   </div>
@@ -467,64 +313,538 @@ const formatDate = (dateStr) => {
 </script>
 
 <style scoped>
+/* ===============================
+   TOKENS (senada dengan Sidebar.vue, DaftarPasien.vue, RegistrasiLayananAnak.vue)
+================================ */
+.page {
+  --bg: #FAFAFA;
+  --surface: #FFFFFF;
+  --border: #ECEDF1;
+  --ink: #1F2128;
+  --muted: #98A0AE;
+  --accent: #6D5CE0;
+  --accent-soft: #F1EEFC;
+
+  --amber: #B98900;
+  --amber-soft: #FBF3DB;
+  --green: #1A9469;
+  --green-soft: #E5F6EE;
+  --red: #DC4747;
+  --red-soft: #FBEAEA;
+
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  padding: 1.5rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.page > * + * {
+  margin-top: 1.5rem;
+}
+
+/* ===============================
+   HEADER
+================================ */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.75rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 0.85rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+}
+
+.page-sub {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+.stat-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  padding: 0.85rem 1.25rem;
+  min-width: 140px;
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 0.15rem;
+}
+
+/* ===============================
+   PANEL / TABLE
+================================ */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+}
+
+.table-panel {
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  font-size: 0.85rem;
+  border-collapse: collapse;
+}
+
+.data-table thead {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
 .th {
-  @apply px-5 py-4 text-left font-semibold text-gray-600 whitespace-nowrap;
+  padding: 0.9rem 1.25rem;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  white-space: nowrap;
 }
 
 .td {
-  @apply px-5 py-4 whitespace-nowrap;
+  padding: 0.9rem 1.25rem;
+  color: var(--ink);
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
 
-.badge-service {
-  @apply bg-indigo-100 text-indigo-700
-  px-3 py-1 rounded-full text-xs font-semibold;
+.row {
+  transition: background 0.15s ease;
 }
 
-.badge-pending {
-  @apply bg-amber-100 text-amber-700
-  px-3 py-1 rounded-full text-xs font-semibold;
+.row:hover {
+  background: var(--bg);
 }
 
+.cell-strong {
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 0.85rem;
+}
+
+.cell-strong--accent {
+  color: var(--accent);
+}
+
+.cell-faint {
+  font-size: 0.74rem;
+  color: var(--muted);
+}
+
+.cell-faint--accent {
+  color: var(--accent);
+}
+
+.date-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 500;
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.patient-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.7rem;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.therapist-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.therapist-icon {
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 0.5rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+}
+
+/* ===============================
+   BADGES
+================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.badge--amber { background: var(--amber-soft); color: var(--amber); }
+
+/* ===============================
+   BUTTONS
+================================ */
 .btn-approve {
-  @apply bg-green-500 text-white px-4 py-2 rounded-xl
-  text-xs font-semibold hover:bg-green-600
-  transition shadow-sm;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2.2rem;
+  padding: 0 0.85rem;
+  border-radius: 0.55rem;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-approve:hover {
+  background: #157d59;
 }
 
 .btn-reject {
-  @apply bg-red-500 text-white px-4 py-2 rounded-xl
-  text-xs font-semibold hover:bg-red-600
-  transition shadow-sm;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2.2rem;
+  padding: 0 0.85rem;
+  border-radius: 0.55rem;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
 }
 
-.btn-cancel {
-  @apply px-5 py-2 rounded-xl bg-gray-100
-  hover:bg-gray-200 transition;
+.btn-reject:hover {
+  background: #c23a3a;
+}
+
+.btn-secondary {
+  height: 2.6rem;
+  padding: 0 1.25rem;
+  border-radius: 0.65rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--ink);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background: var(--accent-soft);
 }
 
 .btn-confirm-approve {
-  @apply px-5 py-2 rounded-xl bg-green-600
-  text-white hover:bg-green-700 transition;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2.6rem;
+  padding: 0 1.25rem;
+  border-radius: 0.65rem;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-confirm-approve:hover {
+  background: #157d59;
 }
 
 .btn-confirm-reject {
-  @apply px-5 py-2 rounded-xl bg-red-600
-  text-white hover:bg-red-700 transition;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2.6rem;
+  padding: 0 1.25rem;
+  border-radius: 0.65rem;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
 }
 
+.btn-confirm-reject:hover {
+  background: #c23a3a;
+}
+
+/* ===============================
+   EMPTY STATE
+================================ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 0;
+}
+
+.empty-icon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.empty-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.empty-sub {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+/* ===============================
+   MODAL
+================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 33, 40, 0.45);
+}
+
+.modal-wrapper {
+  position: relative;
+}
+
+.modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 32rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header-icon {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.modal-header-icon--approve {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.modal-header-icon--reject {
+  background: var(--red-soft);
+  color: var(--red);
+}
+
+.modal-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.modal-sub {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 0.15rem;
+}
+
+.modal-close {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.55rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.modal-close:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.modal-content {
+  padding: 1.5rem;
+}
+
+.info-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  padding: 1.25rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+
+.info-row + .info-row {
+  border-top: 1px solid var(--border);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+/* ===============================
+   TRANSITIONS
+================================ */
 .animate-modal {
-  animation: modalFade .2s ease;
+  animation: modalFade 0.18s ease;
 }
 
 @keyframes modalFade {
   from {
     opacity: 0;
-    transform: scale(.96);
+    transform: translateY(8px);
   }
-
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0);
   }
+}
+
+/* ===============================
+   SCROLLBAR
+================================ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
 }
 </style>

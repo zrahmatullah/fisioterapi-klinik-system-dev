@@ -1,170 +1,113 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-indigo-50 p-6 space-y-6">
+  <div class="page">
 
     <!-- HEADER -->
-    <div
-      class="relative overflow-hidden rounded-3xl
-            bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600
-            p-7 shadow-xl"
-    >
-      <div class="relative z-10">
-        <h1 class="text-3xl font-bold text-white">
-          📊 Registrasi & Layanan Anak
-        </h1>
+    <div class="page-header">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="pi pi-chart-bar"></i>
+        </div>
 
-        <p class="text-white/80 mt-2">
-          Monitoring registrasi, penjadwalan terapi, dan penentuan terapis
-        </p>
+        <div>
+          <h1 class="page-title">Registrasi & Layanan Anak</h1>
+          <p class="page-sub">Monitoring registrasi, penjadwalan terapi, dan penentuan terapis</p>
+        </div>
       </div>
-
-      <div
-        class="absolute right-0 top-0 w-72 h-72 bg-white/10 rounded-full blur-3xl"
-      />
     </div>
 
     <!-- SUMMARY -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="summary-grid">
 
-      <div class="card-summary">
-        <p class="summary-label">Total Registrasi</p>
-        <h2 class="summary-value text-indigo-600">
-          {{ rows.length }}
-        </h2>
+      <div class="stat-card">
+        <p class="stat-label">Total Registrasi</p>
+        <h2 class="stat-value">{{ rows.length || 0 }}</h2>
       </div>
 
-      <div class="card-summary">
-        <p class="summary-label">Terjadwal</p>
-        <h2 class="summary-value text-yellow-500">
-          {{ countStatus('terjadwal') }}
-        </h2>
+      <div class="stat-card">
+        <p class="stat-label">Terjadwal</p>
+        <h2 class="stat-value stat-value--amber">{{ countStatus('terjadwal') || 0 }}</h2>
       </div>
 
-      <div class="card-summary">
-        <p class="summary-label">Proses</p>
-        <h2 class="summary-value text-blue-500">
-          {{ countStatus('proses') }}
-        </h2>
+      <div class="stat-card">
+        <p class="stat-label">Proses</p>
+        <h2 class="stat-value stat-value--blue">{{ countStatus('proses') }}</h2>
       </div>
 
-      <div class="card-summary">
-        <p class="summary-label">Selesai</p>
-        <h2 class="summary-value text-green-500">
-          {{ countStatus('selesai') }}
-        </h2>
+      <div class="stat-card">
+        <p class="stat-label">Selesai</p>
+        <h2 class="stat-value stat-value--green">{{ countStatus('selesai') }}</h2>
       </div>
     </div>
 
     <!-- FILTER -->
-    <div class="bg-white rounded-3xl shadow-lg border border-gray-100 p-5">
+    <div class="panel filter-panel">
+      <div class="filter-row">
 
-      <div class="flex flex-col xl:flex-row gap-4 xl:items-center justify-between">
+        <div class="per-page-field">
+          <span class="filter-text">Tampilkan</span>
 
-        <div class="flex items-center gap-3">
-          <span class="text-sm text-gray-500">Tampilkan</span>
+          <input type="number" min="1" v-model.number="perPage" class="input input--center w-24" />
 
-          <input
-            type="number"
-            min="1"
-            v-model.number="perPage"
-            class="input-modern w-24 text-center"
-          />
-
-          <span class="text-sm text-gray-500">data</span>
+          <span class="filter-text">data</span>
         </div>
 
-        <div class="flex flex-col md:flex-row gap-3 w-full xl:w-auto">
-
-          <input
-            type="date"
-            v-model="filterTanggal"
-            class="input-modern"
-          />
+        <div class="filter-inputs">
+          <input type="date" v-model="filterTanggal" class="input" />
 
           <input
             v-model="search"
             type="text"
             placeholder="Cari nama anak / no registrasi..."
-            class="input-modern md:w-80"
+            class="input md:w-80"
           />
         </div>
       </div>
     </div>
 
     <!-- TABLE -->
-    <div class="bg-white rounded-3xl shadow-lg border border-gray-100 overflow-hidden">
+    <div class="panel table-panel">
 
-      <div class="overflow-x-auto">
+      <div class="table-scroll">
+        <table class="data-table">
 
-        <table class="w-full text-sm">
-
-          <thead class="bg-slate-100 sticky top-0 z-10">
+          <thead>
             <tr>
               <th class="th">No</th>
               <th class="th">No Regis</th>
 
-              <th
-                class="th cursor-pointer hover:text-indigo-600"
-                @click="sortBy('nama')"
-              >
-                Nama Anak ⬍
+              <th class="th th--sortable" @click="sortBy('nama')">
+                Nama Anak <span class="sort-icon">⇅</span>
               </th>
 
-              <th
-                class="th cursor-pointer hover:text-indigo-600"
-                @click="sortBy('tanggal')"
-              >
-                Tanggal ⬍
+              <th class="th th--sortable" @click="sortBy('tanggal')">
+                Tanggal <span class="sort-icon">⇅</span>
               </th>
 
               <th class="th">Layanan</th>
+              <th class="th text-center">Total Sesi</th>
 
-              <th class="th text-center">
-                Total Sesi
+              <th class="th th--sortable" @click="sortBy('status')">
+                Status <span class="sort-icon">⇅</span>
               </th>
 
-              <th
-                class="th cursor-pointer hover:text-indigo-600"
-                @click="sortBy('status')"
-              >
-                Status ⬍
-              </th>
-
-              <th class="th text-center">
-                Aksi
-              </th>
+              <th class="th text-center">Aksi</th>
             </tr>
           </thead>
 
           <tbody>
 
-            <tr
-              v-for="row in paginatedRows"
-              :key="row.no"
-              class="border-b hover:bg-indigo-50/50 transition"
-            >
-              <td class="td text-center">
-                {{ row.no }}
-              </td>
+            <tr v-for="row in paginatedRows" :key="row.no" class="row">
+              <td class="td text-center cell-faint">{{ row.no }}</td>
 
-              <td class="td font-medium">
-                {{ row.no_regis }}
-              </td>
+              <td class="td cell-strong cell-strong--accent">{{ row.no_regis }}</td>
 
-              <td class="td">
-                {{ row.profile_anak?.nama_anak }}
-              </td>
+              <td class="td cell-strong">{{ row.profile_anak?.nama_anak }}</td>
 
-              <td class="td">
-                {{ formatDate(row.tgl_regis) }}
-              </td>
+              <td class="td">{{ formatDate(row.tgl_regis) }}</td>
 
-              <td class="td">
-                {{ row.pelayanans?.[0]?.layanan?.layanan || '-' }}
-              </td>
+              <td class="td">{{ row.pelayanans?.[0]?.layanan?.layanan || '-' }}</td>
 
-              <td class="td text-center">
-                {{ row.pelayanans?.length || 0 }}
-              </td>
+              <td class="td text-center">{{ row.pelayanans?.length || 0 }}</td>
 
               <td class="td">
                 <span :class="statusClass(row.pelayanans?.[0]?.status)">
@@ -172,24 +115,10 @@
                 </span>
               </td>
 
-              <td class="td text-center">
-
+              <td class="td">
                 <div class="flex justify-center gap-2">
-
-                  <button
-                    @click="openDetail(row)"
-                    class="btn-indigo"
-                  >
-                    Detail
-                  </button>
-
-                  <button
-                    @click="openTerapis(row)"
-                    class="btn-green"
-                  >
-                    Terapis
-                  </button>
-
+                  <button @click="openDetail(row)" class="btn-primary">Detail</button>
+                  <button @click="openTerapis(row)" class="btn-accent-alt">Terapis</button>
                 </div>
               </td>
             </tr>
@@ -197,19 +126,11 @@
             <!-- EMPTY -->
             <tr v-if="paginatedRows.length === 0">
               <td colspan="8">
-
-                <div class="flex flex-col items-center py-14">
-                  <div class="text-6xl mb-4">📭</div>
-
-                  <p class="font-semibold text-gray-600">
-                    Tidak ada data ditemukan
-                  </p>
-
-                  <p class="text-sm text-gray-400 mt-1">
-                    Coba ubah filter pencarian
-                  </p>
+                <div class="empty-state">
+                  <div class="empty-icon"><i class="pi pi-inbox"></i></div>
+                  <p class="empty-title">Tidak ada data ditemukan</p>
+                  <p class="empty-sub">Coba ubah filter pencarian</p>
                 </div>
-
               </td>
             </tr>
 
@@ -218,25 +139,16 @@
       </div>
 
       <!-- PAGINATION -->
-      <div
-        v-if="totalPages > 1"
-        class="flex flex-col md:flex-row justify-between items-center gap-4 px-6 py-4 border-t bg-gray-50"
-      >
+      <div v-if="totalPages > 1" class="pagination-bar">
 
-        <div class="text-sm text-gray-500">
-          Halaman
-          <span class="font-semibold">{{ currentPage }}</span>
-          dari
-          <span class="font-semibold">{{ totalPages }}</span>
+        <div class="pagination-info">
+          Halaman <span class="cell-strong">{{ currentPage }}</span> dari
+          <span class="cell-strong">{{ totalPages }}</span>
         </div>
 
-        <div class="flex items-center gap-2">
+        <div class="pagination-controls">
 
-          <button
-            class="page-btn"
-            :disabled="currentPage === 1"
-            @click="changePage(currentPage - 1)"
-          >
+          <button class="pagination-btn" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">
             Prev
           </button>
 
@@ -244,17 +156,13 @@
             v-for="p in visiblePages"
             :key="p"
             @click="changePage(p)"
-            class="page-btn"
-            :class="{ active: p === currentPage }"
+            class="pagination-btn"
+            :class="{ 'active-page': p === currentPage }"
           >
             {{ p }}
           </button>
 
-          <button
-            class="page-btn"
-            :disabled="currentPage === totalPages"
-            @click="changePage(currentPage + 1)"
-          >
+          <button class="pagination-btn" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">
             Next
           </button>
 
@@ -263,136 +171,104 @@
     </div>
 
     <!-- MODAL DETAIL -->
-    <div v-if="showDetail" class="modal">
+    <div v-if="showDetail" class="modal-overlay">
+      <div class="modal-backdrop" @click="showDetail = false"></div>
 
-      <div class="modal-box">
+      <div class="modal-wrapper">
+        <div class="modal-card">
 
-        <div class="modal-header">
-          <h2>📋 Detail Penjadwalan</h2>
+          <div class="modal-header">
+            <h2 class="modal-title">Detail Penjadwalan</h2>
 
-          <button
-            @click="showDetail = false"
-            class="text-gray-400 hover:text-red-500 transition"
-          >
-            ✖
-          </button>
-        </div>
+            <button @click="showDetail = false" class="modal-close">
+              <i class="pi pi-times"></i>
+            </button>
+          </div>
 
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
+          <div class="modal-content modal-content--flush">
+            <div class="table-scroll">
+              <table class="data-table">
 
-            <thead class="bg-slate-100">
-              <tr>
-                <th class="th">Sesi</th>
-                <th class="th">Tanggal</th>
-                <th class="th">Terapis</th>
-                <th class="th">Status</th>
-              </tr>
-            </thead>
+                <thead>
+                  <tr>
+                    <th class="th">Sesi</th>
+                    <th class="th">Tanggal</th>
+                    <th class="th">Terapis</th>
+                    <th class="th">Status</th>
+                  </tr>
+                </thead>
 
-            <tbody>
+                <tbody>
+                  <tr v-for="(s, i) in modalData.pelayanans" :key="s.id" class="row">
+                    <td class="td">Sesi {{ i + 1 }}</td>
+                    <td class="td">{{ formatDate(s.tanggal_penjadwalan) }}</td>
+                    <td class="td">{{ s.terapis?.nama || '-' }}</td>
+                    <td class="td">
+                      <span :class="statusClass(s.status)">{{ s.status }}</span>
+                    </td>
+                  </tr>
+                </tbody>
 
-              <tr
-                v-for="(s, i) in modalData.pelayanans"
-                :key="s.id"
-                class="border-b"
-              >
-                <td class="td">Sesi {{ i + 1 }}</td>
+              </table>
+            </div>
+          </div>
 
-                <td class="td">
-                  {{ formatDate(s.tanggal_penjadwalan) }}
-                </td>
-
-                <td class="td">
-                  {{ s.terapis?.nama || '-' }}
-                </td>
-
-                <td class="td">
-                  <span :class="statusClass(s.status)">
-                    {{ s.status }}
-                  </span>
-                </td>
-              </tr>
-
-            </tbody>
-          </table>
         </div>
       </div>
     </div>
 
     <!-- MODAL TERAPIS -->
-    <div v-if="showTerapis" class="modal">
+    <div v-if="showTerapis" class="modal-overlay">
+      <div class="modal-backdrop" @click="showTerapis = false"></div>
 
-      <div class="modal-box max-w-5xl">
+      <div class="modal-wrapper">
+        <div class="modal-card modal-card--wide">
 
-        <div class="modal-header">
-          <h2>👩‍⚕️ Penentuan Terapis</h2>
+          <div class="modal-header">
+            <h2 class="modal-title">Penentuan Terapis</h2>
 
-          <button
-            @click="showTerapis = false"
-            class="text-gray-400 hover:text-red-500 transition"
-          >
-            ✖
-          </button>
-        </div>
-
-        <div class="overflow-x-auto">
-
-          <table class="w-full text-sm mb-5">
-
-            <thead class="bg-slate-100">
-              <tr>
-                <th class="th">Sesi</th>
-                <th class="th">Tanggal</th>
-                <th class="th">Terapis</th>
-              </tr>
-            </thead>
-
-            <tbody>
-
-              <tr
-                v-for="(s, i) in modalData.pelayanans"
-                :key="s.id"
-                class="border-b"
-              >
-                <td class="td">
-                  Sesi {{ i + 1 }}
-                </td>
-
-                <td class="td">
-                  {{ formatDate(s.tanggal_penjadwalan) }}
-                </td>
-
-                <td class="td">
-                  <select
-                    v-model="s.terapis_id"
-                    class="input-modern w-full"
-                  >
-                    <option value="">
-                      -- Pilih Terapis --
-                    </option>
-
-                    <option
-                      v-for="t in terapisList"
-                      :key="t.id"
-                      :value="t.id"
-                    >
-                      {{ t.nama }}
-                    </option>
-                  </select>
-                </td>
-              </tr>
-
-            </tbody>
-          </table>
-
-          <div class="flex justify-end">
-            <button
-              @click="saveAllTerapis"
-              class="btn-green px-5 py-3 text-sm"
-            >
-              💾 Simpan Terapis
+            <button @click="showTerapis = false" class="modal-close">
+              <i class="pi pi-times"></i>
             </button>
+          </div>
+
+          <div class="modal-content modal-content--flush">
+            <div class="table-scroll">
+              <table class="data-table">
+
+                <thead>
+                  <tr>
+                    <th class="th">Sesi</th>
+                    <th class="th">Tanggal</th>
+                    <th class="th">Terapis</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr v-for="(s, i) in modalData.pelayanans" :key="s.id" class="row">
+                    <td class="td">Sesi {{ i + 1 }}</td>
+                    <td class="td">{{ formatDate(s.tanggal_penjadwalan) }}</td>
+
+                    <td class="td">
+                      <select v-model="s.terapis_id" class="input w-full">
+                        <option value="">-- Pilih Terapis --</option>
+                        <option v-for="t in terapisList" :key="t.id" :value="t.id">
+                          {{ t.nama }}
+                        </option>
+                      </select>
+                    </td>
+                  </tr>
+                </tbody>
+
+              </table>
+            </div>
+
+            <div class="flex justify-end pt-4">
+              <button @click="saveAllTerapis" class="btn-accent-alt btn-accent-alt--lg">
+                <i class="pi pi-save"></i>
+                Simpan Terapis
+              </button>
+            </div>
           </div>
 
         </div>
@@ -629,116 +505,546 @@ const kirimEmail = async (row) => {
 }
 
 const statusClass = (status) => ({
-  terjadwal: 'badge-yellow',
-  proses: 'badge-blue',
-  selesai: 'badge-green',
-  batal: 'badge-red'
-}[status] || 'badge-gray')
+  terjadwal: 'badge badge--amber',
+  proses: 'badge badge--blue',
+  selesai: 'badge badge--green',
+  batal: 'badge badge--red'
+}[status] || 'badge badge--gray')
 </script>
 
 <style scoped>
+/* ===============================
+   TOKENS (senada dengan Sidebar.vue & DaftarPasien.vue)
+================================ */
+.page {
+  --bg: #FAFAFA;
+  --surface: #FFFFFF;
+  --border: #ECEDF1;
+  --ink: #1F2128;
+  --muted: #98A0AE;
+  --accent: #6D5CE0;
+  --accent-soft: #F1EEFC;
+
+  --amber: #B98900;
+  --amber-soft: #FBF3DB;
+  --blue: #2563EB;
+  --blue-soft: #E8EFFD;
+  --green: #1A9469;
+  --green-soft: #E5F6EE;
+  --red: #DC4747;
+  --red-soft: #FBEAEA;
+
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  padding: 1.5rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.page > * + * {
+  margin-top: 1.5rem;
+}
+
+/* ===============================
+   HEADER
+================================ */
+.page-header {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.75rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 0.85rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+}
+
+.page-sub {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+/* ===============================
+   SUMMARY
+================================ */
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .summary-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.25rem;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-top: 0.4rem;
+  color: var(--accent);
+}
+
+.stat-value--amber { color: var(--amber); }
+.stat-value--blue { color: var(--blue); }
+.stat-value--green { color: var(--green); }
+
+/* ===============================
+   PANEL
+================================ */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+}
+
+.filter-panel {
+  padding: 1.25rem;
+}
+
+.filter-row {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+@media (min-width: 1280px) {
+  .filter-row {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.per-page-field {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.filter-text {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.filter-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .filter-inputs {
+    flex-direction: row;
+    width: auto;
+  }
+}
+
+/* ===============================
+   INPUTS
+================================ */
+.input {
+  height: 2.75rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  padding: 0 1rem;
+  font-size: 0.85rem;
+  color: var(--ink);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.input--center {
+  text-align: center;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* ===============================
+   TABLE
+================================ */
+.table-panel {
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  font-size: 0.85rem;
+  border-collapse: collapse;
+}
+
+.data-table thead {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
 .th {
-  @apply px-4 py-4 text-left font-semibold text-gray-600 whitespace-nowrap;
+  padding: 0.9rem 1rem;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.th--sortable {
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.th--sortable:hover {
+  color: var(--accent);
+}
+
+.sort-icon {
+  font-size: 0.7rem;
+  opacity: 0.7;
 }
 
 .td {
-  @apply px-4 py-4 whitespace-nowrap;
+  padding: 0.9rem 1rem;
+  color: var(--ink);
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
 
-.card-summary {
-  @apply bg-white rounded-3xl shadow-lg border border-gray-100 p-5;
+.row {
+  transition: background 0.15s ease;
 }
 
-.summary-label {
-  @apply text-sm text-gray-500;
+.row:hover {
+  background: var(--bg);
 }
 
-.summary-value {
-  @apply text-4xl font-bold mt-2;
+.cell-strong {
+  font-weight: 600;
+  color: var(--ink);
 }
 
-.input-modern {
-  @apply border border-gray-200 rounded-2xl px-4 py-2
-  focus:ring-2 focus:ring-indigo-500
-  focus:border-indigo-500
-  outline-none transition;
+.cell-strong--accent {
+  color: var(--accent);
 }
 
-.btn-indigo {
-  @apply bg-indigo-600 text-white px-4 py-2 rounded-xl
-  text-xs hover:bg-indigo-700 transition shadow-sm;
+.cell-faint {
+  color: var(--muted);
 }
 
-.btn-green {
-  @apply bg-emerald-600 text-white px-4 py-2 rounded-xl
-  text-xs hover:bg-emerald-700 transition shadow-sm;
+/* ===============================
+   BADGES
+================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 600;
 }
 
-.btn-blue {
-  @apply bg-sky-600 text-white px-4 py-2 rounded-xl
-  text-xs hover:bg-sky-700 transition shadow-sm;
+.badge--amber { background: var(--amber-soft); color: var(--amber); }
+.badge--blue { background: var(--blue-soft); color: var(--blue); }
+.badge--green { background: var(--green-soft); color: var(--green); }
+.badge--red { background: var(--red-soft); color: var(--red); }
+.badge--gray { background: var(--bg); color: var(--muted); border: 1px solid var(--border); }
+
+/* ===============================
+   BUTTONS
+================================ */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2.2rem;
+  padding: 0 0.9rem;
+  border-radius: 0.55rem;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
 }
 
-.page-btn {
-  @apply px-4 py-2 rounded-xl border border-gray-200
-  text-sm hover:bg-gray-100 transition
-  disabled:opacity-40;
+.btn-primary:hover {
+  background: #5d4dd1;
 }
 
-.page-btn.active {
-  @apply bg-indigo-600 text-white border-indigo-600;
+.btn-accent-alt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  height: 2.2rem;
+  padding: 0 0.9rem;
+  border-radius: 0.55rem;
+  background: var(--green);
+  color: #fff;
+  font-size: 0.76rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
 }
 
-.badge-yellow {
-  @apply bg-yellow-100 text-yellow-700 px-3 py-1
-  rounded-full text-xs font-semibold;
+.btn-accent-alt:hover {
+  background: #157d59;
 }
 
-.badge-blue {
-  @apply bg-blue-100 text-blue-700 px-3 py-1
-  rounded-full text-xs font-semibold;
+.btn-accent-alt--lg {
+  height: 2.6rem;
+  padding: 0 1.25rem;
+  font-size: 0.85rem;
 }
 
-.badge-green {
-  @apply bg-green-100 text-green-700 px-3 py-1
-  rounded-full text-xs font-semibold;
+/* ===============================
+   EMPTY STATE
+================================ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 0;
 }
 
-.badge-red {
-  @apply bg-red-100 text-red-700 px-3 py-1
-  rounded-full text-xs font-semibold;
+.empty-icon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
 }
 
-.badge-gray {
-  @apply bg-gray-100 text-gray-600 px-3 py-1
-  rounded-full text-xs font-semibold;
+.empty-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--ink);
 }
 
-.modal {
-  @apply fixed inset-0 bg-black/50 backdrop-blur-sm
-  flex items-center justify-center z-50 p-4;
-  animation: fadeIn .2s ease;
+.empty-sub {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
 }
 
-.modal-box {
-  @apply bg-white w-full max-w-4xl rounded-3xl
-  p-6 shadow-2xl border border-gray-100;
+/* ===============================
+   PAGINATION
+================================ */
+.pagination-bar {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  padding: 1rem 1.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.pagination-info {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.pagination-btn {
+  min-width: 2.3rem;
+  height: 2.3rem;
+  padding: 0 0.6rem;
+  border-radius: 0.55rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.active-page {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+/* ===============================
+   MODAL
+================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  animation: fadeIn 0.18s ease;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 33, 40, 0.45);
+}
+
+.modal-wrapper {
+  position: relative;
+}
+
+.modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 56rem;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.modal-card--wide {
+  max-width: 64rem;
 }
 
 .modal-header {
-  @apply flex justify-between items-center
-  mb-5 text-xl font-bold;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
+.modal-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.modal-close {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 0.55rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.modal-close:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.modal-content {
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.modal-content--flush {
+  background: var(--surface);
+}
+
+/* ===============================
+   TRANSITIONS
+================================ */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: scale(.98);
   }
-
   to {
     opacity: 1;
-    transform: scale(1);
   }
+}
+
+/* ===============================
+   SCROLLBAR
+================================ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
 }
 </style>

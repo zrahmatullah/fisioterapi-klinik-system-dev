@@ -1,256 +1,141 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-indigo-50 p-6">
+  <div class="page">
 
     <!-- ================= HEADER ================= -->
-    <div
-      class="relative overflow-hidden rounded-3xl
-            bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600
-            p-7 shadow-xl mb-6"
-    >
-      <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div class="page-header">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="pi pi-credit-card"></i>
+        </div>
 
         <div>
-          <h1 class="text-3xl font-bold text-white">
-            💳 Tagihan & Pembayaran
-          </h1>
-
-          <p class="text-white/80 mt-2">
-            Monitoring pembayaran pasien, invoice, dan verifikasi pembayaran
-          </p>
+          <h1 class="page-title">Tagihan & Pembayaran</h1>
+          <p class="page-sub">Monitoring pembayaran pasien, invoice, dan verifikasi pembayaran</p>
         </div>
-
-        <div class="flex flex-col md:flex-row gap-3">
-
-          <input
-            v-model="search"
-            type="text"
-            placeholder="Cari nama anak / no registrasi..."
-            class="bg-white/20 backdrop-blur-md
-                  border border-white/20
-                  text-white placeholder:text-white/70
-                  px-4 py-3 rounded-2xl w-80
-                  focus:outline-none focus:ring-2 focus:ring-white"
-          />
-
-        </div>
-
       </div>
 
-      <div
-        class="absolute right-0 top-0 w-72 h-72
-              bg-white/10 rounded-full blur-3xl"
-      />
+      <div class="input-wrap header-search">
+        <i class="pi pi-search input-icon"></i>
+        <input
+          v-model="search"
+          type="text"
+          placeholder="Cari nama anak / no registrasi..."
+          class="input"
+        />
+      </div>
     </div>
 
     <!-- ================= SUMMARY ================= -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <div class="summary-grid">
 
-      <div class="summary-card">
-        <p class="summary-label">Total Pasien</p>
+      <div class="stat-card">
+        <p class="stat-label">Total Pasien</p>
+        <h2 class="stat-value">{{ registrasiList.length }}</h2>
+      </div>
 
-        <h2 class="summary-value text-indigo-600">
-          {{ registrasiList.length }}
+      <div class="stat-card">
+        <p class="stat-label">Lunas</p>
+        <h2 class="stat-value stat-value--green">
+          {{ registrasiList.filter(r => r?.pembayarans?.[0]?.status === 'lunas').length }}
         </h2>
       </div>
 
-      <div class="summary-card">
-        <p class="summary-label">Lunas</p>
-
-        <h2 class="summary-value text-green-600">
-          {{
-            registrasiList.filter(
-              r => r?.pembayarans?.[0]?.status === 'lunas'
-            ).length
-          }}
+      <div class="stat-card">
+        <p class="stat-label">Belum Lunas</p>
+        <h2 class="stat-value stat-value--red">
+          {{ registrasiList.filter(r => r?.pembayarans?.[0]?.status !== 'lunas').length }}
         </h2>
       </div>
 
-      <div class="summary-card">
-        <p class="summary-label">Belum Lunas</p>
-
-        <h2 class="summary-value text-red-500">
-          {{
-            registrasiList.filter(
-              r => r?.pembayarans?.[0]?.status !== 'lunas'
-            ).length
-          }}
-        </h2>
-      </div>
-
-      <div class="summary-card">
-        <p class="summary-label">Total Transaksi</p>
-
-        <h2 class="summary-value text-fuchsia-600">
-          Rp
-          {{
-            registrasiList
-              .reduce((s, r) => s + totalTagihan(r), 0)
-              .toLocaleString()
-          }}
+      <div class="stat-card">
+        <p class="stat-label">Total Transaksi</p>
+        <h2 class="stat-value">
+          Rp {{ registrasiList.reduce((s, r) => s + totalTagihan(r), 0).toLocaleString() }}
         </h2>
       </div>
 
     </div>
 
     <!-- ================= TABLE ================= -->
-    <div
-      class="bg-white rounded-3xl shadow-xl
-            border border-gray-100 overflow-hidden"
-    >
+    <div class="panel table-panel">
 
-      <div class="overflow-x-auto">
+      <div class="table-scroll">
+        <table class="data-table">
 
-        <table class="w-full text-sm">
-
-          <thead class="bg-slate-100 sticky top-0 z-10">
-
+          <thead>
             <tr>
-
               <th class="th">Pasien</th>
               <th class="th">Orang Tua</th>
               <th class="th">Layanan</th>
               <th class="th">Total Tagihan</th>
               <th class="th text-center">Status</th>
               <th class="th text-center">Aksi</th>
-
             </tr>
-
           </thead>
 
           <tbody>
 
-            <tr
-              v-for="item in filteredRegistrasi"
-              :key="item.id"
-              class="border-b hover:bg-indigo-50/40 transition"
-            >
+            <tr v-for="item in filteredRegistrasi" :key="item.id" class="row">
 
               <!-- PASIEN -->
               <td class="td">
-
-                <div class="flex items-center gap-3">
-
-                  <div
-                    class="w-12 h-12 rounded-2xl
-                          bg-gradient-to-r from-indigo-500 to-fuchsia-500
-                          flex items-center justify-center
-                          text-white font-bold shadow"
-                  >
-                    {{
-                      item.profile_anak?.nama_anak?.charAt(0) || '?'
-                    }}
-                  </div>
+                <div class="patient-cell">
+                  <div class="avatar">{{ item.profile_anak?.nama_anak?.charAt(0) || '?' }}</div>
 
                   <div>
-                    <p class="font-semibold text-gray-800">
-                      {{ item.profile_anak?.nama_anak || '-' }}
-                    </p>
-
-                    <p class="text-xs text-gray-500 mt-1">
-                      {{ item.no_regis }}
-                    </p>
+                    <p class="cell-strong">{{ item.profile_anak?.nama_anak || '-' }}</p>
+                    <p class="cell-faint">{{ item.no_regis }}</p>
                   </div>
-
                 </div>
-
               </td>
 
               <!-- ORANG TUA -->
               <td class="td">
-
-                <div class="space-y-1">
-
-                  <p class="font-medium text-gray-700">
-                    👨 {{ item.nama_ayah || '-' }}
-                  </p>
-
-                  <p class="font-medium text-gray-700">
-                    👩 {{ item.nama_ibu || '-' }}
-                  </p>
-
+                <div class="parent-stack">
+                  <p class="cell-strong"><i class="pi pi-user parent-icon"></i>{{ item.nama_ayah || '-' }}</p>
+                  <p class="cell-strong"><i class="pi pi-user parent-icon"></i>{{ item.nama_ibu || '-' }}</p>
                 </div>
-
               </td>
 
               <!-- LAYANAN -->
               <td class="td">
-
-                <div class="flex flex-wrap gap-2">
-
-                  <span
-                    v-for="p in pelayanans(item)"
-                    :key="p.id"
-                    class="px-3 py-1 rounded-full
-                          bg-indigo-100 text-indigo-700
-                          text-xs font-semibold"
-                  >
+                <div class="flex flex-wrap gap-1.5">
+                  <span v-for="p in pelayanans(item)" :key="p.id" class="tag">
                     {{ p.layanan?.layanan }}
                   </span>
-
                 </div>
-
               </td>
 
               <!-- TOTAL -->
               <td class="td">
-
-                <div>
-                  <p class="font-bold text-indigo-600 text-base">
-                    Rp {{ totalTagihan(item).toLocaleString() }}
-                  </p>
-
-                  <p class="text-xs text-gray-400 mt-1">
-                    {{ pelayanans(item).length }} layanan
-                  </p>
-                </div>
-
+                <p class="cell-strong cell-strong--accent">Rp {{ totalTagihan(item).toLocaleString() }}</p>
+                <p class="cell-faint">{{ pelayanans(item).length }} layanan</p>
               </td>
 
               <!-- STATUS -->
               <td class="td text-center">
-
                 <span
-                  class="badge-status"
-                  :class="
-                    item?.pembayarans?.[0]?.status === 'lunas'
-                      ? 'badge-success'
-                      : 'badge-danger'
-                  "
+                  class="badge"
+                  :class="item?.pembayarans?.[0]?.status === 'lunas' ? 'badge--green' : 'badge--red'"
                 >
-
-                  {{
-                    item?.pembayarans?.[0]?.status === 'lunas'
-                      ? 'LUNAS'
-                      : 'BELUM LUNAS'
-                  }}
-
+                  {{ item?.pembayarans?.[0]?.status === 'lunas' ? 'Lunas' : 'Belum lunas' }}
                 </span>
-
               </td>
 
               <!-- AKSI -->
               <td class="td">
+                <div class="flex flex-wrap justify-center gap-1.5">
 
-                <div class="flex flex-wrap justify-center gap-2">
+                  <button @click="bukaDetail(item)" class="btn-secondary btn-secondary--sm">Detail</button>
 
-                  <!-- DETAIL -->
-                  <button
-                    @click="bukaDetail(item)"
-                    class="btn-outline"
-                  >
-                    Detail
-                  </button>
-
-                  <!-- SEND BILL -->
                   <button
                     v-if="!item?.pembayarans?.length"
                     @click="verifikasiPembayaran(item)"
-                    class="btn-warning"
+                    class="btn-amber"
                   >
-                    Send Bill
+                    Send bill
                   </button>
 
-                  <!-- BAYAR -->
                   <button
                     v-if="!item?.pembayarans?.length"
                     @click="bukaBayar(item)"
@@ -259,233 +144,303 @@
                     Bayar
                   </button>
 
-                  <!-- CETAK -->
                   <button
                     v-if="item?.pembayarans?.length"
                     @click="cetakInvoice(item)"
-                    class="btn-success"
+                    class="btn-accent-alt"
                   >
                     Cetak
                   </button>
 
-                  <!-- EMAIL -->
-                  <button
-                    @click="kirimEmail(item)"
-                    class="btn-info"
-                  >
-                    Email
-                  </button>
+                  <button @click="kirimEmail(item)" class="btn-blue">Email</button>
 
                 </div>
-
               </td>
 
             </tr>
 
             <!-- EMPTY -->
             <tr v-if="!filteredRegistrasi.length">
-
               <td colspan="6">
-
-                <div class="flex flex-col items-center py-16">
-
-                  <div class="text-6xl mb-4">
-                    📭
-                  </div>
-
-                  <p class="text-lg font-semibold text-gray-600">
-                    Tidak ada data pembayaran
-                  </p>
-
-                  <p class="text-sm text-gray-400 mt-2">
-                    Data pasien tidak ditemukan
-                  </p>
-
+                <div class="empty-state">
+                  <div class="empty-icon"><i class="pi pi-inbox"></i></div>
+                  <p class="empty-title">Tidak ada data pembayaran</p>
+                  <p class="empty-sub">Data pasien tidak ditemukan</p>
                 </div>
-
               </td>
-
             </tr>
 
           </tbody>
-
         </table>
-
       </div>
 
     </div>
 
     <!-- ================= DETAIL MODAL ================= -->
-    <div
-      v-if="showDetail"
-      class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50
-            flex items-center justify-center overflow-y-auto p-4"
-    >
+    <div v-if="showDetail" class="modal-overlay">
+      <div class="modal-backdrop" @click="showDetail = false"></div>
 
-      <div class="bg-white w-full max-w-5xl rounded-3xl shadow-2xl p-6">
+      <div class="modal-wrapper">
+        <div class="modal-card modal-card--wide">
 
-        <div class="flex justify-between items-center border-b pb-4 mb-6">
+          <div class="modal-header">
+            <div class="flex-1">
+              <h2 class="modal-title">Detail tagihan pasien</h2>
+              <p class="modal-sub">Informasi pembayaran dan rincian layanan</p>
+            </div>
 
-          <div>
-            <h2 class="text-2xl font-bold text-gray-800">
-              📄 Detail Tagihan Pasien
-            </h2>
-
-            <p class="text-sm text-gray-500 mt-1">
-              Informasi pembayaran dan rincian layanan
-            </p>
+            <button @click="showDetail = false" class="modal-close"><i class="pi pi-times"></i></button>
           </div>
 
-          <button
-            @click="showDetail = false"
-            class="btn-outline"
-          >
-            Tutup
-          </button>
+          <div class="modal-content">
+
+            <!-- INFO -->
+            <div class="info-grid">
+
+              <div class="info-card">
+                <p class="info-label">Nama Anak</p>
+                <p class="info-value">{{ selected.profile_anak?.nama_anak }}</p>
+              </div>
+
+              <div class="info-card">
+                <p class="info-label">No Registrasi</p>
+                <p class="info-value">{{ selected.no_regis }}</p>
+              </div>
+
+              <div class="info-card">
+                <p class="info-label">Tanggal Registrasi</p>
+                <p class="info-value">{{ selected.tgl_regis }}</p>
+              </div>
+
+              <div class="info-card">
+                <p class="info-label">Status Pembayaran</p>
+                <span class="badge" :class="pembayaranAktif?.status === 'lunas' ? 'badge--green' : 'badge--red'">
+                  {{ pembayaranAktif?.status || 'Belum bayar' }}
+                </span>
+              </div>
+
+            </div>
+
+            <!-- TABLE LAYANAN -->
+            <div class="panel mt-4">
+              <div class="panel-label">Rincian Tagihan</div>
+
+              <div class="table-scroll">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th class="th">Layanan</th>
+                      <th class="th">Tanggal</th>
+                      <th class="th">Terapis</th>
+                      <th class="th text-right">Subtotal</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    <tr v-for="p in pelayanans(selected)" :key="p.id" class="row">
+                      <td class="td">{{ p.layanan?.layanan }}</td>
+                      <td class="td">{{ p.tanggal_penjadwalan }}</td>
+                      <td class="td">{{ p.terapis?.nama }}</td>
+                      <td class="td text-right cell-strong">Rp {{ (p.qty * p.harga).toLocaleString() }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- TOTAL -->
+            <div class="info-card mt-4">
+
+              <div class="info-row info-row--lg">
+                <span>Total Tagihan</span>
+                <span class="cell-strong cell-strong--accent">Rp {{ totalTagihan(selected).toLocaleString() }}</span>
+              </div>
+
+              <div v-if="diskonDetail > 0" class="info-row info-row--green">
+                <span>Diskon</span>
+                <span>- Rp {{ diskonDetail.toLocaleString() }}</span>
+              </div>
+
+              <div v-if="pembayaranAktif" class="info-row info-row--lg">
+                <span>Total Bayar</span>
+                <span class="cell-strong cell-strong--accent">Rp {{ Number(pembayaranAktif.jumlah_bayar).toLocaleString() }}</span>
+              </div>
+
+            </div>
+
+            <!-- ============= BUKTI & VERIFIKASI PEMBAYARAN ============= -->
+            <div v-if="pembayaranAktif" class="panel mt-4">
+
+              <div class="panel-label panel-label--row">
+                <span>Bukti & Verifikasi Pembayaran</span>
+
+                <span
+                  class="badge"
+                  :class="
+                    pembayaranAktif?.status_verifikasi === 'diterima'
+                      ? 'badge--green'
+                      : pembayaranAktif?.status_verifikasi === 'ditolak'
+                        ? 'badge--red'
+                        : 'badge--amber'
+                  "
+                >
+                  {{ pembayaranAktif?.status_verifikasi ? pembayaranAktif.status_verifikasi : 'Menunggu' }}
+                </span>
+              </div>
+
+              <div class="panel-body">
+
+                <div v-if="pembayaranAktif?.bukti_pembayaran" class="proof-layout">
+
+                  <div class="flex-shrink-0">
+                    <img
+                      v-if="isImage(pembayaranAktif.bukti_pembayaran)"
+                      :src="fileUrl(pembayaranAktif.bukti_pembayaran)"
+                      @click="openImage(pembayaranAktif.bukti_pembayaran)"
+                      class="proof-image"
+                      alt="Bukti pembayaran"
+                    />
+
+                    <a v-else :href="fileUrl(pembayaranAktif.bukti_pembayaran)" target="_blank" class="btn-secondary">
+                      <i class="pi pi-paperclip"></i>
+                      Lihat file bukti
+                    </a>
+                  </div>
+
+                  <div class="flex-1 space-y-2">
+
+                    <div class="info-card">
+                      <p class="info-label">Tanggal Bayar</p>
+                      <p class="info-value">{{ pembayaranAktif.tanggal_bayar || '-' }}</p>
+                    </div>
+
+                    <div class="info-card">
+                      <p class="info-label">Metode Pembayaran</p>
+                      <p class="info-value">{{ pembayaranAktif.metode_pembayaran || '-' }}</p>
+                    </div>
+
+                    <div
+                      v-if="!pembayaranAktif.status_verifikasi || pembayaranAktif.status_verifikasi === 'menunggu'"
+                      class="flex gap-2 pt-1"
+                    >
+                      <button @click="ubahStatusVerifikasi('diterima')" class="btn-accent-alt">
+                        <i class="pi pi-check"></i>
+                        Terima pembayaran
+                      </button>
+
+                      <button @click="ubahStatusVerifikasi('ditolak')" class="btn-danger">
+                        <i class="pi pi-times"></i>
+                        Tolak pembayaran
+                      </button>
+                    </div>
+
+                    <p v-else class="cell-faint">
+                      Pembayaran sudah {{ pembayaranAktif.status_verifikasi === 'diterima' ? 'diverifikasi & diterima' : 'ditolak' }}.
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <div v-else class="empty-state empty-state--sm">
+                  Pasien belum mengupload bukti pembayaran.
+                </div>
+
+              </div>
+
+            </div>
+
+          </div>
 
         </div>
-
-        <!-- INFO -->
-        <div class="grid md:grid-cols-2 gap-5 mb-6">
-
-          <div class="info-card">
-            <p class="info-label">Nama Anak</p>
-            <p class="info-value">
-              {{ selected.profile_anak?.nama_anak }}
-            </p>
-          </div>
-
-          <div class="info-card">
-            <p class="info-label">No Registrasi</p>
-            <p class="info-value">
-              {{ selected.no_regis }}
-            </p>
-          </div>
-
-          <div class="info-card">
-            <p class="info-label">Tanggal Registrasi</p>
-            <p class="info-value">
-              {{ selected.tgl_regis }}
-            </p>
-          </div>
-
-          <div class="info-card">
-            <p class="info-label">Status Pembayaran</p>
-
-            <span
-              class="badge-status"
-              :class="
-                pembayaranAktif?.status === 'lunas'
-                  ? 'badge-success'
-                  : 'badge-danger'
-              "
-            >
-              {{ pembayaranAktif?.status || 'BELUM BAYAR' }}
-            </span>
-          </div>
-
-        </div>
-
-        <!-- TABLE LAYANAN -->
-        <div class="border rounded-2xl overflow-hidden">
-
-          <div
-            class="bg-slate-100 px-5 py-4
-                  font-semibold text-gray-700"
-          >
-            Rincian Tagihan
-          </div>
-
-          <table class="w-full text-sm">
-
-            <thead class="bg-gray-50">
-
-              <tr>
-
-                <th class="th">Layanan</th>
-                <th class="th">Tanggal</th>
-                <th class="th">Terapis</th>
-                <th class="th text-right">Subtotal</th>
-
-              </tr>
-
-            </thead>
-
-            <tbody>
-
-              <tr
-                v-for="p in pelayanans(selected)"
-                :key="p.id"
-                class="border-t"
-              >
-
-                <td class="td">
-                  {{ p.layanan?.layanan }}
-                </td>
-
-                <td class="td">
-                  {{ p.tanggal_penjadwalan }}
-                </td>
-
-                <td class="td">
-                  {{ p.terapis?.nama }}
-                </td>
-
-                <td class="td text-right font-semibold">
-                  Rp {{ (p.qty * p.harga).toLocaleString() }}
-                </td>
-
-              </tr>
-
-            </tbody>
-
-          </table>
-
-        </div>
-
-        <!-- TOTAL -->
-        <div class="mt-6 bg-indigo-50 rounded-2xl p-5">
-
-          <div class="flex justify-between text-lg font-bold">
-
-            <span>Total Tagihan</span>
-
-            <span class="text-indigo-700">
-              Rp {{ totalTagihan(selected).toLocaleString() }}
-            </span>
-
-          </div>
-
-          <div
-            v-if="diskonDetail > 0"
-            class="flex justify-between mt-2 text-green-600 font-semibold"
-          >
-
-            <span>Diskon</span>
-
-            <span>
-              - Rp {{ diskonDetail.toLocaleString() }}
-            </span>
-
-          </div>
-
-          <div
-            v-if="pembayaranAktif"
-            class="flex justify-between mt-2 text-xl font-bold text-fuchsia-700"
-          >
-
-            <span>Total Bayar</span>
-
-            <span>
-              Rp {{ Number(pembayaranAktif.jumlah_bayar).toLocaleString() }}
-            </span>
-
-          </div>
-
-        </div>
-
       </div>
+    </div>
 
+    <!-- ================= MODAL BAYAR ================= -->
+    <div v-if="showBayar" class="modal-overlay">
+      <div class="modal-backdrop" @click="showBayar = false"></div>
+
+      <div class="modal-wrapper">
+        <div class="modal-card">
+
+          <div class="modal-header">
+            <div class="flex-1">
+              <h2 class="modal-title">Input pembayaran</h2>
+              <p class="modal-sub">{{ selected?.profile_anak?.nama_anak }} &middot; {{ selected?.no_regis }}</p>
+            </div>
+
+            <button @click="showBayar = false" class="modal-close"><i class="pi pi-times"></i></button>
+          </div>
+
+          <div class="modal-content">
+
+            <div class="field">
+              <label class="field-label">Tanggal Bayar</label>
+              <input v-model="formBayar.tanggal_bayar" type="date" class="input" />
+            </div>
+
+            <div class="field">
+              <label class="field-label">Metode Pembayaran</label>
+              <select v-model="formBayar.metode_pembayaran" class="input">
+                <option value="cash">Cash</option>
+                <option value="transfer">Transfer</option>
+                <option value="debit">Debit</option>
+                <option value="qris">QRIS</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label class="field-label">Promo / Diskon</label>
+              <select v-model="selectedPromo" @change="hitungDiskon" class="input">
+                <option :value="null">Tanpa promo</option>
+                <option v-for="promo in promos" :key="promo.id" :value="promo.id">
+                  {{ promo.nama_promo || promo.nama }}
+                  ({{ promo.tipe_diskon === 'persen' ? `${promo.nilai_diskon}%` : `Rp ${Number(promo.nilai_diskon).toLocaleString()}` }})
+                </option>
+              </select>
+            </div>
+
+            <div class="info-card">
+              <div class="info-row">
+                <span class="cell-faint">Total Tagihan</span>
+                <span class="cell-strong">Rp {{ Number(formBayar.total_tagihan).toLocaleString() }}</span>
+              </div>
+
+              <div v-if="diskon > 0" class="info-row info-row--green">
+                <span>Diskon</span>
+                <span>- Rp {{ Number(diskon).toLocaleString() }}</span>
+              </div>
+
+              <div class="info-row info-row--lg">
+                <span>Jumlah Bayar</span>
+                <span class="cell-strong cell-strong--accent">Rp {{ Number(formBayar.jumlah_bayar).toLocaleString() }}</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label">Status</label>
+              <select v-model="formBayar.status" class="input">
+                <option value="lunas">Lunas</option>
+                <option value="pending">Pending / DP</option>
+              </select>
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button @click="showBayar = false" class="btn-secondary">Batal</button>
+            <button @click="simpanBayar" class="btn-primary btn-primary--lg">Simpan pembayaran</button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MODAL PREVIEW GAMBAR BUKTI ================= -->
+    <div v-if="showImage" class="image-overlay" @click="closeImage">
+      <img :src="imageUrl" class="image-preview" @click.stop />
+
+      <button @click="closeImage" class="image-close"><i class="pi pi-times"></i></button>
     </div>
 
   </div>
@@ -790,95 +745,671 @@ const ubahStatusVerifikasi = async (status) => {
 </script>
 
 <style scoped>
+/* ===============================
+   TOKENS (senada dengan Sidebar.vue & halaman lain)
+================================ */
+.page {
+  --bg: #FAFAFA;
+  --surface: #FFFFFF;
+  --border: #ECEDF1;
+  --ink: #1F2128;
+  --muted: #98A0AE;
+  --accent: #6D5CE0;
+  --accent-soft: #F1EEFC;
+
+  --amber: #B98900;
+  --amber-soft: #FBF3DB;
+  --blue: #2563EB;
+  --blue-soft: #E8EFFD;
+  --green: #1A9469;
+  --green-soft: #E5F6EE;
+  --red: #DC4747;
+  --red-soft: #FBEAEA;
+
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  padding: 1.5rem;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.page > * + * {
+  margin-top: 1.5rem;
+}
+
+/* ===============================
+   HEADER
+================================ */
+.page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.75rem;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.header-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 0.85rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+}
+
+.page-sub {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+.header-search {
+  width: 100%;
+  max-width: 320px;
+}
+
+/* ===============================
+   SUMMARY
+================================ */
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .summary-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  padding: 1.25rem;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.stat-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-top: 0.4rem;
+  color: var(--accent);
+}
+
+.stat-value--green { color: var(--green); }
+.stat-value--red { color: var(--red); }
+
+/* ===============================
+   PANEL / TABLE
+================================ */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+}
+
+.panel-label {
+  padding: 0.9rem 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink);
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-label--row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.panel-body {
+  padding: 1.25rem;
+}
+
+.table-panel {
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.data-table {
+  width: 100%;
+  font-size: 0.85rem;
+  border-collapse: collapse;
+}
+
+.data-table thead {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
 .th {
-  @apply px-5 py-4 text-left
-  font-semibold text-gray-600 whitespace-nowrap;
+  padding: 0.9rem 1.25rem;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  white-space: nowrap;
 }
 
 .td {
-  @apply px-5 py-4 whitespace-nowrap;
+  padding: 0.9rem 1.25rem;
+  color: var(--ink);
+  vertical-align: middle;
+  border-bottom: 1px solid var(--border);
 }
 
-.summary-card {
-  @apply bg-white rounded-3xl
-  shadow-lg border border-gray-100 p-5;
+.row {
+  transition: background 0.15s ease;
 }
 
-.summary-label {
-  @apply text-sm text-gray-500;
+.row:hover {
+  background: var(--bg);
 }
 
-.summary-value {
-  @apply text-3xl font-bold mt-2;
+.cell-strong {
+  font-weight: 600;
+  color: var(--ink);
+  font-size: 0.85rem;
 }
 
-.badge-status {
-  @apply px-4 py-1 rounded-full
-  text-xs font-bold;
+.cell-strong--accent {
+  color: var(--accent);
 }
 
-.badge-success {
-  @apply bg-green-100 text-green-700;
+.cell-faint {
+  font-size: 0.78rem;
+  color: var(--muted);
 }
 
-.badge-danger {
-  @apply bg-red-100 text-red-700;
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  background: var(--accent-soft);
+  color: var(--accent);
 }
 
-.btn-outline {
-  @apply px-3 py-2 rounded-xl border
-  border-gray-200 text-gray-700
-  hover:bg-gray-100 transition
-  text-xs font-semibold;
+.patient-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.avatar {
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 0.7rem;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.parent-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.parent-icon {
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-right: 0.4rem;
+}
+
+/* ===============================
+   BADGES
+================================ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  text-transform: capitalize;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.badge--amber { background: var(--amber-soft); color: var(--amber); }
+.badge--blue { background: var(--blue-soft); color: var(--blue); }
+.badge--green { background: var(--green-soft); color: var(--green); }
+.badge--red { background: var(--red-soft); color: var(--red); }
+
+/* ===============================
+   BUTTONS
+================================ */
+.btn-primary,
+.btn-secondary,
+.btn-accent-alt,
+.btn-amber,
+.btn-blue,
+.btn-danger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2.1rem;
+  padding: 0 0.8rem;
+  border-radius: 0.55rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  white-space: nowrap;
 }
 
 .btn-primary {
-  @apply px-3 py-2 rounded-xl
-  bg-indigo-600 text-white
-  hover:bg-indigo-700 transition
-  text-xs font-semibold shadow-sm;
+  background: var(--accent);
+  color: #fff;
 }
 
-.btn-success {
-  @apply px-3 py-2 rounded-xl
-  bg-green-600 text-white
-  hover:bg-green-700 transition
-  text-xs font-semibold shadow-sm;
+.btn-primary:hover { background: #5d4dd1; }
+
+.btn-primary--lg {
+  height: 2.6rem;
+  padding: 0 1.25rem;
+  font-size: 0.85rem;
 }
 
-.btn-warning {
-  @apply px-3 py-2 rounded-xl
-  bg-orange-500 text-white
-  hover:bg-orange-600 transition
-  text-xs font-semibold shadow-sm;
+.btn-secondary {
+  background: var(--bg);
+  color: var(--ink);
+  border: 1px solid var(--border);
 }
 
-.btn-info {
-  @apply px-3 py-2 rounded-xl
-  bg-sky-600 text-white
-  hover:bg-sky-700 transition
-  text-xs font-semibold shadow-sm;
+.btn-secondary:hover { background: var(--accent-soft); }
+
+.btn-secondary--sm {
+  height: 2.1rem;
 }
 
-.info-card {
-  @apply bg-gray-50 rounded-2xl
-  p-4 border border-gray-100;
+.btn-accent-alt {
+  background: var(--green);
+  color: #fff;
 }
 
-.info-label {
-  @apply text-sm text-gray-500;
+.btn-accent-alt:hover { background: #157d59; }
+
+.btn-amber {
+  background: var(--amber);
+  color: #fff;
 }
 
-.info-value {
-  @apply font-bold text-gray-800 mt-1;
+.btn-amber:hover { background: #9c7300; }
+
+.btn-blue {
+  background: var(--blue);
+  color: #fff;
+}
+
+.btn-blue:hover { background: #1d4fc4; }
+
+.btn-danger {
+  background: var(--red);
+  color: #fff;
+}
+
+.btn-danger:hover { background: #c23a3a; }
+
+/* ===============================
+   EMPTY STATE
+================================ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem 0;
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.empty-state--sm {
+  padding: 1.5rem 0;
+}
+
+.empty-icon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 999px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.empty-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.empty-sub {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 0.2rem;
+}
+
+/* ===============================
+   INPUTS / FIELDS
+================================ */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.field-label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 1rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  pointer-events: none;
 }
 
 .input {
-  @apply w-full border rounded-lg px-3 py-2
-  text-sm focus:ring-2 focus:ring-indigo-500;
+  width: 100%;
+  height: 2.75rem;
+  border-radius: 0.65rem;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  padding: 0 1rem;
+  font-size: 0.85rem;
+  color: var(--ink);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.label {
-  @apply text-sm font-medium text-gray-600;
+.header-search .input {
+  padding-left: 2.5rem;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* ===============================
+   INFO CARD
+================================ */
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.85rem;
+}
+
+@media (min-width: 768px) {
+  .info-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.info-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 0.85rem;
+  padding: 1rem 1.1rem;
+}
+
+.info-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.info-value {
+  font-weight: 700;
+  color: var(--ink);
+  margin-top: 0.2rem;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.4rem 0;
+  font-size: 0.85rem;
+}
+
+.info-row--lg {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.info-row--green {
+  color: var(--green);
+  font-weight: 600;
+}
+
+/* ===============================
+   PROOF OF PAYMENT
+================================ */
+.proof-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .proof-layout {
+    flex-direction: row;
+  }
+}
+
+.proof-image {
+  width: 10rem;
+  height: 10rem;
+  object-fit: cover;
+  border-radius: 0.85rem;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.proof-image:hover {
+  opacity: 0.85;
+}
+
+/* ===============================
+   MODAL
+================================ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 33, 40, 0.45);
+}
+
+.modal-wrapper {
+  position: relative;
+}
+
+.modal-card {
+  position: relative;
+  width: 100%;
+  max-width: 32rem;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.modal-card--wide {
+  max-width: 56rem;
+}
+
+.modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.modal-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.modal-sub {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin-top: 0.15rem;
+}
+
+.modal-close {
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 0.55rem;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.modal-close:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.modal-content {
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1.1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+/* ===============================
+   IMAGE PREVIEW
+================================ */
+.image-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background: rgba(15, 16, 20, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 0.85rem;
+}
+
+.image-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  width: 2.4rem;
+  height: 2.4rem;
+  border-radius: 0.6rem;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* ===============================
+   SCROLLBAR
+================================ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
 }
 </style>
