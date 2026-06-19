@@ -1,39 +1,39 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\AgamaController;
-use App\Http\Controllers\Api\LandingController;
-use App\Http\Controllers\Api\LayananController;
-// use App\Http\Controllers\Api\PegawaiController;
-use App\Http\Controllers\Api\PromosiController;
-use App\Http\Controllers\Api\RuanganController;
-use App\Http\Controllers\Api\OtpEmailController;
-use App\Http\Controllers\Api\JenisUserController;
-use App\Http\Controllers\Api\UserLoginController;
+use App\Http\Controllers\Api\AIController;
 use App\Http\Controllers\Api\Assesment1Controller;
-use App\Http\Controllers\Api\JadwalUserController;
-use App\Http\Controllers\Api\KeluhanAnakController;
-use App\Http\Controllers\Api\ProfileAnakController;
-use App\Http\Controllers\Api\UserProfileController;
-use App\Http\Controllers\Api\JadwalMasterController;
-use App\Http\Controllers\Api\JenisKelaminController;
-use App\Http\Controllers\Api\DashboardAdminController;
-use App\Http\Controllers\Api\EvaluasiTerapiController;
-use App\Http\Controllers\Api\LaporanKeluhanController;
-use App\Http\Controllers\Api\RegistrasiAnakController;
-use App\Http\Controllers\Api\KategoriLayananController;
-use App\Http\Controllers\Api\RiwayatEvaluasiController;
-use App\Http\Controllers\Api\DashboardTerapisController;
-use App\Http\Controllers\Api\TerapisToRuanganController;
-use App\Http\Controllers\Api\HasilEvaluasiAnakController;
-use App\Http\Controllers\Api\LaporanPembayaranController;
-use App\Http\Controllers\Api\MasterUserProfileController;
-use App\Http\Controllers\Api\PelayananTerapiAnakController;
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CatatanAktivitasAnakController;
-use App\Http\Controllers\Api\PembayaranRegistrasiController;
+use App\Http\Controllers\Api\DashboardAdminController;
+use App\Http\Controllers\Api\DashboardTerapisController;
+use App\Http\Controllers\Api\EvaluasiTerapiController;
+use App\Http\Controllers\Api\HasilEvaluasiAnakController;
+use App\Http\Controllers\Api\JadwalMasterController;
+use App\Http\Controllers\Api\JadwalUserController;
+use App\Http\Controllers\Api\JenisKelaminController;
+use App\Http\Controllers\Api\JenisUserController;
+use App\Http\Controllers\Api\KategoriLayananController;
+use App\Http\Controllers\Api\KeluhanAnakController;
+use App\Http\Controllers\Api\LandingController;
 use App\Http\Controllers\Api\LaporanHistoryPromosiController;
+use App\Http\Controllers\Api\LaporanKeluhanController;
+use App\Http\Controllers\Api\LaporanPembayaranController;
+use App\Http\Controllers\Api\LayananController;
+use App\Http\Controllers\Api\MasterUserProfileController;
+use App\Http\Controllers\Api\OtpEmailController;
+use App\Http\Controllers\Api\PelayananTerapiAnakController;
+use App\Http\Controllers\Api\PembayaranRegistrasiController;
+use App\Http\Controllers\Api\ProfileAnakController;
+use App\Http\Controllers\Api\PromosiController;
+use App\Http\Controllers\Api\RegistrasiAnakController;
+use App\Http\Controllers\Api\RiwayatEvaluasiController;
+use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\RuanganController;
+use App\Http\Controllers\Api\TerapisToRuanganController;
+use App\Http\Controllers\Api\UserLoginController;
+use App\Http\Controllers\Api\UserProfileController;
+use Illuminate\Support\Facades\Route;
 
 
 
@@ -349,3 +349,5 @@ Route::get(
 );
 
 Route::get('/cetak/evaluasi-anak/{id}/pdf', [EvaluasiTerapiController::class, 'cetakPdf']);
+
+Route::post('/ai-command', [AIController::class, 'command']);
