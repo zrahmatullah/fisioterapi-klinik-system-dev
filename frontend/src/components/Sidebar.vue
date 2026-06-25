@@ -3,12 +3,12 @@
     <!-- HEADER -->
     <div class="sidebar-header">
       <div class="logo-wrapper">
-        <img src="/logo.png" alt="Logo Klinik" />
+        <!-- <img src="/logo.png" alt="Logo Klinik" /> -->
       </div>
 
       <div class="brand-text">
-        <div class="brand-name">KLINIK ABQARY</div>
-        <div class="brand-sub">Child Therapy Center</div>
+        <div class="brand-name">E-Clinic Dev</div>
+        <div class="brand-sub">By Zharpiil</div>
       </div>
     </div>
 
@@ -166,6 +166,9 @@
             </li>
             <li @click="go('/master-promosi')" class="submenu" :class="{ 'submenu--active': route.path === '/master-promosi' }">
               <i class="pi pi-briefcase"></i><span>Master Promosi</span>
+            </li>
+            <li @click="go('/master-produk')" class="submenu" :class="{ 'submenu--active': route.path === '/master-produk' }">
+              <i class="pi pi-briefcase"></i><span>Master Produk Farmasi</span>
             </li>
           </ul>
         </transition>

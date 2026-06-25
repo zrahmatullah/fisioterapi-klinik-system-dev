@@ -42,7 +42,6 @@ class PelayananTerapiAnakController extends Controller
 
             foreach ($request->tanggal_penjadwalan as $item) {
 
-                // SUPPORT FORMAT LAMA & BARU
                 if (is_array($item)) {
                     $tanggal    = $item['tanggal'] ?? null;
                     $jamMulai   = $item['jam_mulai'] ?? null;

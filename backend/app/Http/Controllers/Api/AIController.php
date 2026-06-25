@@ -17,9 +17,14 @@ class AIController extends Controller
 
     public function command(Request $request)
     {
-        $text = $request->message;
+        $request->validate(['message' => 'required|string|max:500']);
 
-        $result = $this->ai->parseCommand($text);
+        $roleId = auth()->user()->role_id;
+
+        $roleMap = [13 => 'admin', 14 => 'terapis', 15 => 'orang_tua'];
+        $role = $roleMap[$roleId] ?? 'unknown';
+
+        $result = $this->ai->parseCommand($request->message, $role);
 
         return response()->json($result);
     }

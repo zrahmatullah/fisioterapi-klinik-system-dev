@@ -31,4 +31,7 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'google_tts' => [
+    'api_key' => env('GOOGLE_TTS_API_KEY'),
+    ],
 ];

@@ -1,19 +1,19 @@
 /* BACKGROUND */
 .dashboard {
-  background: linear-gradient(135deg, #e0f2fe, #ffffff);
   min-height: 100vh;
-  padding: 24px;
-  font-family: 'Segoe UI', sans-serif;
-  color: #0f172a;
+  padding: 25px;
+  background: #F6F4FB;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  color: #2E2A4A;
 }
 
 /* CARD GLOBAL */
 .card {
-  background: #ffffff;
+  background: #FFFFFF;
+  border: 1px solid #E8E3F7;
   border-radius: 22px;
-  padding: 22px;
-  box-shadow: 0 15px 40px rgba(0, 119, 182, 0.15);
-  border: 1px solid #e0f2fe;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.06);
 }
 
 /* HEADER */
@@ -21,13 +21,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 25px;
+  margin-bottom: 24px;
 }
 
 .logo {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 700;
-  color: #0369a1;
+  color: #3C3489;
+  letter-spacing: -0.01em;
 }
 
 .datetime {
@@ -35,107 +36,176 @@
 }
 
 .date {
-  font-size: 16px;
-  color: #64748b;
+  color: #6B6791;
+  font-size: 15px;
 }
 
 .jam {
-  font-size: 20px;
-  font-weight: bold;
-  color: #0284c7;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  color: #3C3489;
+  letter-spacing: 0.02em;
 }
 
 /* TOMBOL AUDIO */
 .audio-btn {
-  margin-top: 8px;
-  padding: 8px 16px;
-  border-radius: 10px;
-  border: none;
-  background: #0ea5e9;
-  color: white;
+  margin-top: 10px;
+  border: 1px solid #D8CFF2;
+  padding: 11px 20px;
+  border-radius: 14px;
+  background: #FFFFFF;
+  color: #534AB7;
+  font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  transition: 0.2s;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  font-family: inherit;
 }
-
 .audio-btn:hover {
-  background: #0284c7;
+  background: #F1EFFE;
+  border-color: #BEB0EC;
 }
 
 /* CARD ANTRIAN UTAMA */
 .main-card {
   text-align: center;
-  margin-bottom: 30px;
-  padding: 45px;
+  margin-bottom: 28px;
+  padding: 48px 32px;
+  background: #3C3489;
+  color: #EEEDFE;
+  border-radius: 28px;
+  overflow: hidden;
+  position: relative;
+}
 
-  background: linear-gradient(135deg, #0ea5e9, #2563eb);
-  color: white;
+.main-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle at 18% 18%, rgba(255,255,255,0.08), transparent 45%);
+  pointer-events: none;
 }
 
 .title {
-  font-size: 26px;
-  opacity: 0.9;
+  position: relative;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #CECBF6;
+  margin-bottom: 14px;
 }
 
+/* NOMOR ANTRIAN */
 .nomor {
-  font-size: 150px;
-  font-weight: 900;
-  margin: 20px 0;
+  position: relative;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: clamp(4.5rem, 11vw, 8rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  margin-bottom: 18px;
 }
 
 .nama {
+  position: relative;
   font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 14px;
+  color: #FFFFFF;
 }
 
 .ruangan {
-  font-size: 22px;
-  opacity: 0.95;
+  position: relative;
+  font-size: 19px;
+  background: rgba(255, 255, 255, 0.12);
+  display: inline-block;
+  padding: 12px 26px;
+  border-radius: 14px;
+  color: #EEEDFE;
 }
 
-/* POLI GRID */
+/* GRID POLI */
 .poli-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 22px;
+  gap: 20px;
 }
 
+/* CARD POLI */
 .poli-card {
   text-align: center;
-  padding: 30px;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  padding: 30px 22px;
+  border-radius: 22px;
+  background: #FFFFFF;
+  border: 1px solid #E8E3F7;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .poli-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 20px 45px rgba(14,165,233,0.25);
+  border-color: #BEB0EC;
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.1);
 }
 
 .icon {
-  font-size: 42px;
+  width: 52px;
+  height: 52px;
+  margin: 0 auto 14px;
+  border-radius: 15px;
+  background: #EEEDFE;
+  color: #534AB7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
 }
 
 .poli-title {
-  margin-top: 10px;
-  font-size: 20px;
-  color: #0369a1;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #6B6791;
 }
 
 .poli-nomor {
-  font-size: 36px;
-  margin-top: 10px;
-  font-weight: bold;
-  color: #0284c7;
+  margin-top: 12px;
+  font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  font-size: 34px;
+  font-weight: 700;
+  color: #3C3489;
 }
 
-/* ANIMASI DIPANGGIL */
+/* ANIMASI SAAT DIPANGGIL */
 .calling {
-  animation: glow 1s infinite;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.04); }
 }
 
-@keyframes glow {
-  50% {
-    transform: scale(1.05);
-    text-shadow: 0 0 25px rgba(255,255,255,0.9);
+/* RESPONSIVE */
+@media (max-width: 720px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .datetime {
+    text-align: left;
+  }
+  .nomor {
+    font-size: clamp(3.5rem, 18vw, 6rem);
+  }
+  .poli-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .calling {
+    animation: none;
   }
 }

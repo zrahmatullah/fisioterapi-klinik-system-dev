@@ -15,35 +15,41 @@
       <div v-if="profileAnak" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
 
         <!-- NAMA ANAK -->
-        <div class="bg-white rounded-2xl shadow p-6 flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600 text-xl">👶</div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
+            <i class="pi pi-user text-xl"></i>
+          </div>
           <div>
             <p class="text-sm text-gray-500">Nama Anak</p>
             <p class="text-lg font-bold text-gray-800">{{ profileAnak.nama_anak }}</p>
             <span
-              class="inline-block mt-1 px-3 py-1 rounded-full text-xs font-semibold"
-              :class="profileAnak.status_aktif ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+              class="inline-flex items-center gap-1.5 mt-1 px-3 py-1 rounded-full text-xs font-semibold"
+              :class="profileAnak.status_aktif ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'"
             >
+              <span class="w-1.5 h-1.5 rounded-full" :class="profileAnak.status_aktif ? 'bg-emerald-500' : 'bg-rose-500'"></span>
               {{ profileAnak.status_aktif ? 'AKTIF' : 'NONAKTIF' }}
             </span>
           </div>
         </div>
 
         <!-- TANGGAL LAHIR -->
-        <div class="bg-white rounded-2xl shadow p-6 flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600 text-xl">📅</div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
+            <i class="pi pi-calendar text-xl"></i>
+          </div>
           <div>
             <p class="text-sm text-gray-500">Tanggal Lahir</p>
             <p class="text-lg font-bold text-gray-800">
-  {{ formatTanggal(profileAnak.tanggal_lahir) }}
-</p>
-
+              {{ formatTanggal(profileAnak.tanggal_lahir) }}
+            </p>
           </div>
         </div>
 
         <!-- UMUR -->
-        <div class="bg-white rounded-2xl shadow p-6 flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-amber-100 flex items-center justify-center text-amber-600 text-xl">🎂</div>
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center gap-4">
+          <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
+            <i class="pi pi-clock text-xl"></i>
+          </div>
           <div>
             <p class="text-sm text-gray-500">Umur</p>
             <p class="text-lg font-bold text-gray-800">{{ profileAnak.umur }} Tahun</p>
@@ -53,16 +59,19 @@
       </div>
 
       <!-- JIKA BELUM ADA ANAK -->
-      <div v-else class="bg-white rounded-2xl shadow p-10 flex flex-col items-center justify-center text-center">
-        <div class="text-5xl mb-4">👶</div>
+      <div v-else class="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 flex flex-col items-center justify-center text-center">
+        <div class="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mb-4">
+          <i class="pi pi-user text-2xl text-indigo-400"></i>
+        </div>
         <p class="text-lg font-semibold text-gray-700 mb-2">Belum ada data anak</p>
         <p class="text-sm text-gray-500 mb-6">Silakan input data anak terlebih dahulu</p>
 
         <button
           @click="openAdd"
-          class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-lg"
+          class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-6 py-2.5 rounded-xl transition flex items-center gap-2"
         >
-          + Tambah Anak
+          <i class="pi pi-plus text-xs"></i>
+          Tambah Anak
         </button>
       </div>
     </section>
@@ -71,36 +80,34 @@
     <section>
       <h2 class="text-xl font-semibold text-gray-700 mb-4">Jadwal Terapi</h2>
 
-      <div class="bg-white rounded-2xl shadow overflow-hidden">
+      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <table class="min-w-full text-sm">
-          <thead class="bg-gray-100">
-  <tr>
-    <th class="px-4 py-3 text-center">No</th>
-    <th class="px-4 py-3 text-left">Tanggal</th>
-    <th class="px-4 py-3 text-left">Layanan</th>
-    <th class="px-4 py-3 text-left">Terapis</th>
-    <th class="px-4 py-3 text-center">Status</th>
-    <th class="px-4 py-3 text-center">Aksi</th>
-  </tr>
-</thead>
-
+          <thead class="bg-gray-50 text-gray-600">
+            <tr>
+              <th class="px-4 py-3 text-center font-semibold">No</th>
+              <th class="px-4 py-3 text-left font-semibold">Tanggal</th>
+              <th class="px-4 py-3 text-left font-semibold">Layanan</th>
+              <th class="px-4 py-3 text-left font-semibold">Terapis</th>
+              <th class="px-4 py-3 text-center font-semibold">Status</th>
+              <th class="px-4 py-3 text-center font-semibold">Aksi</th>
+            </tr>
+          </thead>
 
           <tbody>
-            <tr v-for="(j, i) in jadwalTerapi" :key="i" class="border-b hover:bg-gray-50">
-  <td class="px-4 py-3 text-center font-semibold">{{ i + 1 }}</td>
-  <td class="px-4 py-3">{{ formatTanggal(j.tanggal) }}</td>
-
-              <td class="px-4 py-3 font-medium">{{ j.layanan }}</td>
-              <td class="px-4 py-3">{{ j.terapis }}</td>
+            <tr v-for="(j, i) in jadwalTerapi" :key="i" class="border-t border-gray-100 hover:bg-indigo-50/40 transition">
+              <td class="px-4 py-3 text-center font-medium text-gray-500">{{ i + 1 }}</td>
+              <td class="px-4 py-3 text-gray-700">{{ formatTanggal(j.tanggal) }}</td>
+              <td class="px-4 py-3 font-medium text-gray-800">{{ j.layanan }}</td>
+              <td class="px-4 py-3 text-gray-700">{{ j.terapis }}</td>
               <td class="px-4 py-3 text-center">
                 <span
                   class="px-3 py-1 rounded-full text-xs font-semibold"
                   :class="
                     j.status === 'terjadwal'
-                      ? 'bg-blue-100 text-blue-700'
+                      ? 'bg-indigo-50 text-indigo-700'
                       : j.status === 'pending_reschedule'
-                        ? 'bg-amber-100 text-amber-700'
-                        : 'bg-green-100 text-green-700'
+                        ? 'bg-amber-50 text-amber-700'
+                        : 'bg-emerald-50 text-emerald-700'
                   "
                 >
                   {{ j.status.toUpperCase() }}
@@ -111,7 +118,7 @@
                 <button
                   v-if="j.status === 'terjadwal'"
                   @click="openReschedule(j)"
-                  class="px-3 py-1 rounded-lg bg-indigo-500 text-white text-xs hover:bg-indigo-600"
+                  class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 transition"
                 >
                   Reschedule
                 </button>
@@ -123,7 +130,12 @@
             </tr>
 
             <tr v-if="jadwalTerapi.length === 0">
-              <td colspan="6" class="py-8 text-center text-gray-400">Belum ada jadwal terapi</td>
+              <td colspan="6" class="py-10 text-center">
+                <div class="flex flex-col items-center">
+                  <i class="pi pi-calendar text-2xl text-gray-300 mb-2"></i>
+                  <p class="text-gray-400 text-sm">Belum ada jadwal terapi</p>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -134,14 +146,20 @@
     <transition name="fade">
       <div
         v-if="dialogReschedule"
-        class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+        class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
       >
         <div class="bg-white rounded-2xl w-full max-w-lg shadow-xl">
 
           <!-- HEADER -->
-          <div class="flex justify-between items-center px-6 py-4 border-b">
-            <h3 class="text-xl font-bold">Reschedule Terapi</h3>
-            <button @click="dialogReschedule=false">✕</button>
+          <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100">
+            <h3 class="text-lg font-bold text-gray-800">Reschedule Terapi</h3>
+            <button
+              @click="dialogReschedule=false"
+              class="w-8 h-8 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition flex items-center justify-center"
+              aria-label="Tutup"
+            >
+              <i class="pi pi-times text-sm"></i>
+            </button>
           </div>
 
           <!-- BODY -->
@@ -166,7 +184,7 @@
           </div>
 
           <!-- FOOTER -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
             <button class="btn-secondary" @click="dialogReschedule=false">
               Batal
             </button>
@@ -182,13 +200,19 @@
 
     <!-- ================= MODAL TAMBAH ANAK ================= -->
     <transition name="fade">
-      <div v-if="dialog" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div v-if="dialog" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl w-full max-w-6xl shadow-xl relative">
 
           <!-- HEADER -->
-          <div class="flex justify-between items-center px-6 py-4 border-b">
-            <h3 class="text-xl font-bold">Tambah Anak</h3>
-            <button @click="dialog=false" class="text-gray-500 hover:text-gray-700">✕</button>
+          <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100">
+            <h3 class="text-lg font-bold text-gray-800">Tambah Anak</h3>
+            <button
+              @click="dialog=false"
+              class="w-8 h-8 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition flex items-center justify-center"
+              aria-label="Tutup"
+            >
+              <i class="pi pi-times text-sm"></i>
+            </button>
           </div>
 
           <!-- BODY -->
@@ -205,7 +229,7 @@
                 <label class="label">Orang Tua</label>
                 <input
                   type="text"
-                  class="input bg-gray-100 cursor-not-allowed"
+                  class="input bg-gray-50 cursor-not-allowed text-gray-500"
                   :value="user?.nama || ''"
                   disabled
                 />
@@ -238,11 +262,10 @@
 
               <div>
                 <label class="label">Umur</label>
-                <!-- <input type="number" v-model="form.umur" class="input" /> -->
-                 <input
+                <input
                   type="text"
                   :value="form.umur !== null ? form.umur + ' th' : ''"
-                  class="input bg-gray-100 cursor-not-allowed"
+                  class="input bg-gray-50 cursor-not-allowed text-gray-500"
                   readonly
                 />
               </div>
@@ -279,7 +302,7 @@
           </div>
 
           <!-- FOOTER -->
-          <div class="flex justify-end gap-3 px-6 py-4 border-t">
+          <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100">
             <button class="btn-secondary" @click="dialog=false">Batal</button>
             <button class="btn-primary" @click="save">Simpan</button>
           </div>
@@ -478,19 +501,19 @@ watch(
 
 <style scoped>
 .label {
-  @apply text-sm font-medium text-gray-700;
+  @apply text-sm font-medium text-gray-700 mb-1.5 block;
 }
 .input {
-  @apply w-full border rounded-lg px-3 py-2 focus:outline-none focus:ring focus:ring-green-300;
+  @apply w-full border border-gray-200 rounded-xl px-3.5 py-2.5 text-sm transition focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500;
 }
 .btn-primary {
-  @apply bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold;
+  @apply bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl font-semibold transition;
 }
 .btn-secondary {
-  @apply bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded-lg font-semibold;
+  @apply bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2.5 rounded-xl font-semibold transition;
 }
 .fade-enter-active, .fade-leave-active {
-  transition: opacity 0.2s;
+  transition: opacity 0.2s ease;
 }
 .fade-enter-from, .fade-leave-to {
   opacity: 0;

@@ -36,6 +36,7 @@ import LaporanHistoryPromosi from '../views/LaporanHistoryPromosi.vue'
 import RiwayatEvaluasi from '../views/RiwayatEvaluasi.vue'
 import ListReschedule from '../views/List-Reschedule.vue'
 import PemanggilAntrian from '../views/PemanggilAntrian.vue'
+import MasterProduk from '../views/Master-Produk.vue'
 
 const routes = [
   // ================= GUEST =================
@@ -218,6 +219,11 @@ const routes = [
         path: 'pemanggilan-antrian',
         name: 'PemanggilanAntrian',
         component: PemanggilAntrian
+      },
+      {
+        path: 'master-produk',
+        name: 'MasterProduk',
+        component: MasterProduk
       }
     ]
   }

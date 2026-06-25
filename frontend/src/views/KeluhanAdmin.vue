@@ -1,9 +1,7 @@
 <template>
   <div class="min-h-screen bg-slate-100 p-6">
     <!-- HEADER -->
-    <div
-      class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 p-8 shadow-2xl mb-6"
-    >
+    <div class="relative overflow-hidden rounded-3xl bg-indigo-600 p-8 shadow-lg mb-6">
       <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
         <div>
           <h1 class="text-3xl font-bold text-white">
@@ -15,35 +13,32 @@
         </div>
 
         <div class="flex gap-4 flex-wrap">
-          <div class="bg-white/15 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/20">
-            <div class="text-white text-sm">Total Keluhan</div>
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/15">
+            <div class="text-indigo-100 text-sm">Total Keluhan</div>
             <div class="text-2xl font-bold text-white">
               {{ keluhan.length }}
             </div>
           </div>
 
-          <div class="bg-white/15 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/20">
-            <div class="text-white text-sm">Sudah Ditanggapi</div>
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/15">
+            <div class="text-indigo-100 text-sm">Sudah Ditanggapi</div>
             <div class="text-2xl font-bold text-white">
               {{ sudahDitanggapi }}
             </div>
           </div>
 
-          <div class="bg-white/15 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/20">
-            <div class="text-white text-sm">Belum Ditanggapi</div>
+          <div class="bg-white/10 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/15">
+            <div class="text-indigo-100 text-sm">Belum Ditanggapi</div>
             <div class="text-2xl font-bold text-white">
               {{ belumDitanggapi }}
             </div>
           </div>
         </div>
       </div>
-
-      <div class="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
-      <div class="absolute bottom-0 left-0 w-52 h-52 bg-pink-400/20 rounded-full blur-3xl"></div>
     </div>
 
     <!-- FILTER -->
-    <div class="bg-white rounded-3xl shadow-lg border border-slate-200 p-5 mb-6">
+    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 mb-6">
       <div class="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
         <div class="flex flex-col md:flex-row gap-4 flex-1">
           <!-- SEARCH -->
@@ -88,10 +83,10 @@
     </div>
 
     <!-- TABLE -->
-    <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
+    <div class="bg-white rounded-3xl shadow-sm overflow-hidden border border-slate-200">
       <div class="overflow-x-auto">
         <table class="w-full text-sm">
-          <thead class="bg-slate-100 text-slate-700">
+          <thead class="bg-slate-50 text-slate-600">
             <tr>
               <th class="px-5 py-4 text-center font-semibold">No</th>
               <th class="px-5 py-4 text-left font-semibold">No Keluhan</th>
@@ -99,39 +94,41 @@
 
               <!-- SORT KATEGORI -->
               <th
-                class="px-5 py-4 text-left font-semibold cursor-pointer hover:bg-slate-200 transition"
+                class="px-5 py-4 text-left font-semibold cursor-pointer hover:bg-slate-100 transition"
                 @click="toggleSortKategori"
               >
                 <div class="flex items-center gap-2">
                   Kategori
-                  <span class="text-xs">
-                    {{
+                  <i
+                    class="pi text-[10px] text-slate-400"
+                    :class="
                       sortKategori === 'desc'
-                        ? '⬇'
+                        ? 'pi-sort-amount-down'
                         : sortKategori === 'asc'
-                        ? '⬆'
-                        : '⇅'
-                    }}
-                  </span>
+                        ? 'pi-sort-amount-up'
+                        : 'pi-sort-alt'
+                    "
+                  ></i>
                 </div>
               </th>
 
               <!-- SORT TANGGAL -->
               <th
-                class="px-5 py-4 text-left font-semibold cursor-pointer hover:bg-slate-200 transition"
+                class="px-5 py-4 text-left font-semibold cursor-pointer hover:bg-slate-100 transition"
                 @click="toggleSortTanggal"
               >
                 <div class="flex items-center gap-2">
                   Tanggal
-                  <span class="text-xs">
-                    {{
+                  <i
+                    class="pi text-[10px] text-slate-400"
+                    :class="
                       sortTanggal === 'desc'
-                        ? '⬇'
+                        ? 'pi-sort-amount-down'
                         : sortTanggal === 'asc'
-                        ? '⬆'
-                        : '⇅'
-                    }}
-                  </span>
+                        ? 'pi-sort-amount-up'
+                        : 'pi-sort-alt'
+                    "
+                  ></i>
                 </div>
               </th>
 
@@ -145,9 +142,9 @@
             <tr
               v-for="(k, i) in paginatedKeluhan"
               :key="k.id"
-              class="border-t border-slate-100 hover:bg-indigo-50/40 transition duration-200"
+              class="border-t border-slate-100 hover:bg-indigo-50/50 transition duration-150"
             >
-              <td class="px-5 py-4 text-center font-medium text-slate-600">
+              <td class="px-5 py-4 text-center font-medium text-slate-500">
                 {{ (currentPage - 1) * perPage + i + 1 }}
               </td>
 
@@ -160,7 +157,7 @@
               <td class="px-5 py-4">
                 <div class="flex items-center gap-3">
                   <div
-                    class="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 flex items-center justify-center text-white font-bold"
+                    class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shrink-0"
                   >
                     {{ (k.anak?.nama_anak || 'A').charAt(0) }}
                   </div>
@@ -175,7 +172,7 @@
 
               <td class="px-5 py-4">
                 <span
-                  class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold"
+                  class="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold"
                 >
                   {{ k.kategori_keluhan }}
                 </span>
@@ -190,8 +187,8 @@
                   class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold"
                   :class="
                     k.status_tanggapan === 'sudah_ditanggapi'
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'bg-orange-100 text-orange-700'
+                      ? 'bg-emerald-50 text-emerald-700'
+                      : 'bg-amber-50 text-amber-700'
                   "
                 >
                   <span
@@ -199,7 +196,7 @@
                     :class="
                       k.status_tanggapan === 'sudah_ditanggapi'
                         ? 'bg-emerald-500'
-                        : 'bg-orange-500'
+                        : 'bg-amber-500'
                     "
                   ></span>
 
@@ -213,7 +210,7 @@
 
               <td class="px-5 py-4 text-center">
                 <button
-                  class="px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-medium shadow hover:scale-105 transition"
+                  class="px-4 py-2 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition"
                   @click="openDetail(k)"
                 >
                   Detail
@@ -222,10 +219,10 @@
 
               <td class="px-5 py-4 text-center">
                 <button
-                  class="px-4 py-2 rounded-xl text-white font-medium shadow transition"
+                  class="px-4 py-2 rounded-xl text-white font-medium transition"
                   :class="
                     k.status_tanggapan === 'sudah_ditanggapi'
-                      ? 'bg-emerald-600 hover:bg-emerald-700 hover:scale-105'
+                      ? 'bg-emerald-600 hover:bg-emerald-700'
                       : 'bg-slate-300 cursor-not-allowed'
                   "
                   :disabled="k.status_tanggapan !== 'sudah_ditanggapi'"
@@ -240,12 +237,12 @@
               <td colspan="8" class="py-16 text-center">
                 <div class="flex flex-col items-center">
                   <div
-                    class="w-20 h-20 rounded-full bg-slate-100 flex items-center justify-center mb-4"
+                    class="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mb-4"
                   >
-                    📭
+                    <i class="pi pi-inbox text-2xl text-slate-300"></i>
                   </div>
 
-                  <div class="text-slate-500 text-lg font-semibold">
+                  <div class="text-slate-600 text-base font-semibold">
                     Tidak ada data keluhan
                   </div>
 
@@ -301,15 +298,13 @@
     <Transition name="fade">
       <div
         v-if="activeKeluhan"
-        class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+        class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4"
       >
         <div
           class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden"
         >
           <!-- HEADER -->
-          <div
-            class="bg-gradient-to-r from-indigo-600 to-violet-600 p-6 text-white"
-          >
+          <div class="bg-indigo-600 p-6 text-white">
             <div class="flex items-center justify-between">
               <div>
                 <h3 class="text-2xl font-bold">
@@ -323,9 +318,10 @@
 
               <button
                 @click="activeKeluhan = null"
-                class="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 transition"
+                class="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 transition flex items-center justify-center"
+                aria-label="Tutup"
               >
-                ✕
+                <i class="pi pi-times"></i>
               </button>
             </div>
           </div>
@@ -336,9 +332,9 @@
             <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5">
               <div class="flex items-center gap-2 mb-3">
                 <div
-                  class="w-9 h-9 rounded-full bg-red-100 flex items-center justify-center"
+                  class="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center"
                 >
-                  📝
+                  <i class="pi pi-file-edit text-rose-500 text-sm"></i>
                 </div>
 
                 <h4 class="font-bold text-slate-800">
@@ -375,7 +371,7 @@
               </button>
 
               <button
-                class="px-6 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-green-600 text-white font-semibold shadow-lg hover:scale-105 transition"
+                class="px-6 py-3 rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition"
                 @click="kirimTanggapan"
               >
                 Simpan Tanggapan
@@ -544,17 +540,17 @@ const formatDate = (d) =>
 }
 
 .page-btn.active {
-  @apply bg-gradient-to-r from-indigo-600 to-violet-600 text-white border-transparent;
+  @apply bg-indigo-600 text-white border-transparent;
 }
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
 }
 
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-  transform: scale(0.95);
+  transform: scale(0.97);
 }
 </style>
