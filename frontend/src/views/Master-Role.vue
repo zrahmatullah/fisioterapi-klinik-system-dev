@@ -1,21 +1,189 @@
+<template>
+  <div class="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden w-full">
+    <!-- TOP HEADER -->
+    <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-[#E6F2F5] border border-[#CBE3E9] flex items-center justify-center text-[#0F766E] font-bold text-sm shrink-0">
+          <i class="pi pi-id-card"></i>
+        </div>
+        <div>
+          <h1 class="text-[15px] font-bold text-[#0F172A] leading-tight">Master Role Pengguna</h1>
+          <p class="text-[11.5px] text-[#64748B] mt-0.5">Kelola tingkat peran sistem, otorisasi staf, dan konfigurasi hak akses</p>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        @click="openAdd"
+        class="btn-primary-clinical text-[12.5px] shrink-0"
+      >
+        <i class="pi pi-plus text-xs"></i>
+        <span>Tambah Role</span>
+      </button>
+    </div>
+
+    <!-- MAIN DATA TABLE CARD -->
+    <div class="flex-1 min-h-0 flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+      <!-- TABLE TOOLBAR -->
+      <div class="shrink-0 p-3 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2.5 bg-white">
+        <div class="relative w-full sm:w-72">
+          <i class="pi pi-search absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+          <input
+            v-model="search"
+            type="text"
+            placeholder="Cari nama role..."
+            class="w-full h-[34px] text-[12.5px] pl-8 pr-2.5 border border-slate-300 rounded-lg outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 transition bg-white text-slate-800 placeholder:text-slate-400"
+          />
+        </div>
+        <span class="text-[11.5px] text-slate-500 font-medium">
+          Total <strong>{{ filteredRoles.length }}</strong> role terdaftar
+        </span>
+      </div>
+
+      <!-- TABLE BODY -->
+      <div class="flex-1 min-h-0 overflow-auto custom-scrollbar">
+        <table class="min-w-full text-[12.5px] text-slate-700">
+          <thead class="sticky top-0 z-10 bg-[#F8FAFC] border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600 select-none">
+            <tr>
+              <th class="py-2 px-3 text-center w-12">No</th>
+              <th class="py-2 px-3 w-20">ID Role</th>
+              <th class="py-2 px-3">Nama Role</th>
+              <th class="py-2 px-3 text-center">Status</th>
+              <th class="py-2 px-3 text-center w-40">Aksi</th>
+            </tr>
+          </thead>
+
+          <tbody class="divide-y divide-slate-100">
+            <tr
+              v-for="(item, index) in filteredRoles"
+              :key="item.id || index"
+              class="hover:bg-[#F0F6F8]/60 transition-colors"
+            >
+              <td class="py-2 px-3 text-center text-slate-400 font-mono text-[11px]">{{ index + 1 }}</td>
+              <td class="py-2 px-3 font-mono text-[11.5px] font-bold text-slate-700">#{{ item.id }}</td>
+              <td class="py-2 px-3 font-semibold text-slate-900">{{ item.role }}</td>
+              <td class="py-2 px-3 text-center">
+                <StatusBadge
+                  :label="item.status_aktif ? 'Aktif' : 'Non Aktif'"
+                  :type="item.status_aktif ? 'success' : 'neutral'"
+                />
+              </td>
+              <td class="py-2 px-3 text-center">
+                <div class="flex items-center justify-center gap-1.5">
+                  <button
+                    type="button"
+                    @click="router.push('/pengaturan-klinik')"
+                    class="h-7 px-2 rounded-lg bg-[#E6F2F5] hover:bg-[#d2ebf1] text-[#0F766E] border border-[#CBE3E9] text-[11px] font-semibold inline-flex items-center gap-1 transition shadow-2xs cursor-pointer"
+                    title="Kelola Matriks Hak Akses (V, C, U, D)"
+                  >
+                    <i class="pi pi-shield text-[10px]"></i>
+                    <span>RBAC</span>
+                  </button>
+                  <button
+                    type="button"
+                    @click="openEdit(item)"
+                    class="w-7 h-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 flex items-center justify-center transition shadow-2xs"
+                    title="Edit Role"
+                  >
+                    <i class="pi pi-pencil text-[11px]"></i>
+                  </button>
+                  <button
+                    type="button"
+                    @click="openDelete(item)"
+                    class="w-7 h-7 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition shadow-2xs"
+                    title="Hapus"
+                  >
+                    <i class="pi pi-trash text-[11px]"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- EMPTY -->
+            <tr v-if="filteredRoles.length === 0">
+              <td colspan="5" class="py-12 text-center text-slate-400">
+                <div class="flex flex-col items-center justify-center">
+                  <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
+                    <i class="pi pi-folder-open text-lg"></i>
+                  </div>
+                  <h4 class="text-[13px] font-semibold text-slate-800">Role Tidak Ditemukan</h4>
+                  <p class="text-[11.5px] text-slate-500 mt-0.5">Belum ada role yang sesuai pencarian.</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TABLE FOOTER -->
+      <div class="shrink-0 px-3.5 py-2 bg-[#F8FAFC] border-t border-slate-200 text-[11.5px] text-slate-500 flex items-center justify-between">
+        <span>Menampilkan {{ filteredRoles.length }} role</span>
+        <span>SIMRS RBAC Multi-Role</span>
+      </div>
+    </div>
+
+    <!-- MODAL FORM (COMPACT TIER 'sm': max-w-[420px]) -->
+    <BaseModal
+      v-model="dialog"
+      :title="isEdit ? 'Edit Role Pengguna' : 'Tambah Role Baru'"
+      :subtitle="isEdit ? 'Perbarui nama role dan status aktif' : 'Daftarkan nama role baru ke dalam sistem'"
+      icon="pi pi-id-card"
+      size="sm"
+      :loading="saving"
+      @submit="save"
+    >
+      <form @submit.prevent="save" class="space-y-3">
+        <div>
+          <label class="label-clinical">Nama Role <span class="text-rose-500">*</span></label>
+          <input
+            v-model="form.role"
+            required
+            class="input-clinical"
+            placeholder="mis. Dokter Anak, Staf Fisioterapi"
+          />
+        </div>
+
+        <div>
+          <label class="label-clinical">Status Role</label>
+          <select v-model="form.status_aktif" class="input-clinical">
+            <option :value="true">Aktif</option>
+            <option :value="false">Non Aktif</option>
+          </select>
+        </div>
+      </form>
+    </BaseModal>
+
+    <!-- CONFIRM DELETE DIALOG -->
+    <ConfirmDialog
+      v-model="confirmDelete"
+      title="Hapus Role"
+      :message="`Yakin ingin menghapus role '${form.role}'?`"
+      type="danger"
+      confirmText="Ya, Hapus"
+      :loading="deleting"
+      @confirm="remove"
+    />
+  </div>
+</template>
+
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import api from '@/axios'
 import { useToast } from 'vue-toastification'
-
-// PrimeVue
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
-import InputText from 'primevue/inputtext'
-import Dropdown from 'primevue/dropdown'
+import BaseModal from '../components/ui/BaseModal.vue'
+import ConfirmDialog from '../components/ui/ConfirmDialog.vue'
+import StatusBadge from '../components/ui/StatusBadge.vue'
 
 const toast = useToast()
+const router = useRouter()
 
-// STATE
 const roles = ref([])
+const search = ref('')
 const loading = ref(false)
+const saving = ref(false)
+const deleting = ref(false)
+
 const dialog = ref(false)
 const confirmDelete = ref(false)
 const isEdit = ref(false)
@@ -26,18 +194,13 @@ const form = ref({
   status_aktif: true
 })
 
-// OPTIONS
-const statusOptions = [
-  { label: 'Aktif', value: true },
-  { label: 'Non Aktif', value: false }
-]
+onMounted(fetchRoles)
 
-// FETCH DATA
-const fetchRoles = async () => {
+async function fetchRoles() {
   loading.value = true
   try {
     const res = await api.get('/role')
-    roles.value = res.data
+    roles.value = res.data.data ?? res.data
   } catch {
     toast.error('Gagal memuat data role')
   } finally {
@@ -45,7 +208,12 @@ const fetchRoles = async () => {
   }
 }
 
-// OPEN DIALOG
+const filteredRoles = computed(() => {
+  if (!search.value) return roles.value
+  const q = search.value.toLowerCase()
+  return roles.value.filter(r => (r.role || '').toLowerCase().includes(q))
+})
+
 const openAdd = () => {
   isEdit.value = false
   form.value = { id: null, role: '', status_aktif: true }
@@ -58,8 +226,18 @@ const openEdit = (row) => {
   dialog.value = true
 }
 
-// SAVE
+const openDelete = (row) => {
+  form.value = { ...row }
+  confirmDelete.value = true
+}
+
 const save = async () => {
+  if (!form.value.role) {
+    toast.warning('Nama role wajib diisi')
+    return
+  }
+
+  saving.value = true
   try {
     if (isEdit.value) {
       await api.put(`/role/${form.value.id}`, form.value)
@@ -71,17 +249,14 @@ const save = async () => {
     dialog.value = false
     fetchRoles()
   } catch {
-    toast.error('Gagal menyimpan data')
+    toast.error('Gagal menyimpan data role')
+  } finally {
+    saving.value = false
   }
 }
 
-// DELETE
-const openDelete = (row) => {
-  form.value = { ...row }
-  confirmDelete.value = true
-}
-
 const remove = async () => {
+  deleting.value = true
   try {
     await api.delete(`/role/${form.value.id}`)
     toast.success('Role berhasil dihapus')
@@ -89,148 +264,8 @@ const remove = async () => {
     fetchRoles()
   } catch {
     toast.error('Gagal menghapus role')
+  } finally {
+    deleting.value = false
   }
 }
-
-onMounted(fetchRoles)
 </script>
-
-<template>
-  <div class="p-6">
-
-    <!-- HEADER -->
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-xl font-bold text-gray-800">
-        Master Role
-      </h1>
-
-      <Button
-        @click="openAdd"
-        class="
-          flex items-center gap-2
-          px-5 py-2.5
-          text-sm font-semibold
-          rounded-xl
-          bg-gradient-to-r from-indigo-600 to-purple-600
-          hover:from-indigo-700 hover:to-purple-700
-          active:scale-95 transition
-          border-0 shadow-lg text-white
-        "
-      >
-        <i class="pi pi-plus text-sm"></i>
-        <span>Tambah Role</span>
-      </Button>
-    </div>
-
-    <!-- TABLE -->
-    <div class="bg-white rounded-xl shadow">
-      <DataTable
-        :value="roles"
-        :loading="loading"
-        paginator
-        :rows="10"
-        responsiveLayout="scroll"
-      >
-        <Column header="No" style="width:60px">
-          <template #body="{ index }">
-            {{ index + 1 }}
-          </template>
-        </Column>
-        
-        <Column field="id" header="ID" />
-        <Column field="role" header="Nama Role" />
-
-        <Column header="Status">
-          <template #body="{ data }">
-            <span
-              class="px-3 py-1 text-xs rounded-full font-medium"
-              :class="data.status_aktif
-                ? 'bg-green-100 text-green-700'
-                : 'bg-red-100 text-red-700'"
-            >
-              {{ data.status_aktif ? 'Aktif' : 'Non Aktif' }}
-            </span>
-          </template>
-        </Column>
-
-        <Column header="Aksi" style="width:140px">
-          <template #body="{ data }">
-            <div class="flex gap-2">
-              <Button
-                icon="pi pi-pencil"
-                severity="info"
-                size="small"
-                @click="openEdit(data)"
-              />
-              <Button
-                icon="pi pi-trash"
-                severity="danger"
-                size="small"
-                @click="openDelete(data)"
-              />
-            </div>
-          </template>
-        </Column>
-      </DataTable>
-    </div>
-
-    <!-- DIALOG FORM -->
-    <Dialog
-      v-model:visible="dialog"
-      :header="isEdit ? 'Edit Role' : 'Tambah Role'"
-      modal
-      class="w-full max-w-md"
-    >
-      <div class="space-y-4">
-        <div>
-          <label class="block text-sm mb-1 font-medium">Nama Role</label>
-          <InputText v-model="form.role" class="w-full" />
-        </div>
-
-        <div>
-          <label class="block text-sm mb-1 font-medium">Status</label>
-          <Dropdown
-            v-model="form.status_aktif"
-            :options="statusOptions"
-            optionLabel="label"
-            optionValue="value"
-            class="w-full"
-          />
-        </div>
-      </div>
-
-      <template #footer>
-        <Button label="Batal" text @click="dialog = false" />
-        <Button
-          label="Simpan"
-          icon="pi pi-check"
-          class="!bg-indigo-600 border-0"
-          @click="save"
-        />
-      </template>
-    </Dialog>
-
-    <!-- CONFIRM DELETE -->
-    <Dialog
-      v-model:visible="confirmDelete"
-      header="Konfirmasi"
-      modal
-      class="w-full max-w-sm"
-    >
-      <p class="text-sm text-gray-600">
-        Yakin ingin menghapus role ini?
-      </p>
-
-      <template #footer>
-        <Button label="Batal" text @click="confirmDelete = false" />
-        <Button
-          label="Hapus"
-          icon="pi pi-trash"
-          severity="danger"
-          @click="remove"
-        />
-      </template>
-    </Dialog>
-
-  </div>
-</template>

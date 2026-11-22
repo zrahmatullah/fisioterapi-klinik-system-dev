@@ -38,6 +38,11 @@ class UserLogin extends Authenticatable implements JWTSubject
         return $this->belongsTo(UserProfile::class, 'user_profile_id');
     }
 
+    public function pegawai()
+    {
+        return $this->belongsTo(Pegawai::class, 'pegawai_id');
+    }
+
     // 🔗 RELASI KE role
     public function role()
     {

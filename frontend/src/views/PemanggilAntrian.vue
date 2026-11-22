@@ -54,7 +54,7 @@
         <span class="queue-count">{{ antrian.length }} menunggu</span>
       </div>
 
-      <div v-if="antrian.length" class="queue-list__items">
+      <div v-if="antrian.length" class="queue-list__items custom-scrollbar">
         <article
           v-for="(a, i) in antrian"
           :key="a.id"
@@ -155,13 +155,13 @@ onMounted(async () => {
 
 <style scoped>
 .queue-page {
-  min-height: 100vh;
-  padding: 1.5rem;
-  background: #F5F6F7;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  font-family: 'Inter', system-ui, sans-serif;
+  gap: 0.75rem;
+  overflow: hidden;
+  width: 100%;
 }
 
 .visually-hidden {
@@ -179,174 +179,183 @@ onMounted(async () => {
   justify-content: space-between;
   gap: 1rem;
   background: #ffffff;
-  border: 1px solid #E2E4E8;
-  border-radius: 20px;
-  padding: 1.25rem 1.5rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  flex-shrink: 0;
 }
 
 .queue-header__brand {
   display: flex;
   align-items: center;
-  gap: 0.9rem;
+  gap: 0.75rem;
 }
 
 .queue-header__mark {
-  width: 44px;
-  height: 44px;
-  border-radius: 14px;
-  background: #0F6E56;
-  color: #E1F5EE;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #0F766E;
+  color: #E6F2F5;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
-.queue-header__mark svg { width: 22px; height: 22px; }
+.queue-header__mark svg { width: 18px; height: 18px; }
 
 .queue-header h1 {
-  font-size: 1.4rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  color: #1A1D23;
+  color: #0F172A;
   margin: 0;
   letter-spacing: -0.01em;
 }
 
 .queue-header p {
-  font-size: 0.85rem;
-  color: #6B7280;
-  margin: 0.15rem 0 0;
+  font-size: 0.75rem;
+  color: #64748B;
+  margin: 0.1rem 0 0;
 }
 
 .queue-header__controls {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.5rem;
 }
 
 .live-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: #639922;
-  box-shadow: 0 0 0 3px rgba(99, 153, 34, 0.15);
+  background: #22C55E;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
 }
 
 .select-ruangan {
   appearance: none;
-  border: 1px solid #E2E4E8;
-  background: #F8F9FA url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237C7A6E' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.85rem center;
-  border-radius: 12px;
-  padding: 0.6rem 2.4rem 0.6rem 1rem;
-  font-size: 0.9rem;
-  color: #1A1D23;
-  min-width: 200px;
+  border: 1px solid #CBD5E1;
+  background: #F8FAFC url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237C7A6E' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 0.75rem center;
+  border-radius: 8px;
+  padding: 0.45rem 2rem 0.45rem 0.75rem;
+  font-size: 0.8rem;
+  color: #0F172A;
+  min-width: 180px;
   cursor: pointer;
 }
 .select-ruangan:focus {
   outline: none;
-  border-color: #0F6E56;
-  box-shadow: 0 0 0 3px rgba(15, 110, 86, 0.12);
+  border-color: #0F766E;
+  box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.15);
 }
 
 /* NOW SERVING DISPLAY */
 .now-serving {
   position: relative;
-  background: #0B4F3F;
+  background: #0B3948;
   background-image: radial-gradient(circle at 18% 20%, rgba(255,255,255,0.07), transparent 45%);
-  border-radius: 24px;
-  padding: 2.75rem 2rem;
+  border-radius: 14px;
+  padding: 1.25rem 1.5rem;
   text-align: center;
   color: #EAF6F1;
   overflow: hidden;
+  flex-shrink: 0;
 }
 
 .now-serving--idle {
-  background: #F8F9FA;
-  border: 1px dashed #D5D8DC;
-  color: #6B7280;
+  background: #FFFFFF;
+  border: 1px dashed #CBD5E1;
+  color: #64748B;
 }
 
 .now-serving__eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.8rem;
+  gap: 0.4rem;
+  font-size: 0.7rem;
   font-weight: 600;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #9FE1CB;
+  color: #5EEAD4;
 }
 
 .now-serving--idle .now-serving__eyebrow {
-  color: #9CA3AF;
+  color: #94A3B8;
 }
 
 .now-serving__pulse {
-  width: 9px;
-  height: 9px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: #5DCAA5;
+  background: #2DD4BF;
   animation: pulse 1.6s ease-in-out infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(93, 202, 165, 0.55); }
-  50% { box-shadow: 0 0 0 8px rgba(93, 202, 165, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(45, 212, 191, 0.55); }
+  50% { box-shadow: 0 0 0 6px rgba(45, 212, 191, 0); }
 }
 
 .now-serving__number {
-  font-size: clamp(3.5rem, 9vw, 6.5rem);
+  font-size: 3rem;
   font-weight: 800;
   letter-spacing: 0.04em;
-  line-height: 1.05;
-  margin: 0.6rem 0 0.4rem;
+  line-height: 1.1;
+  margin: 0.35rem 0 0.25rem;
   font-family: 'JetBrains Mono', 'SF Mono', monospace;
+  color: #FFFFFF;
 }
 
 .now-serving__placeholder {
-  font-size: 4rem;
+  font-size: 2.5rem;
   font-weight: 700;
-  margin: 0.6rem 0 0.4rem;
-  color: #C7C4B5;
+  margin: 0.35rem 0 0.25rem;
+  color: #CBD5E1;
 }
 
 .now-serving__meta {
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: 500;
 }
 
-.now-serving__sep { margin: 0 0.5rem; opacity: 0.6; }
-.now-serving__room { color: #C8E9DB; font-weight: 400; }
+.now-serving__sep { margin: 0 0.4rem; opacity: 0.6; }
+.now-serving__room { color: #A7F3D0; font-weight: 400; }
 
 .now-serving__hint {
-  margin: 0.5rem 0 0;
-  font-size: 0.9rem;
+  margin: 0.35rem 0 0;
+  font-size: 0.8rem;
 }
 
 /* QUEUE LIST */
 .queue-list {
   background: #ffffff;
-  border: 1px solid #E2E4E8;
-  border-radius: 20px;
-  padding: 1.25rem 1.25rem 0.75rem;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 0.85rem 1rem 0.5rem;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .queue-list__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 0.25rem 1rem;
+  padding: 0 0.25rem 0.65rem;
+  flex-shrink: 0;
 }
 
 .queue-list__head h2 {
-  font-size: 1.05rem;
+  font-size: 0.9rem;
   font-weight: 700;
-  color: #1A1D23;
+  color: #0F172A;
   margin: 0;
 }
 
 .queue-count {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   color: #0F6E56;
   background: #E1F5EE;
@@ -355,10 +364,13 @@ onMounted(async () => {
 }
 
 .queue-list__items {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  padding-bottom: 0.75rem;
+  gap: 0.5rem;
+  padding-bottom: 0.5rem;
 }
 
 .queue-row {

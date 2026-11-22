@@ -1,76 +1,76 @@
 <template>
-  <div class="page">
+  <div class="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden w-full">
 
     <!-- HEADER -->
-    <div class="page-header">
-      <div class="header-left">
-        <div class="header-icon">
+    <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex items-center justify-between gap-3 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-[#E6F2F5] border border-[#CBE3E9] flex items-center justify-center text-[#0F766E] font-bold text-sm shrink-0">
           <i class="pi pi-chart-bar"></i>
         </div>
 
         <div>
-          <h1 class="page-title">Registrasi & Layanan Anak</h1>
-          <p class="page-sub">Monitoring registrasi, penjadwalan terapi, dan penentuan terapis</p>
+          <h1 class="text-base font-bold text-[#0F172A] leading-tight">Registrasi & Layanan Anak</h1>
+          <p class="text-xs text-[#64748B] mt-0.5">Monitoring registrasi, penjadwalan terapi, dan penentuan terapis</p>
         </div>
       </div>
     </div>
 
     <!-- SUMMARY -->
-    <div class="summary-grid">
-
-      <div class="stat-card">
-        <p class="stat-label">Total Registrasi</p>
-        <h2 class="stat-value">{{ rows.length || 0 }}</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-3 shrink-0">
+      <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm">
+        <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Registrasi</p>
+        <h2 class="text-lg font-bold text-[#0F172A] tabular-nums mt-0.5">{{ rows.length || 0 }}</h2>
       </div>
 
-      <div class="stat-card">
-        <p class="stat-label">Terjadwal</p>
-        <h2 class="stat-value stat-value--amber">{{ countStatus('terjadwal') || 0 }}</h2>
+      <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm">
+        <p class="text-[11px] font-semibold text-amber-700 uppercase tracking-wider">Terjadwal</p>
+        <h2 class="text-lg font-bold text-amber-800 tabular-nums mt-0.5">{{ countStatus('terjadwal') || 0 }}</h2>
       </div>
 
-      <div class="stat-card">
-        <p class="stat-label">Proses</p>
-        <h2 class="stat-value stat-value--blue">{{ countStatus('proses') }}</h2>
+      <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm">
+        <p class="text-[11px] font-semibold text-sky-700 uppercase tracking-wider">Proses</p>
+        <h2 class="text-lg font-bold text-sky-800 tabular-nums mt-0.5">{{ countStatus('proses') }}</h2>
       </div>
 
-      <div class="stat-card">
-        <p class="stat-label">Selesai</p>
-        <h2 class="stat-value stat-value--green">{{ countStatus('selesai') }}</h2>
+      <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm">
+        <p class="text-[11px] font-semibold text-emerald-700 uppercase tracking-wider">Selesai</p>
+        <h2 class="text-lg font-bold text-emerald-800 tabular-nums mt-0.5">{{ countStatus('selesai') }}</h2>
       </div>
     </div>
 
     <!-- FILTER -->
-    <div class="panel filter-panel">
-      <div class="filter-row">
+    <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm shrink-0">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
 
-        <div class="per-page-field">
-          <span class="filter-text">Tampilkan</span>
-
-          <input type="number" min="1" v-model.number="perPage" class="input input--center w-24" />
-
-          <span class="filter-text">data</span>
+        <div class="flex items-center gap-2">
+          <span class="text-xs text-slate-500 font-medium">Tampilkan</span>
+          <input type="number" min="1" v-model.number="perPage" class="w-16 h-[34px] px-2 border border-slate-300 rounded-lg text-xs outline-none focus:border-[#0F766E] text-center" />
+          <span class="text-xs text-slate-500 font-medium">data</span>
         </div>
 
-        <div class="filter-inputs">
-          <input type="date" v-model="filterTanggal" class="input" />
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <input type="date" v-model="filterTanggal" class="h-[34px] px-2.5 border border-slate-300 rounded-lg text-xs outline-none focus:border-[#0F766E]" />
 
-          <input
-            v-model="search"
-            type="text"
-            placeholder="Cari nama anak / no registrasi..."
-            class="input md:w-80"
-          />
+          <div class="relative flex-1 sm:w-72">
+            <i class="pi pi-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+            <input
+              v-model="search"
+              type="text"
+              placeholder="Cari nama anak / no registrasi..."
+              class="w-full pl-8 pr-3 h-[34px] border border-slate-300 rounded-lg text-xs outline-none focus:border-[#0F766E]"
+            />
+          </div>
         </div>
       </div>
     </div>
 
     <!-- TABLE -->
-    <div class="panel table-panel">
+    <div class="flex-1 min-h-0 flex flex-col bg-white border border-slate-200 rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] overflow-hidden">
 
-      <div class="table-scroll">
+      <div class="flex-1 min-h-0 overflow-auto custom-scrollbar">
         <table class="data-table">
 
-          <thead>
+          <thead class="sticky top-0 z-10 bg-[#F8FAFC] border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600 select-none">
             <tr>
               <th class="th">No</th>
               <th class="th">No Regis</th>
@@ -171,109 +171,106 @@
     </div>
 
     <!-- MODAL DETAIL -->
-    <div v-if="showDetail" class="modal-overlay">
-      <div class="modal-backdrop" @click="showDetail = false"></div>
+    <teleport to="body">
+    <div v-if="showDetail" class="fixed inset-0 z-[9999] bg-slate-900/35 backdrop-blur-md flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-xs" @click="showDetail = false"></div>
 
-      <div class="modal-wrapper">
-        <div class="modal-card">
+      <div class="relative bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-fadeIn flex flex-col max-h-[85vh]">
 
-          <div class="modal-header">
-            <h2 class="modal-title">Detail Penjadwalan</h2>
+        <div class="bg-[#0B3948] text-white px-5 py-3.5 flex items-center justify-between shrink-0">
+          <h2 class="text-sm font-bold tracking-wide">Detail Penjadwalan</h2>
 
-            <button @click="showDetail = false" class="modal-close">
-              <i class="pi pi-times"></i>
-            </button>
-          </div>
-
-          <div class="modal-content modal-content--flush">
-            <div class="table-scroll">
-              <table class="data-table">
-
-                <thead>
-                  <tr>
-                    <th class="th">Sesi</th>
-                    <th class="th">Tanggal</th>
-                    <th class="th">Terapis</th>
-                    <th class="th">Status</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  <tr v-for="(s, i) in modalData.pelayanans" :key="s.id" class="row">
-                    <td class="td">Sesi {{ i + 1 }}</td>
-                    <td class="td">{{ formatDate(s.tanggal_penjadwalan) }}</td>
-                    <td class="td">{{ s.terapis?.nama || '-' }}</td>
-                    <td class="td">
-                      <span :class="statusClass(s.status)">{{ s.status }}</span>
-                    </td>
-                  </tr>
-                </tbody>
-
-              </table>
-            </div>
-          </div>
-
+          <button @click="showDetail = false" class="text-slate-300 hover:text-white p-1">
+            <i class="pi pi-times text-xs"></i>
+          </button>
         </div>
+
+        <div class="p-4 overflow-y-auto custom-scrollbar flex-1">
+          <table class="w-full text-[12.5px] text-left text-slate-700">
+            <thead class="sticky top-0 z-10 bg-[#F8FAFC] border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600 select-none">
+              <tr>
+                <th class="py-2 px-3">Sesi</th>
+                <th class="py-2 px-3">Tanggal</th>
+                <th class="py-2 px-3">Terapis</th>
+                <th class="py-2 px-3">Status</th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-slate-100">
+              <tr v-for="(s, i) in modalData.pelayanans" :key="s.id" class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold">Sesi {{ i + 1 }}</td>
+                <td class="py-2 px-3 text-slate-600">{{ formatDate(s.tanggal_penjadwalan) }}</td>
+                <td class="py-2 px-3">{{ s.terapis?.nama || '-' }}</td>
+                <td class="py-2 px-3">
+                  <span :class="statusClass(s.status)" class="text-xs">{{ s.status }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-3 bg-slate-50 border-t border-slate-200 flex justify-end shrink-0">
+          <button @click="showDetail = false" class="btn-secondary-clinical text-xs py-1.5 px-3">Tutup</button>
+        </div>
+
       </div>
     </div>
+    </teleport>
 
     <!-- MODAL TERAPIS -->
-    <div v-if="showTerapis" class="modal-overlay">
-      <div class="modal-backdrop" @click="showTerapis = false"></div>
+    <teleport to="body">
+    <div v-if="showTerapis" class="fixed inset-0 z-[9999] bg-slate-900/35 backdrop-blur-md flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-xs" @click="showTerapis = false"></div>
 
-      <div class="modal-wrapper">
-        <div class="modal-card modal-card--wide">
+      <div class="relative bg-white w-full max-w-xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-fadeIn flex flex-col max-h-[85vh]">
 
-          <div class="modal-header">
-            <h2 class="modal-title">Penentuan Terapis</h2>
+        <div class="bg-[#0B3948] text-white px-5 py-3.5 flex items-center justify-between shrink-0">
+          <h2 class="text-sm font-bold tracking-wide">Penentuan Terapis</h2>
 
-            <button @click="showTerapis = false" class="modal-close">
-              <i class="pi pi-times"></i>
-            </button>
-          </div>
-
-          <div class="modal-content modal-content--flush">
-            <div class="table-scroll">
-              <table class="data-table">
-
-                <thead>
-                  <tr>
-                    <th class="th">Sesi</th>
-                    <th class="th">Tanggal</th>
-                    <th class="th">Terapis</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  <tr v-for="(s, i) in modalData.pelayanans" :key="s.id" class="row">
-                    <td class="td">Sesi {{ i + 1 }}</td>
-                    <td class="td">{{ formatDate(s.tanggal_penjadwalan) }}</td>
-
-                    <td class="td">
-                      <select v-model="s.terapis_id" class="input w-full">
-                        <option value="">-- Pilih Terapis --</option>
-                        <option v-for="t in terapisList" :key="t.id" :value="t.id">
-                          {{ t.nama }}
-                        </option>
-                      </select>
-                    </td>
-                  </tr>
-                </tbody>
-
-              </table>
-            </div>
-
-            <div class="flex justify-end pt-4">
-              <button @click="saveAllTerapis" class="btn-accent-alt btn-accent-alt--lg">
-                <i class="pi pi-save"></i>
-                Simpan Terapis
-              </button>
-            </div>
-          </div>
-
+          <button @click="showTerapis = false" class="text-slate-300 hover:text-white p-1">
+            <i class="pi pi-times text-xs"></i>
+          </button>
         </div>
+
+        <div class="p-4 overflow-y-auto custom-scrollbar flex-1 space-y-3">
+          <table class="w-full text-[12.5px] text-left text-slate-700">
+            <thead class="sticky top-0 z-10 bg-[#F8FAFC] border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600 select-none">
+              <tr>
+                <th class="py-2 px-3">Sesi</th>
+                <th class="py-2 px-3">Tanggal</th>
+                <th class="py-2 px-3">Terapis</th>
+              </tr>
+            </thead>
+
+            <tbody class="divide-y divide-slate-100">
+              <tr v-for="(s, i) in modalData.pelayanans" :key="s.id" class="hover:bg-slate-50">
+                <td class="py-2 px-3 font-semibold">Sesi {{ i + 1 }}</td>
+                <td class="py-2 px-3 text-slate-600">{{ formatDate(s.tanggal_penjadwalan) }}</td>
+
+                <td class="py-2 px-3">
+                  <select v-model="s.terapis_id" class="w-full h-[32px] px-2 text-xs border border-slate-300 rounded-lg outline-none focus:border-[#0F766E] bg-white">
+                    <option value="">-- Pilih Terapis --</option>
+                    <option v-for="t in terapisList" :key="t.id" :value="t.id">
+                      {{ t.nama }}
+                    </option>
+                  </select>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-3 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0">
+          <button @click="showTerapis = false" class="btn-secondary-clinical text-xs py-1.5 px-3">Batal</button>
+          <button @click="saveAllTerapis" class="btn-primary-clinical text-xs py-1.5 px-4 flex items-center gap-1.5">
+            <i class="pi pi-save"></i>
+            Simpan Terapis
+          </button>
+        </div>
+
       </div>
     </div>
+    </teleport>
 
   </div>
 </template>
@@ -522,27 +519,11 @@ const statusClass = (status) => ({
   --border: #ECEDF1;
   --ink: #1F2128;
   --muted: #98A0AE;
-  --accent: #6D5CE0;
-  --accent-soft: #F1EEFC;
+  --accent: #0F766E;
+  --accent-soft: #E6F2F5;
 
-  --amber: #B98900;
-  --amber-soft: #FBF3DB;
-  --blue: #2563EB;
-  --blue-soft: #E8EFFD;
-  --green: #1A9469;
-  --green-soft: #E5F6EE;
-  --red: #DC4747;
-  --red-soft: #FBEAEA;
-
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--ink);
-  padding: 1.5rem;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-.page > * + * {
-  margin-top: 1.5rem;
+  width: 100%;
+  height: 100%;
 }
 
 /* ===============================

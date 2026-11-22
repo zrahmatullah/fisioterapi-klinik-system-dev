@@ -1,16 +1,19 @@
 <template>
-  <div class="layout">
-    <!-- NAVBAR -->
-    <Navbar />
+  <div class="fixed inset-0 h-dvh w-screen overflow-hidden flex bg-[#F3F6F8] font-sans select-none">
+    <!-- 1. LEFT NAVIGATION SIDEBAR -->
+    <Sidebar />
 
-    <div class="main">
-      <!-- SIDEBAR (FIXED) -->
-      <Sidebar />
+    <!-- 2. RIGHT WORKSPACE CONTAINER -->
+    <div class="flex-1 h-full min-w-0 flex flex-col overflow-hidden">
+      <!-- TOP HEADER BAR -->
+      <Navbar />
 
-      <!-- CONTENT (SCROLL DI SINI) -->
-      <div class="content">
-        <router-view />
-      </div>
+      <!-- BOUNDED MAIN WORKSPACE -->
+      <main class="flex-1 min-h-0 overflow-hidden p-3.5 flex flex-col gap-3 bg-[#F3F6F8]">
+        <div class="page-enter-active w-full flex-1 min-h-0 flex flex-col overflow-hidden">
+          <router-view />
+        </div>
+      </main>
     </div>
   </div>
 </template>
@@ -21,50 +24,18 @@ import Sidebar from '../components/Sidebar.vue'
 </script>
 
 <style scoped>
-/* ROOT */
-.layout {
-  height: 100vh;
-  overflow: hidden; /* 🔴 penting: body tidak scroll */
-  display: flex;
-  flex-direction: column;
+.page-enter-active {
+  animation: clinicalFadeIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* NAVBAR */
-:deep(.navbar) {
-  height: 64px;
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-/* MAIN WRAPPER */
-.main {
-  flex: 1;
-  display: flex;
-  position: relative;
-}
-
-/* SIDEBAR FIX */
-:deep(.sidebar) {
-  position: fixed;
-  top: 64px;              /* di bawah navbar */
-  left: 0;
-  width: 260px;
-  height: calc(100vh - 64px);
-  z-index: 40;
-}
-
-/* CONTENT */
-.content {
-  margin-left: 260px;     /* offset sidebar */
-  flex: 1;
-  padding: 25px;
-  background: #f8f6ff;
-  font-family: 'Poppins', sans-serif;
-
-  height: calc(100vh - 64px);
-  overflow-y: auto;       /* ✅ scroll hanya di sini */
+@keyframes clinicalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>

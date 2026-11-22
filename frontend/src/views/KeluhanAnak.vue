@@ -1,186 +1,235 @@
 <template>
-  <div class="p-6 bg-gray-50 min-h-screen">
-    <h2 class="text-2xl font-bold mb-6">Keluhan</h2>
+  <div class="flex-1 min-h-0 flex flex-col gap-3 overflow-y-auto custom-scrollbar w-full pr-1">
 
-    <div class="grid grid-cols-3 gap-6">
-      <!-- ================= TABEL KELUHAN ================= -->
-      <div class="col-span-2 bg-white rounded-xl shadow p-4">
-        <div class="flex justify-between items-center mb-4">
-          <input
-            v-model="search"
-            placeholder="Search..."
-            class="border rounded-lg px-3 py-2 text-sm"
-          />
+    <!-- ================= HEADER ================= -->
+    <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-[#E6F2F5] border border-[#CBE3E9] flex items-center justify-center text-[#0F766E] font-bold text-sm shrink-0">
+          <i class="pi pi-comments"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-[#0F172A] leading-tight">Pengajuan & Riwayat Keluhan</h2>
+          <p class="text-xs text-[#64748B] mt-0.5">Sampaikan kendala selama proses terapi anak dan pantau respon tindak lanjut admin</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= GRID: TABEL & FORM ================= -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
+
+      <!-- ================= TABEL KELUHAN (8 COLS) ================= -->
+      <section class="lg:col-span-8 bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden flex flex-col">
+        <div class="p-3 border-b border-slate-100 flex items-center justify-between gap-2.5">
+          <div class="relative flex-1 max-w-sm">
+            <i class="pi pi-search absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+            <input
+              v-model="search"
+              type="text"
+              placeholder="Cari nomor keluhan..."
+              class="w-full pl-8 pr-3 h-[34px] text-[12.5px] bg-white border border-slate-300 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15"
+            />
+          </div>
+          <span class="text-xs text-slate-500 font-medium">{{ filteredKeluhan.length }} keluhan</span>
         </div>
 
-        <table class="w-full text-sm border">
-          <thead class="bg-gray-100">
-            <tr>
-              <th class="px-2 py-2 border">No</th>
-              <th class="px-2 py-2 border">No Keluhan</th>
-              <th class="px-2 py-2 border">Kategori</th>
-              <th class="px-2 py-2 border">Tanggal</th>
-              <th class="px-2 py-2 border">Detail</th>
-              <th class="px-2 py-2 border">Status</th>
-            </tr>
-          </thead>
+        <div class="overflow-x-auto custom-scrollbar">
+          <table class="w-full text-left border-collapse text-[12.5px]">
+            <thead class="bg-[#F8FAFC] border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600 select-none">
+              <tr>
+                <th class="py-2.5 px-3 w-12 text-center">No</th>
+                <th class="py-2.5 px-3">No Keluhan</th>
+                <th class="py-2.5 px-3">Kategori</th>
+                <th class="py-2.5 px-3">Tanggal</th>
+                <th class="py-2.5 px-3 text-center">Status</th>
+                <th class="py-2.5 px-3 text-center w-24">Aksi</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              <tr v-for="(k, i) in filteredKeluhan" :key="k.id" class="hover:bg-[#F0F6F8]/60 transition">
+                <td class="py-2 px-3 text-center text-slate-500 tabular-nums">{{ i + 1 }}</td>
+                <td class="py-2 px-3 font-mono font-semibold text-[#0F766E] text-xs">{{ k.no_keluhan }}</td>
+                <td class="py-2 px-3 text-slate-700">{{ k.kategori_keluhan }}</td>
+                <td class="py-2 px-3 text-slate-600 tabular-nums">{{ formatDate(k.tanggal_keluhan) }}</td>
+                <td class="py-2 px-3 text-center">
+                  <span
+                    class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold"
+                    :class="k.tanggapan_keluhan ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800 border border-amber-200'"
+                  >
+                    <span class="w-1.5 h-1.5 rounded-full" :class="k.tanggapan_keluhan ? 'bg-emerald-600' : 'bg-amber-600'"></span>
+                    {{ k.tanggapan_keluhan ? 'Sudah Ditanggapi' : 'Belum Ditanggapi' }}
+                  </span>
+                </td>
+                <td class="py-2 px-3 text-center">
+                  <button
+                    type="button"
+                    class="h-[28px] px-2.5 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-medium inline-flex items-center gap-1 transition cursor-pointer"
+                    @click="activeKeluhan = k"
+                  >
+                    <i class="pi pi-eye text-[11px] text-[#0F766E]"></i>
+                    <span>Detail</span>
+                  </button>
+                </td>
+              </tr>
 
-          <tbody>
-            <tr
-              v-for="(k, i) in filteredKeluhan"
-              :key="k.id"
-              class="hover:bg-gray-50"
+              <tr v-if="filteredKeluhan.length === 0">
+                <td colspan="6" class="py-12 text-center text-slate-400">
+                  <i class="pi pi-folder-open text-2xl text-slate-300 block mb-1"></i>
+                  <span class="text-xs">Belum ada keluhan diajukan</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ================= FORM INPUT (4 COLS) ================= -->
+      <section class="lg:col-span-4 bg-white border border-slate-200 rounded-xl shadow-xs p-4 flex flex-col gap-3">
+        <div class="border-b border-slate-100 pb-2">
+          <h3 class="text-sm font-bold text-[#0F172A] leading-tight flex items-center gap-2">
+            <i class="pi pi-pencil text-[#0F766E] text-xs"></i>
+            <span>Ajukan Keluhan Baru</span>
+          </h3>
+          <p class="text-[11px] text-slate-500 mt-0.5">Isi detail keluhan Anda untuk ditindaklanjuti klinik</p>
+        </div>
+
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="block text-[12px] font-medium text-slate-700 mb-1">Nama Pasien Anak</label>
+            <select
+              v-model="form.profile_anak_id"
+              class="w-full h-[34px] px-2.5 text-xs bg-slate-50 border border-slate-300 rounded-lg text-slate-700 cursor-not-allowed"
+              disabled
             >
-              <td class="border px-2 py-2 text-center">{{ i + 1 }}</td>
-              <td class="border px-2 py-2">{{ k.no_keluhan }}</td>
-              <td class="border px-2 py-2">{{ k.kategori_keluhan }}</td>
-              <td class="border px-2 py-2">
-                {{ formatDate(k.tanggal_keluhan) }}
-              </td>
-              <td class="border px-2 py-2 text-center">
-                <button
-                  class="bg-indigo-600 text-white px-3 py-1 rounded"
-                  @click="activeKeluhan = k"
-                >
-                  Detail
-                </button>
-              </td>
-              <td class="border px-2 py-2 text-center">
+              <option v-for="a in anak" :key="a.id" :value="a.id">
+                {{ a.nama_anak }}
+              </option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[12px] font-medium text-slate-700 mb-1">Kategori Keluhan</label>
+            <select
+              v-model="form.kategori_keluhan"
+              class="w-full h-[34px] px-2.5 text-xs bg-white border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15"
+            >
+              <option value="">Pilih Kategori...</option>
+              <option>Pelayanan Administrasi</option>
+              <option>Kualitas Terapi</option>
+              <option>Sarana & Prasarana</option>
+              <option>Jadwal / Waktu Pelayanan</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-[12px] font-medium text-slate-700 mb-1">Isi Keluhan</label>
+            <textarea
+              v-model="form.isi"
+              rows="5"
+              class="w-full p-2.5 text-xs bg-white border border-slate-300 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 custom-scrollbar"
+              placeholder="Jelaskan kendala yang dialami secara detail..."
+            ></textarea>
+          </div>
+
+          <div class="pt-2 flex justify-end gap-2 border-t border-slate-100">
+            <button
+              type="button"
+              class="h-[34px] px-3.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-medium transition cursor-pointer"
+              @click="resetForm"
+            >
+              Reset
+            </button>
+            <button
+              type="button"
+              class="h-[34px] px-4 rounded-lg bg-[#0F766E] hover:bg-[#115E59] active:scale-95 text-white text-xs font-semibold inline-flex items-center gap-1.5 shadow-sm transition cursor-pointer"
+              @click="kirimKeluhan"
+            >
+              <i class="pi pi-send text-xs"></i>
+              <span>Kirim Keluhan</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ================= MODAL DETAIL TELEPORTED ================= -->
+    <teleport to="body">
+      <div
+        v-if="activeKeluhan"
+        class="fixed inset-0 z-[9999] bg-slate-900/35 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn"
+      >
+        <div class="bg-white/95 backdrop-blur-xl border border-white/70 shadow-[0_20px_50px_rgba(11,57,72,0.22)] w-full max-w-lg rounded-xl max-h-[88dvh] flex flex-col overflow-hidden">
+          <!-- HEADER -->
+          <div class="px-4 py-2.5 bg-[#0B3948] text-white flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-2">
+              <i class="pi pi-comments text-[#2DD4BF] text-sm"></i>
+              <div>
+                <h3 class="font-semibold text-[13px] leading-tight">Detail Keluhan & Tanggapan</h3>
+                <p class="text-[10px] text-teal-200 font-mono">{{ activeKeluhan.no_keluhan }}</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              @click="activeKeluhan = null"
+              class="w-6 h-6 rounded flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition"
+            >
+              ✕
+            </button>
+          </div>
+
+          <!-- BODY -->
+          <div class="p-4 flex-1 min-h-0 overflow-y-auto custom-scrollbar space-y-3.5 text-xs text-slate-700">
+            <div class="bg-[#F0F6F8] border border-[#DCE8EC] rounded-xl p-3 grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <span class="text-[10px] text-slate-500 block">Kategori</span>
+                <strong class="text-[#0F766E]">{{ activeKeluhan.kategori_keluhan }}</strong>
+              </div>
+              <div>
+                <span class="text-[10px] text-slate-500 block">Tanggal Pengajuan</span>
+                <strong class="text-slate-900">{{ formatDate(activeKeluhan.tanggal_keluhan) }}</strong>
+              </div>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+              <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Isi Keluhan Anda
+              </label>
+              <p class="text-slate-800 leading-relaxed whitespace-pre-line">
+                {{ activeKeluhan.isi }}
+              </p>
+            </div>
+
+            <div class="bg-teal-50/70 border border-teal-200 rounded-lg p-3">
+              <div class="flex items-center justify-between mb-1">
+                <label class="text-[11px] font-bold text-teal-900 uppercase tracking-wider">
+                  Tanggapan Admin Klinik
+                </label>
                 <span
-                  class="text-xs px-2 py-1 rounded-full"
-                  :class="
-                    k.tanggapan_keluhan
-                      ? 'bg-green-100 text-green-700'
-                      : 'bg-orange-100 text-orange-700'
-                  "
+                  v-if="!activeKeluhan.tanggapan_keluhan"
+                  class="text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200"
                 >
-                  {{ k.tanggapan_keluhan ? 'Sudah Ditanggapi' : 'Belum Ditanggapi' }}
+                  Menunggu Respon
                 </span>
-              </td>
-            </tr>
-
-            <tr v-if="filteredKeluhan.length === 0">
-              <td colspan="6" class="text-center py-4 text-gray-400">
-                Belum ada keluhan
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <!-- ================= FORM INPUT ================= -->
-      <div class="bg-white rounded-xl shadow p-5">
-        <h3 class="font-semibold mb-5"> Keluhan</h3>
-
-        <div class="mb-3">
-          <label class="text-sm">Nama Anak</label>
-          <select
-            v-model="form.profile_anak_id"
-            class="input"
-            @change="getDataByAnak"
-            disabled="true"
-          >
-            <option value=""></option>
-            <option v-for="a in anak" :key="a.id" :value="a.id" disabled>
-              {{ a.nama_anak }}
-            </option>
-          </select>
-        </div>
-
-        <div class="mb-3">
-          <label class="text-sm">Kategori Keluhan</label>
-          <select v-model="form.kategori_keluhan" class="input">
-            <option value="">Pilih Kategori</option>
-            <option>Pelayanan Administrasi</option>
-            <option>Kualitas Terapi</option>
-            <option>Sarana & Prasarana</option>
-            <option>Jadwal / Waktu Pelayanan</option>
-          </select>
-        </div>
-
-        <div class="mb-3">
-          <label class="text-sm">Isi Keluhan</label>
-          <textarea v-model="form.isi" rows="5" class="input"></textarea>
-        </div>
-
-        <div class="flex justify-end gap-2 mt-4">
-          <button class="px-4 py-2 border rounded" @click="resetForm">
-            Batal
-          </button>
-          <button
-            class="px-4 py-2 bg-blue-600 text-white rounded"
-            @click="kirimKeluhan"
-          >
-            Kirim Keluhan
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ================= MODAL DETAIL ================= -->
-    <div
-      v-if="activeKeluhan"
-      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-    >
-      <div class="bg-white rounded-xl p-6 w-full max-w-lg">
-        <div class="space-y-4">
-
-          <!-- INFO KELUHAN (DITAMBAHKAN) -->
-          <div class="border rounded-xl p-4 bg-gray-50 text-sm">
-  <div class="flex justify-between">
-    <div>
-      <b>Kategori:</b>
-      <span class="ml-1">{{ activeKeluhan.kategori_keluhan }}</span>
-    </div>
-
-    <div>
-      <b>Tanggal:</b>
-      <span class="ml-1">{{ formatDate(activeKeluhan.tanggal_keluhan) }}</span>
-    </div>
-  </div>
-</div>
-
-          <!-- ISI KELUHAN -->
-          <div class="border rounded-xl p-4 bg-blue-50">
-            <h3 class="font-semibold text-blue-700 mb-2">Isi Keluhan</h3>
-            <p class="text-sm whitespace-pre-line text-gray-800">
-              {{ activeKeluhan.isi }}
-            </p>
+              </div>
+              <p class="text-slate-800 leading-relaxed whitespace-pre-line">
+                {{ activeKeluhan.tanggapan_keluhan || 'Keluhan Anda telah tercatat dan sedang dalam peninjauan oleh tim medis/administrasi.' }}
+              </p>
+            </div>
           </div>
 
-          <!-- TANGGAPAN -->
-          <div class="border rounded-xl p-4 bg-gray-50">
-            <h3 class="font-semibold text-gray-700 mb-2 flex items-center gap-2">
-              Tanggapan Admin
-              <span
-                v-if="!activeKeluhan.tanggapan_keluhan"
-                class="text-xs bg-orange-100 text-orange-700 px-2 py-0.5 rounded-full"
-              >
-                Belum Ditanggapi
-              </span>
-            </h3>
-
-            <p
-              class="text-sm whitespace-pre-line"
-              :class="activeKeluhan.tanggapan_keluhan
-                ? 'text-gray-800'
-                : 'text-gray-400 italic'"
+          <!-- FOOTER -->
+          <div class="px-4 py-2.5 bg-slate-50/95 border-t border-slate-200/80 flex items-center justify-end gap-2 shrink-0">
+            <button
+              type="button"
+              class="h-[34px] px-4 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs font-medium transition"
+              @click="activeKeluhan = null"
             >
-              {{ activeKeluhan.tanggapan_keluhan || 'Belum ada tanggapan dari admin.' }}
-            </p>
+              Tutup
+            </button>
           </div>
         </div>
-
-        <div class="text-right mt-4">
-          <button
-            class="px-4 py-2 border rounded"
-            @click="activeKeluhan = null"
-          >
-            Tutup
-          </button>
-        </div>
       </div>
-    </div>
+    </teleport>
+
   </div>
 </template>
 
@@ -214,15 +263,20 @@ const getDataByAnak = async () => {
 }
 
 onMounted(async () => {
-  const resAnak = await api.get('/profile-anak-saya')
-  anak.value = resAnak.data
+  try {
+    const resAnak = await api.get('/profile-anak-saya')
+    anak.value = resAnak.data
 
-  if (anak.value.length > 0) {
-    form.value.profile_anak_id = anak.value[0].id
-    await getDataByAnak()
+    if (anak.value.length > 0) {
+      form.value.profile_anak_id = anak.value[0].id
+      await getDataByAnak()
+    }
+
+    const resKeluhan = await api.get('/keluhan-anak')
+    keluhan.value = resKeluhan.data
+  } catch (err) {
+    console.error('Gagal memuat data:', err)
   }
-
-  keluhan.value = (await api.get('/keluhan-anak')).data
 })
 
 const filteredKeluhan = computed(() =>
@@ -232,11 +286,17 @@ const filteredKeluhan = computed(() =>
 )
 
 const kirimKeluhan = async () => {
+  if (!form.value.kategori_keluhan || !form.value.isi) {
+    toast.error('Mohon lengkapi kategori dan isi keluhan')
+    return
+  }
+
   try {
     await api.post('/keluhan-anak', form.value)
     toast.success('Keluhan berhasil dikirim')
     resetForm()
-    keluhan.value = (await api.get('/keluhan-anak')).data
+    const res = await api.get('/keluhan-anak')
+    keluhan.value = res.data
   } catch {
     toast.error('Gagal mengirim keluhan')
   }
@@ -250,11 +310,6 @@ const resetForm = () => {
   }
 }
 
-const formatDate = (d) => new Date(d).toLocaleDateString('id-ID')
+const formatDate = (d) =>
+  d ? new Date(d).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '-'
 </script>
-
-<style scoped>
-.input {
-  @apply w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-400;
-}
-</style>

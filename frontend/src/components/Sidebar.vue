@@ -1,495 +1,191 @@
 <template>
-  <aside class="sidebar">
-    <!-- HEADER -->
-    <div class="sidebar-header">
-      <div class="logo-wrapper">
-        <!-- <img src="/logo.png" alt="Logo Klinik" /> -->
+  <aside class="w-[215px] h-full shrink-0 bg-[#0B3948] text-white flex flex-col justify-between overflow-hidden select-none border-r border-[#0B3948]/50 z-30">
+    <!-- TOP BRAND HEADER (h-[48px]) -->
+    <div class="h-[48px] px-3.5 flex items-center gap-2 border-b border-white/10 shrink-0">
+      <div class="w-6 h-6 rounded-md bg-[#14B8A6] text-[#0B3948] flex items-center justify-center font-black text-xs shadow-sm">
+        <i class="pi pi-plus font-bold"></i>
       </div>
-
-      <div class="brand-text">
-        <div class="brand-name">E-Clinic Dev</div>
-        <div class="brand-sub">By Zharpiil</div>
+      <div class="flex items-center gap-1.5 min-w-0">
+        <span class="text-[14px] font-bold text-white tracking-wide">SIMRS</span>
+        <span class="text-[9px] font-semibold uppercase px-1.5 py-0.2 rounded bg-teal-500/20 text-teal-300 border border-teal-400/30">KlinikKu</span>
       </div>
     </div>
 
-    <!-- MENU SCROLLABLE -->
-    <nav class="sidebar-menu">
+    <!-- DYNAMIC NAVIGATION MENU LIST -->
+    <nav class="flex-1 min-h-0 overflow-y-auto custom-scrollbar px-2 py-2 space-y-2 text-[12.5px]">
+      <div
+        v-for="cat in visibleCategories"
+        :key="cat.category"
+        class="space-y-0.5"
+      >
+        <!-- Category Header (Clickable Accordion) -->
+        <div
+          @click="toggleCategory(cat.category)"
+          class="px-2 py-1 flex items-center justify-between text-[10.5px] font-bold text-teal-300/80 uppercase tracking-wider cursor-pointer hover:text-teal-200 transition select-none group"
+        >
+          <span class="group-hover:translate-x-0.5 transition-transform truncate">{{ cat.category }}</span>
+          <i
+            class="pi pi-chevron-down text-[8.5px] text-teal-400/60 group-hover:text-teal-200 transition-transform duration-200"
+            :class="{ '-rotate-90': isCollapsed(cat.category) }"
+          ></i>
+        </div>
 
-      <!-- Dashboard -->
-      <div class="menu-section">
-        <li v-if="isAdmin" @click="go('/dashboard')" :class="itemClass('/dashboard')">
-          <i class="pi pi-home"></i>
-          <span>Dashboard</span>
-        </li>
-        <li v-if="isOrangTua" @click="go('/dashboard-orang-tua')" :class="itemClass('/dashboard-orang-tua')">
-          <i class="pi pi-home"></i>
-          <span>Dashboard</span>
-        </li>
-        <li v-if="isTerapis" @click="go('/dashboard-terapis')" :class="itemClass('/dashboard-terapis')">
-          <i class="pi pi-home"></i>
-          <span>Dashboard</span>
-        </li>
+        <!-- Category Items -->
+        <div v-show="!isCollapsed(cat.category)" class="space-y-0.5 transition-all">
+          <div
+            v-for="item in cat.items"
+            :key="item.route"
+            @click="go(item.dynamicRoute ? item.dynamicRoute(roleId) : item.route)"
+            :class="isActive(item.route) ? activeClass : inactiveClass"
+          >
+            <i :class="item.icon" class="text-[13px] w-4 text-center shrink-0"></i>
+            <span class="truncate">{{ item.title }}</span>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- BOTTOM USER ACCOUNT FOOTER (shrink-0 p-2.5) -->
+    <div class="shrink-0 p-2.5 border-t border-white/10 flex items-center justify-between hover:bg-[#135063]/40 transition relative group">
+      <div class="flex items-center gap-2 min-w-0">
+        <div class="w-7 h-7 rounded-full bg-[#15576B] border border-white/20 text-white flex items-center justify-center text-xs font-bold shrink-0">
+          {{ userInitial }}
+        </div>
+        <div class="min-w-0">
+          <span class="text-[10px] text-teal-300 block leading-tight font-medium">{{ userRoleLabel }}</span>
+          <span class="text-[11.5px] font-bold text-white leading-tight truncate block max-w-[110px]">{{ userName }}</span>
+        </div>
       </div>
 
-      <!-- ORANG TUA -->
-      <template v-if="isOrangTua">
-        <p class="section-label">Layanan Saya</p>
+      <button
+        type="button"
+        @click="showAccountMenu = !showAccountMenu"
+        class="text-slate-400 hover:text-white p-1 rounded transition cursor-pointer shrink-0"
+        title="Menu Akun"
+      >
+        <i class="pi pi-chevron-down text-[10px] transition-transform" :class="{ 'rotate-180': showAccountMenu }"></i>
+      </button>
 
-        <li @click="go('/registrasi')" :class="itemClass('/registrasi')">
-          <i class="pi pi-file"></i>
-          <span>Pendaftaran</span>
-        </li>
-
-        <li @click="go('/riwayat-pembayaran-anak')" :class="itemClass('/riwayat-pembayaran-anak')">
-          <i class="pi pi-credit-card"></i>
-          <span>Pembayaran Anak</span>
-        </li>
-
-        <li @click="go('/catatan-aktivitas-anak')" :class="itemClass('/catatan-aktivitas-anak')">
-          <i class="pi pi-calendar"></i>
-          <span>Jadwal Terapi</span>
-        </li>
-
-        <li @click="go('/hasil-evaluasi')" :class="itemClass('/hasil-evaluasi')">
-          <i class="pi pi-heart-fill"></i>
-          <span>Monitoring Terapi</span>
-        </li>
-
-        <li @click="go('/keluhan-anak')" :class="itemClass('/keluhan-anak')">
-          <i class="pi pi-comment"></i>
-          <span>Keluhan</span>
-        </li>
-      </template>
-
-      <!-- TERAPIS -->
-      <template v-if="isTerapis">
-        <p class="section-label">Aktivitas Terapi</p>
-
-        <li @click="go('/jadwal-terapi')" :class="itemClass('/jadwal-terapi')">
-          <i class="pi pi-calendar"></i>
-          <span>Jadwal Terapi</span>
-        </li>
-
-        <li @click="go('/report-catatan-aktivitas')" :class="itemClass('/report-catatan-aktivitas')">
-          <i class="pi pi-file-edit"></i>
-          <span>Report Catatan Aktivitas</span>
-        </li>
-
-        <li @click="go('/evaluasi-terapi')" :class="itemClass('/evaluasi-terapi')">
-          <i class="pi pi-heart-fill"></i>
-          <span>Evaluasi Terapi</span>
-        </li>
-
-        <li @click="go('/riwayat-evaluasi')" :class="itemClass('/riwayat-evaluasi')">
-          <i class="pi pi-history"></i>
-          <span>Riwayat Evaluasi</span>
-        </li>
-      </template>
-
-      <!-- ADMIN -->
-      <template v-if="isAdmin">
-
-        <p class="section-label">Operasional</p>
-
-        <li @click="go('/registrasi')" :class="itemClass('/registrasi')">
-          <i class="pi pi-file"></i>
-          <span>Pendaftaran</span>
-        </li>
-
-        <li @click="go('/input-layanan')" :class="itemClass('/input-layanan')">
-          <i class="pi pi-plus-circle"></i>
-          <span>Input Layanan Anak</span>
-        </li>
-
-        <li @click="go('/list-pendaftaran-layanan')" :class="itemClass('/list-pendaftaran-layanan')">
-          <i class="pi pi-list"></i>
-          <span>Daftar Layanan</span>
-        </li>
-
-        <li @click="go('/list-reschedule')" :class="itemClass('/list-reschedule')">
-          <i class="pi pi-calendar-clock"></i>
-          <span>List Reschedule</span>
-        </li>
-
-        <li @click="go('/pembayaran-tagihan')" :class="itemClass('/pembayaran-tagihan')">
-          <i class="pi pi-credit-card"></i>
-          <span>Pembayaran / Tagihan</span>
-        </li>
-
-        <li @click="go('/keluhan-admin')" :class="itemClass('/keluhan-admin')">
-          <i class="pi pi-comment"></i>
-          <span>Keluhan Admin</span>
-        </li>
-
-        <li @click="go('/pemanggilan-antrian')" :class="itemClass('/pemanggilan-antrian')">
-          <i class="pi pi-bell"></i>
-          <span>Pemanggilan Antrian</span>
-        </li>
-
-        <!-- Master Data (collapsible) -->
-        <p class="section-label">Master Data</p>
-
-        <li @click="toggleMenu('master')" class="menu-item menu-item--toggle">
-          <i class="pi pi-database"></i>
-          <span>Master Data</span>
-          <i
-            class="pi pi-chevron-down toggle-caret"
-            :class="{ 'is-open': activeMenu === 'master' }"
-          />
-        </li>
-
-        <transition name="slide">
-          <ul v-if="activeMenu === 'master'" class="submenu-list">
-            <li @click="go('/master-user')" class="submenu" :class="{ 'submenu--active': route.path === '/master-user' }">
-              <i class="pi pi-user"></i><span>Master User</span>
-            </li>
-            <li @click="go('/master-role')" class="submenu" :class="{ 'submenu--active': route.path === '/master-role' }">
-              <i class="pi pi-id-card"></i><span>Master Role</span>
-            </li>
-            <li @click="go('/master-anak')" class="submenu" :class="{ 'submenu--active': route.path === '/master-anak' }">
-              <i class="pi pi-users"></i><span>Master Anak</span>
-            </li>
-            <li @click="go('/master-terapis')" class="submenu" :class="{ 'submenu--active': route.path === '/master-terapis' }">
-              <i class="pi pi-users"></i><span>Master Terapis</span>
-            </li>
-            <li @click="go('/master-jadwal-terapis')" class="submenu" :class="{ 'submenu--active': route.path === '/master-jadwal-terapis' }">
-              <i class="pi pi-briefcase"></i><span>Master Jadwal Terapis</span>
-            </li>
-            <li @click="go('/master-ruangan')" class="submenu" :class="{ 'submenu--active': route.path === '/master-ruangan' }">
-              <i class="pi pi-building"></i><span>Master Ruangan</span>
-            </li>
-            <li @click="go('/master-kategori-layanan')" class="submenu" :class="{ 'submenu--active': route.path === '/master-kategori-layanan' }">
-              <i class="pi pi-tags"></i><span>Kategori Layanan</span>
-            </li>
-            <li @click="go('/master-layanan')" class="submenu" :class="{ 'submenu--active': route.path === '/master-layanan' }">
-              <i class="pi pi-briefcase"></i><span>Master Layanan</span>
-            </li>
-            <li @click="go('/master-promosi')" class="submenu" :class="{ 'submenu--active': route.path === '/master-promosi' }">
-              <i class="pi pi-briefcase"></i><span>Master Promosi</span>
-            </li>
-            <li @click="go('/master-produk')" class="submenu" :class="{ 'submenu--active': route.path === '/master-produk' }">
-              <i class="pi pi-briefcase"></i><span>Master Produk Farmasi</span>
-            </li>
-          </ul>
-        </transition>
-
-        <!-- Laporan (collapsible) -->
-        <p class="section-label">Laporan</p>
-
-        <li @click="toggleMenu('laporan')" class="menu-item menu-item--toggle">
-          <i class="pi pi-chart-bar"></i>
-          <span>Laporan</span>
-          <i
-            class="pi pi-chevron-down toggle-caret"
-            :class="{ 'is-open': activeMenu === 'laporan' }"
-          />
-        </li>
-
-        <transition name="slide">
-          <ul v-if="activeMenu === 'laporan'" class="submenu-list">
-            <li @click="go('/laporan-pembayaran')" class="submenu" :class="{ 'submenu--active': route.path === '/laporan-pembayaran' }">
-              <i class="pi pi-clipboard"></i><span>Laporan Pembayaran</span>
-            </li>
-            <li @click="go('/laporan-keluhan')" class="submenu" :class="{ 'submenu--active': route.path === '/laporan-keluhan' }">
-              <i class="pi pi-clipboard"></i><span>Laporan Keluhan</span>
-            </li>
-            <li @click="go('/laporan-histori-promosi')" class="submenu" :class="{ 'submenu--active': route.path === '/laporan-histori-promosi' }">
-              <i class="pi pi-clipboard"></i><span>Laporan Promosi</span>
-            </li>
-          </ul>
-        </transition>
-
-      </template>
-
-    </nav>
+      <!-- DROPDOWN LOGOUT -->
+      <div
+        v-if="showAccountMenu"
+        class="absolute bottom-12 left-1.5 right-1.5 bg-[#0B3948] border border-white/20 rounded-xl p-1.5 shadow-2xl z-50 space-y-1 text-xs"
+      >
+        <div class="px-2 py-1 text-slate-300 border-b border-white/10">
+          <p class="font-bold text-white truncate text-[11px]">{{ userName }}</p>
+          <p class="text-[9.5px] text-teal-400 font-semibold">{{ userRoleLabel }}</p>
+        </div>
+        <button
+          type="button"
+          @click="logout"
+          class="w-full text-left px-2 py-1 rounded hover:bg-rose-600/30 text-rose-300 hover:text-rose-100 flex items-center gap-2 transition cursor-pointer font-medium text-[11px]"
+        >
+          <i class="pi pi-sign-out text-[10px]"></i>
+          <span>Keluar Sistem</span>
+        </button>
+      </div>
+    </div>
   </aside>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-
-const ROLE_ADMIN = 13
-const ROLE_TERAPIS = 14
-const ROLE_ORANG_TUA = 15
-
-const roleId = Number(localStorage.getItem('role_id'))
-const isAdmin = computed(() => roleId === ROLE_ADMIN)
-const isTerapis = computed(() => roleId === ROLE_TERAPIS)
-const isOrangTua = computed(() => roleId === ROLE_ORANG_TUA)
+import { menuCategories, ROLE_IDS, getDefaultLandingRoute } from '../config/menuConfig'
 
 const router = useRouter()
 const route = useRoute()
-const activeMenu = ref(null)
 
-const toggleMenu = (menu) => {
-  activeMenu.value = activeMenu.value === menu ? null : menu
+const showAccountMenu = ref(false)
+const collapsedCategories = ref({})
+
+// User storage
+const user = computed(() => {
+  try {
+    return JSON.parse(localStorage.getItem('user')) || {}
+  } catch (e) {
+    return {}
+  }
+})
+
+const roleId = computed(() => Number(user.value?.role_id || localStorage.getItem('role_id') || 0))
+const username = computed(() => (user.value?.username || localStorage.getItem('username') || '').toLowerCase())
+
+// SUPER ADMIN: role 13 OR username === 'admin' -> Full Access to everything!
+const isAdmin = computed(() => roleId.value === ROLE_IDS.SUPER_ADMIN || username.value === 'admin')
+
+// Filtered dynamic categories & items
+const visibleCategories = computed(() => {
+  return menuCategories
+    .map(cat => {
+      // Check if user role matches category
+      if (!isAdmin.value && !cat.allowedRoles.includes(roleId.value)) {
+        return null
+      }
+
+      // Filter category items
+      const items = cat.items.filter(item => {
+        if (isAdmin.value) return true
+        return item.allowedRoles.includes(roleId.value)
+      })
+
+      if (items.length === 0) return null
+
+      return {
+        ...cat,
+        items
+      }
+    })
+    .filter(Boolean)
+})
+
+const toggleCategory = (catName) => {
+  collapsedCategories.value[catName] = !collapsedCategories.value[catName]
 }
 
-const go = (path) => router.push(path)
-const itemClass = (path) => ['menu-item', route.path === path ? 'menu-item--active' : '']
+const isCollapsed = (catName) => {
+  // If active route is in this category, keep it expanded
+  const cat = visibleCategories.value.find(c => c.category === catName)
+  if (cat && cat.items.some(item => isActive(item.route))) {
+    return false
+  }
+  return !!collapsedCategories.value[catName]
+}
+
+const userName = computed(() => user.value?.nama || user.value?.name || user.value?.username || 'Administrator')
+const userInitial = computed(() => (userName.value?.charAt(0) || 'A').toUpperCase())
+
+const userRoleLabel = computed(() => {
+  if (isAdmin.value) return 'Super Admin'
+  if (roleId.value === ROLE_IDS.DOKTER) return 'Dokter'
+  if (roleId.value === ROLE_IDS.TERAPIS) return 'Terapis'
+  if (roleId.value === ROLE_IDS.ORANG_TUA) return 'Orang Tua'
+  if (roleId.value === ROLE_IDS.KASIR) return 'Kasir'
+  if (roleId.value === ROLE_IDS.FARMASI) return 'Farmasi'
+  if (roleId.value === ROLE_IDS.GUDANG) return 'Gudang'
+  if (roleId.value === ROLE_IDS.PENDAFTARAN) return 'Pendaftaran'
+  return 'Tenaga Medis'
+})
+
+const activeClass = 'bg-[#15576B] text-white font-semibold rounded-lg px-2.5 py-1.5 border-l-4 border-[#2DD4BF] flex items-center gap-2.5 transition cursor-pointer shadow-sm text-[12px]'
+const inactiveClass = 'text-slate-300 hover:bg-[#135063]/60 hover:text-white rounded-lg px-2.5 py-1.5 flex items-center gap-2.5 transition cursor-pointer text-[12px]'
+
+const isActive = (path) => {
+  if (path === '/dashboard') {
+    return route.path === '/dashboard' || route.path === '/dashboard-terapis' || route.path === '/dashboard-orang-tua'
+  }
+  return route.path === path || route.path.startsWith(path + '/')
+}
+
+const go = (path) => {
+  showAccountMenu.value = false
+  if (route.path !== path) {
+    router.push(path)
+  }
+}
+
+const logout = () => {
+  localStorage.clear()
+  router.push('/login')
+}
 </script>
-
-<style scoped>
-/* ===============================
-   TOKENS
-================================ */
-.sidebar {
-  --bg: #FAFAFA;
-  --surface: #FFFFFF;
-  --border: #ECEDF1;
-  --ink: #1F2128;
-  --muted: #98A0AE;
-  --accent: #6D5CE0;
-  --accent-soft: #F1EEFC;
-
-  width: 17rem;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg);
-  color: var(--ink);
-  border-right: 1px solid var(--border);
-  overflow: hidden;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-/* ===============================
-   HEADER
-================================ */
-.sidebar-header {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  padding: 1.5rem 1.5rem 1.25rem;
-  flex-shrink: 0;
-}
-
-.logo-wrapper {
-  width: 42px;
-  height: 42px;
-  border-radius: 11px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.logo-wrapper img {
-  width: 30px;
-  height: 30px;
-  object-fit: contain;
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.25;
-  min-width: 0;
-}
-
-.brand-name {
-  font-size: 0.92rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  color: var(--ink);
-}
-
-.brand-sub {
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: var(--muted);
-  letter-spacing: 0.03em;
-}
-
-/* ===============================
-   MENU CONTAINER
-================================ */
-.sidebar-menu {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0.25rem 1rem 1.5rem;
-  list-style: none;
-}
-
-.menu-section {
-  list-style: none;
-  margin-bottom: 0.25rem;
-}
-
-.section-label {
-  font-size: 0.68rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  margin: 1.35rem 0.75rem 0.5rem;
-}
-
-/* ===============================
-   MENU ITEM
-================================ */
-.menu-item {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-
-  padding: 0.6rem 0.75rem;
-  margin-bottom: 0.15rem;
-
-  border-radius: 0.6rem;
-  cursor: pointer;
-
-  font-size: 0.84rem;
-  font-weight: 500;
-  color: var(--ink);
-
-  list-style: none;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.menu-item i:not(.toggle-caret) {
-  font-size: 0.95rem;
-  width: 1.1rem;
-  text-align: center;
-  color: var(--muted);
-  transition: color 0.15s ease;
-}
-
-.menu-item span {
-  flex: 1;
-  text-align: left;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.menu-item:hover {
-  background: var(--surface);
-}
-
-.menu-item:hover i:not(.toggle-caret) {
-  color: var(--accent);
-}
-
-/* active state — signature: thin left indicator, not a filled block */
-.menu-item--active {
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-weight: 600;
-}
-
-.menu-item--active i:not(.toggle-caret) {
-  color: var(--accent);
-}
-
-.menu-item--active::before {
-  content: '';
-  position: absolute;
-  left: -1rem;
-  top: 0.3rem;
-  bottom: 0.3rem;
-  width: 3px;
-  border-radius: 0 3px 3px 0;
-  background: var(--accent);
-}
-
-/* toggle row (Master Data / Laporan) */
-.menu-item--toggle {
-  margin-bottom: 0;
-}
-
-.toggle-caret {
-  margin-left: auto;
-  font-size: 0.65rem;
-  color: var(--muted);
-  transition: transform 0.2s ease;
-}
-
-.toggle-caret.is-open {
-  transform: rotate(180deg);
-}
-
-/* ===============================
-   SUBMENU
-================================ */
-.submenu-list {
-  list-style: none;
-  margin: 0.1rem 0 0.4rem 0;
-  padding-left: 1.85rem;
-  border-left: 1px solid var(--border);
-  margin-left: 1.05rem;
-}
-
-.submenu {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-
-  padding: 0.5rem 0.6rem;
-  margin: 0.05rem 0;
-
-  border-radius: 0.5rem;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: var(--muted);
-
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.submenu i {
-  font-size: 0.8rem;
-  width: 1rem;
-  text-align: center;
-}
-
-.submenu span {
-  flex: 1;
-  text-align: left;
-}
-
-.submenu:hover {
-  background: var(--surface);
-  color: var(--ink);
-}
-
-.submenu--active {
-  background: var(--accent-soft);
-  color: var(--accent);
-  font-weight: 600;
-}
-
-/* ===============================
-   TRANSITION
-================================ */
-.slide-enter-active,
-.slide-leave-active {
-  transition: all 0.2s ease;
-}
-
-.slide-enter-from,
-.slide-leave-to {
-  opacity: 0;
-  transform: translateY(-4px);
-}
-
-/* ===============================
-   SCROLLBAR
-================================ */
-.sidebar-menu::-webkit-scrollbar {
-  width: 5px;
-}
-
-.sidebar-menu::-webkit-scrollbar-thumb {
-  background: var(--border);
-  border-radius: 10px;
-}
-
-.sidebar-menu::-webkit-scrollbar-track {
-  background: transparent;
-}
-</style>

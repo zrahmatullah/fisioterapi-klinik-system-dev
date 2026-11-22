@@ -1,331 +1,323 @@
 <template>
-  <nav :class="['navbar', { 'is-scrolled': scrolled }]" class="h-16 px-6 flex items-center justify-between bg-white/80 backdrop-blur-xl border-b border-gray-100">
+  <header class="h-[48px] bg-white border-b border-slate-200 px-4 flex items-center justify-between shrink-0 select-none z-20">
+    <!-- LEFT: DYNAMIC PAGE / MODULE TITLE -->
+    <div class="flex items-center gap-2.5 min-w-0">
+      <h2 class="text-[14.5px] font-semibold text-slate-900 tracking-tight leading-none truncate max-w-md">
+        {{ pageTitle }}
+      </h2>
+    </div>
 
-    <div></div>
-
+    <!-- RIGHT: UTILITY CLUSTER -->
     <div class="flex items-center gap-2">
+      <!-- GLOBAL QUICK SEARCH TRIGGER (Ctrl + K) -->
+      <button
+        type="button"
+        @click="showCommandPalette = true"
+        class="hidden md:flex items-center gap-2 h-[32px] px-2.5 rounded-lg bg-slate-100 hover:bg-slate-200/80 text-slate-600 hover:text-slate-900 text-[12px] font-medium transition border border-slate-200"
+        title="Pencarian Cepat Pasien / Menu (Ctrl+K)"
+      >
+        <i class="pi pi-search text-[11px] text-[#0F766E]"></i>
+        <span>Cari...</span>
+        <kbd class="px-1.5 py-0.2 rounded bg-white border border-slate-200 font-mono text-[9px] text-slate-400">Ctrl K</kbd>
+      </button>
 
-      <!-- NOTIFICATION -->
+      <!-- HELP ICON (?) -->
+      <button
+        type="button"
+        @click="openHelpModal"
+        class="w-7 h-7 rounded-lg border border-slate-200 text-slate-500 hover:text-slate-800 hover:bg-slate-50 flex items-center justify-center text-xs font-semibold transition"
+        title="Bantuan & Petunjuk SIMRS"
+      >
+        <i class="pi pi-question text-[11px]"></i>
+      </button>
+
+      <!-- NOTIFICATION BELL WITH BADGE -->
       <div class="relative">
         <button
+          type="button"
           @click="toggleNotif"
-          class="notif-trigger relative w-10 h-10 rounded-full flex items-center justify-center text-gray-500 transition-all duration-200"
-          :class="notifOpen ? 'bg-gray-100 text-gray-700' : 'hover:bg-gray-100 hover:text-gray-700'"
-          aria-label="Notifikasi"
+          class="w-7 h-7 rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-50 flex items-center justify-center text-sm transition relative"
+          title="Notifikasi"
         >
-          <i class="pi pi-bell text-[17px]"></i>
+          <i class="pi pi-bell text-[11px]"></i>
+          <!-- Red dot badge -->
           <span
             v-if="unreadCount > 0"
-            class="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-white text-[10px] font-bold flex items-center justify-center ring-2 ring-white"
+            class="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-rose-500 text-white text-[8px] font-bold flex items-center justify-center ring-2 ring-white"
           >
-            {{ unreadCount > 9 ? '9+' : unreadCount }}
+            {{ unreadCount }}
           </span>
         </button>
 
-        <transition name="pop">
-          <div
-            v-if="notifOpen"
-            class="dropdown-panel absolute left-0 mt-3 w-[340px] overflow-hidden z-50"
-          >
-            <div class="px-4 py-3.5 flex items-center justify-between border-b border-gray-100/80">
-              <span class="text-[13px] font-semibold text-gray-900 tracking-tight">Notifikasi</span>
-              <button v-if="unreadCount > 0" class="text-[11px] font-medium text-indigo-600 hover:text-indigo-700">
-                Tandai dibaca
-              </button>
-            </div>
-
-            <div v-if="notifications.length === 0" class="px-6 py-10 text-center">
-              <div class="w-11 h-11 rounded-full bg-gray-50 flex items-center justify-center mx-auto mb-3">
-                <i class="pi pi-bell text-gray-300 text-lg"></i>
-              </div>
-              <p class="text-[13px] text-gray-400">Belum ada notifikasi baru</p>
-            </div>
-
-            <div v-else class="max-h-80 overflow-y-auto">
-              <button
-                v-for="n in notifications"
-                :key="n.id"
-                class="notif-item w-full px-4 py-3 text-left transition flex gap-3 relative"
-              >
-                <span v-if="n.unread" class="absolute left-0 top-2 bottom-2 w-[3px] rounded-full bg-indigo-500"></span>
-                <div class="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-                  <i class="pi pi-info-circle text-[13px]"></i>
-                </div>
-                <div class="min-w-0 flex-1">
-                  <p class="text-[13px] text-gray-800 leading-snug truncate">{{ n.title }}</p>
-                  <p class="text-[11px] text-gray-400 mt-0.5">{{ n.time }}</p>
-                </div>
-              </button>
-            </div>
-          </div>
-        </transition>
-      </div>
-
-      <!-- PROFILE -->
-      <div class="relative ml-1">
-        <button
-          @click="toggle"
-          class="profile-trigger flex items-center gap-2.5 pl-1.5 pr-3 py-1.5 rounded-full transition-all duration-200"
-          :class="open ? 'bg-gray-100' : 'hover:bg-gray-100'"
+        <!-- Notification Dropdown -->
+        <div
+          v-if="notifOpen"
+          class="absolute right-0 mt-2 w-72 bg-white border border-slate-200 rounded-xl shadow-xl z-50 overflow-hidden text-xs"
         >
-          <div class="relative shrink-0">
-            <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-[13px]">
-              {{ userInitial }}
-            </div>
-            <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white"></span>
+          <div class="px-3 py-2 bg-slate-50 border-b border-slate-100 flex items-center justify-between font-semibold text-slate-800">
+            <span>Notifikasi Klinis</span>
+            <span class="text-[9px] bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded-full font-bold">1 Baru</span>
           </div>
-          <span class="text-[13px] font-semibold text-gray-700 hidden sm:block">{{ userName }}</span>
-          <i class="pi pi-angle-down text-[10px] text-gray-400 transition-transform duration-200" :class="{ 'rotate-180': open }"></i>
-        </button>
-
-        <transition name="pop">
-          <div v-if="open" class="dropdown-panel absolute right-0 mt-3 w-60 overflow-hidden z-50">
-            <div class="px-4 py-4 flex items-center gap-3 border-b border-gray-100/80">
-              <div class="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-sm shrink-0">
-                {{ userInitial }}
-              </div>
-              <div class="min-w-0">
-                <p class="text-[13px] font-semibold text-gray-900 truncate">{{ user.nama }}</p>
-                <p class="text-[11px] text-gray-400 truncate">{{ user.username }}</p>
+          <div class="p-2 space-y-1">
+            <div class="p-2 rounded-lg bg-teal-50/60 border border-teal-100 flex gap-2">
+              <i class="pi pi-bell text-teal-600 mt-0.5 text-xs"></i>
+              <div>
+                <p class="font-semibold text-slate-800 text-[11px]">Pasien Antrian A-001</p>
+                <p class="text-[10px] text-slate-500 leading-tight">Azhar Al-Farizi siap masuk Ruang Terapi Wicara A.</p>
               </div>
             </div>
-            <div class="py-1.5">
-              <button @click="openProfileModal" class="menu-item w-full px-4 py-2.5 text-left text-[13px] text-gray-600 flex items-center gap-2.5 transition">
-                <i class="pi pi-user text-[13px] text-gray-400"></i>
-                <span>Profil saya</span>
-              </button>
-              <button @click="openConfirm" class="menu-item menu-item--danger w-full px-4 py-2.5 text-left text-[13px] text-rose-600 flex items-center gap-2.5 transition">
-                <i class="pi pi-sign-out text-[13px]"></i>
-                <span>Keluar</span>
-              </button>
+            <div class="p-2 rounded-lg hover:bg-slate-50 flex gap-2 text-slate-500">
+              <i class="pi pi-exclamation-triangle text-amber-500 mt-0.5 text-xs"></i>
+              <div>
+                <p class="font-medium text-slate-700 text-[11px]">Stok Kritis Sarung Tangan</p>
+                <p class="text-[10px] text-slate-400 leading-tight">Tersisa 3 box di Gudang Farmasi.</p>
+              </div>
             </div>
           </div>
-        </transition>
+        </div>
       </div>
 
-    </div>
-  </nav>
-
-  <!-- backdrop untuk menutup dropdown saat klik di luar -->
-  <div v-if="open || notifOpen" class="fixed inset-0 z-40" @click="closeDropdowns"></div>
-
-  <!-- MODAL PROFILE -->
-  <transition name="modal">
-    <div v-if="showProfile" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-[28px] w-full max-w-md shadow-2xl relative p-7">
-
-        <button @click="closeProfileModal" class="absolute top-5 right-5 w-8 h-8 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition flex items-center justify-center">
-          <i class="pi pi-times text-sm"></i>
+      <!-- LOGGED-IN USER PROFILE PILL -->
+      <div class="relative">
+        <button
+          type="button"
+          @click="toggleProfile"
+          class="flex items-center gap-2 pl-1 pr-2 h-[32px] rounded-full border border-slate-200 hover:border-slate-300 hover:bg-slate-50 transition"
+        >
+          <div class="w-6 h-6 rounded-full bg-[#0F766E] text-white flex items-center justify-center font-bold text-[10px] shrink-0 shadow-sm">
+            {{ userInitial }}
+          </div>
+          <span class="text-[12px] font-semibold text-slate-800 hidden sm:inline max-w-[130px] truncate">
+            {{ userName }}
+          </span>
+          <i class="pi pi-chevron-down text-[9px] text-slate-400"></i>
         </button>
 
-        <div class="flex items-start gap-4">
-
-          <!-- avatar dengan status ring -->
-          <div class="relative shrink-0">
-            <svg class="w-[72px] h-[72px] -rotate-90" viewBox="0 0 72 72">
-              <circle cx="36" cy="36" r="33" fill="none" stroke="#EEF0FF" stroke-width="3" />
-              <circle cx="36" cy="36" r="33" fill="none" stroke="#6366F1" stroke-width="3" stroke-linecap="round" stroke-dasharray="207.3" stroke-dashoffset="20" />
-            </svg>
-            <div class="absolute inset-[6px] rounded-full bg-indigo-600 text-white flex items-center justify-center text-2xl font-bold">
-              {{ userInitial }}
-            </div>
-            <span class="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 ring-[3px] ring-white"></span>
+        <!-- Profile Dropdown -->
+        <div
+          v-if="profileOpen"
+          class="absolute right-0 mt-2 w-52 bg-white border border-slate-200 rounded-xl shadow-xl z-50 p-1.5 space-y-0.5 text-xs"
+        >
+          <div class="px-2.5 py-1.5 border-b border-slate-100 mb-1">
+            <p class="font-bold text-slate-900 truncate text-[11.5px]">{{ userName }}</p>
+            <p class="text-[10px] text-teal-600 font-medium">{{ userRoleTitle }}</p>
           </div>
-
-          <div class="pt-1 min-w-0">
-            <h2 class="text-[17px] font-bold text-gray-900 truncate">{{ user.nama }}</h2>
-            <p class="text-[13px] text-gray-400 mb-2">{{ user.role }}</p>
-            <span class="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              Aktif sekarang
-            </span>
-          </div>
-
-        </div>
-
-        <div class="grid grid-cols-2 gap-3 mt-6">
-          <div class="rounded-2xl bg-gray-50 px-4 py-3.5">
-            <p class="text-[11px] text-gray-400 mb-1">Username</p>
-            <p class="text-[13px] font-semibold text-gray-800 truncate">{{ user.username }}</p>
-          </div>
-          <div class="rounded-2xl bg-gray-50 px-4 py-3.5">
-            <p class="text-[11px] text-gray-400 mb-1">Jenis user</p>
-            <p class="text-[13px] font-semibold text-gray-800 truncate">{{ user.jenis_user }}</p>
-          </div>
-        </div>
-
-        <button @click="closeProfileModal" class="mt-6 w-full py-3 bg-gray-900 text-white font-semibold text-[13px] rounded-2xl hover:bg-gray-800 transition">
-          Tutup
-        </button>
-
-      </div>
-    </div>
-  </transition>
-
-  <!-- MODAL CONFIRM LOGOUT -->
-  <transition name="modal">
-    <div v-if="showConfirm" class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-[28px] w-full max-w-sm p-7 shadow-2xl">
-        <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center mb-5">
-          <i class="pi pi-sign-out text-lg"></i>
-        </div>
-        <h3 class="text-[17px] font-bold text-gray-900 mb-1.5">Konfirmasi keluar</h3>
-        <p class="text-[13px] text-gray-500 mb-6 leading-relaxed">Anda akan keluar dari sesi ini dan perlu masuk kembali untuk mengakses sistem.</p>
-        <div class="flex gap-2.5">
-          <button @click="closeConfirm" class="flex-1 py-3 text-[13px] font-semibold rounded-2xl bg-gray-100 text-gray-700 hover:bg-gray-200 transition">Batal</button>
-          <button @click="logout" class="flex-1 py-3 text-[13px] font-semibold rounded-2xl bg-rose-500 text-white hover:bg-rose-600 transition">Ya, keluar</button>
+          <button
+            type="button"
+            @click="goToSettings"
+            class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-slate-100 flex items-center gap-2 text-slate-700 text-[11.5px]"
+          >
+            <i class="pi pi-cog text-[11px] text-slate-500"></i>
+            <span>Pengaturan Akun</span>
+          </button>
+          <button
+            type="button"
+            @click="logout"
+            class="w-full text-left px-2.5 py-1.5 rounded-lg hover:bg-rose-50 text-rose-600 flex items-center gap-2 transition text-[11.5px]"
+          >
+            <i class="pi pi-sign-out text-[11px]"></i>
+            <span>Keluar Sesi</span>
+          </button>
         </div>
       </div>
     </div>
-  </transition>
+
+    <!-- MODAL COMMAND PALETTE (CTRL + K) -->
+    <teleport to="body">
+      <div
+        v-if="showCommandPalette"
+        class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-start justify-center z-[9999] p-4 pt-16"
+        @click.self="showCommandPalette = false"
+      >
+        <div class="bg-white rounded-xl w-full max-w-xl shadow-2xl border border-slate-200 overflow-hidden animate-in fade-in zoom-in-95 duration-100">
+          <div class="p-3 border-b border-slate-100 flex items-center gap-3">
+            <i class="pi pi-search text-teal-600 text-sm"></i>
+            <input
+              v-model="paletteQuery"
+              type="text"
+              placeholder="Cari pasien atau lompat ke menu SIMRS..."
+              class="w-full text-[13px] outline-none text-slate-800 placeholder-slate-400 bg-transparent"
+              autofocus
+              @keydown.esc="showCommandPalette = false"
+            />
+            <kbd class="px-1.5 py-0.5 rounded bg-slate-100 text-[10px] text-slate-500 font-mono">ESC</kbd>
+          </div>
+
+          <div class="p-1.5 max-h-80 overflow-y-auto custom-scrollbar space-y-0.5">
+            <button
+              v-for="(item, idx) in filteredPaletteItems"
+              :key="idx"
+              @click="navigatePalette(item.route)"
+              class="w-full px-2.5 py-1.5 rounded-lg hover:bg-[#E6F2F5] text-left flex items-center justify-between text-xs transition group"
+            >
+              <div class="flex items-center gap-2.5">
+                <div class="w-6 h-6 rounded bg-slate-100 group-hover:bg-[#0F766E] text-slate-600 group-hover:text-white flex items-center justify-center transition">
+                  <i :class="item.icon" class="text-[11px]"></i>
+                </div>
+                <div>
+                  <p class="font-semibold text-slate-800 group-hover:text-[#0F766E] text-[12px]">{{ item.title }}</p>
+                  <p class="text-[10.5px] text-slate-400">{{ item.subtitle }}</p>
+                </div>
+              </div>
+              <i class="pi pi-arrow-right text-[10px] text-slate-300 group-hover:text-[#0F766E] transition"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </teleport>
+  </header>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { useToast } from 'vue-toastification'
-import api from '@/axios'
 
 const router = useRouter()
+const route = useRoute()
 const toast = useToast()
 
-const open = ref(false)
+const profileOpen = ref(false)
 const notifOpen = ref(false)
-const showConfirm = ref(false)
-const showProfile = ref(false)
-const scrolled = ref(false)
+const showCommandPalette = ref(false)
+const paletteQuery = ref('')
+const unreadCount = ref(1)
 
-const userName = ref('User')
-const userInitial = ref('U')
-const user = ref({ nama: '', username: '', role: '', jenis_user: '' })
+// Dynamic Page Title
+const pageTitle = computed(() => {
+  const path = route.path
+  if (path === '/data-pasien') return 'Daftar Pasien Anak Terdaftar'
+  if (path === '/mapping-jadwal') return 'Mapping Jadwal Praktik'
+  if (path === '/emr-timeline') return 'Rekam Medis Elektronik (RME)'
+  if (path === '/dashboard') return 'Dashboard Eksekutif'
+  if (path === '/dashboard-terapis') return 'Dashboard Terapis'
+  if (path === '/dashboard-orang-tua') return 'Portal Orang Tua Pasien'
+  if (path === '/kasir-billing') return 'Kasir & Billing (POS)'
+  if (path === '/farmasi-logistik') return 'Farmasi & Logistik FEFO'
+  if (path === '/surat-dokumen') return 'Dokumen & Surat Resmi Medis'
+  if (path === '/registrasi') return 'Pendaftaran & Antrian Pasien'
+  if (path === '/jadwal-terapi') return 'Jadwal Terapi Pasien'
+  if (path === '/pengaturan-klinik') return 'Pengaturan Klinik & Hak Akses'
+  if (path === '/list-pendaftaran-layanan') return 'Daftar Kunjungan Rawat Jalan'
+  if (path === '/pemanggilan-antrian') return 'Pemanggilan Antrian TV'
+  if (path === '/catatan-aktivitas-anak') return 'Catatan Aktivitas & Terapi'
+  if (path === '/assesment') return 'Form Asesmen Awal Pasien'
+  if (path === '/hasil-evaluasi') return 'Monitoring & Evaluasi Klinis'
+  if (path === '/keluhan-anak') return 'Keluhan Pasien Anak'
+  if (path === '/keluhan-admin') return 'Tanggapan Keluhan Admin'
+  if (path === '/list-reschedule') return 'Daftar Pengajuan Reschedule'
+  if (path === '/input-layanan') return 'Input Layanan Anak'
+  if (path === '/pembayaran-tagihan') return 'Pembayaran Tagihan'
+  if (path === '/riwayat-pembayaran-anak') return 'Riwayat Pembayaran Pasien'
+  if (path === '/master-user') return 'Master Pengguna Sistem'
+  if (path === '/master-role') return 'Master Role & Hak Akses'
+  if (path === '/master-anak') return 'Master Profil Anak'
+  if (path === '/master-terapis') return 'Master Tenaga Terapis'
+  if (path === '/master-jadwal-terapis') return 'Master Jadwal Terapis'
+  if (path === '/master-ruangan') return 'Master Ruangan Terapi'
+  if (path === '/master-kategori-layanan') return 'Master Kategori Layanan'
+  if (path === '/master-layanan') return 'Master Layanan & Tarif'
+  if (path === '/master-produk') return 'Master Produk & Obat'
+  if (path === '/master-promosi') return 'Master Promosi & Diskon'
+  if (path === '/laporan-pembayaran') return 'Laporan Transaksi Pembayaran'
+  if (path === '/laporan-keluhan') return 'Laporan Layanan & Keluhan'
+  if (path === '/laporan-histori-promosi') return 'Laporan Histori Promosi'
 
-// Placeholder notifikasi — gampang disambungkan ke API nanti,
-// tinggal isi notifications.value dari response backend.
-// Struktur per item: { id, title, time, unread }
-const notifications = ref([])
-const unreadCount = ref(0)
-
-const toggle = () => { open.value = !open.value; notifOpen.value = false }
-const toggleNotif = () => { notifOpen.value = !notifOpen.value; open.value = false }
-const closeDropdowns = () => { open.value = false; notifOpen.value = false }
-
-const openConfirm = () => { open.value = false; showConfirm.value = true }
-const closeConfirm = () => { showConfirm.value = false }
-const openProfileModal = () => { open.value = false; showProfile.value = true }
-const closeProfileModal = () => { showProfile.value = false }
-
-onMounted(() => {
-  const storedUser = JSON.parse(localStorage.getItem('user'))
-  if (storedUser) {
-    user.value = storedUser
-    userName.value = storedUser.nama || 'User'
-    userInitial.value = storedUser.nama ? storedUser.nama.charAt(0).toUpperCase() : 'U'
+  // Format any raw PascalCase route names into clean spaced Title Case
+  if (route.name) {
+    return String(route.name)
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/_/g, ' ')
+      .trim()
   }
-
-  // shadow dinamis saat scroll
-  const handleScroll = () => {
-    scrolled.value = window.scrollY > 10
-  }
-  window.addEventListener('scroll', handleScroll)
-  handleScroll() // cek posisi awal
-
-  onUnmounted(() => {
-    window.removeEventListener('scroll', handleScroll)
-  })
+  return 'SIMRS KlinikKu'
 })
 
-const logout = async () => {
-  try { await api.post('/logout') } catch (e) {}
-  finally {
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
-    localStorage.removeItem('role_id')
-    delete api.defaults.headers.common['Authorization']
-    toast.success('Logout berhasil')
-    router.replace('/login')
-    showConfirm.value = false
+// Current user
+const user = computed(() => {
+  try {
+    return JSON.parse(localStorage.getItem('user')) || {}
+  } catch (e) {
+    return {}
+  }
+})
+
+const userName = computed(() => user.value?.nama || user.value?.name || user.value?.username || 'Alkar As Rahmatulloh')
+const userInitial = computed(() => (userName.value?.charAt(0) || 'A').toUpperCase())
+const userRoleTitle = computed(() => {
+  const r = Number(user.value?.role_id || 13)
+  if (r === 13) return 'Administrator SIMRS'
+  if (r === 14) return 'Terapis Klinis'
+  if (r === 15) return 'Orang Tua Pasien'
+  if (r === 19) return 'Kasir & Keuangan'
+  return 'Tenaga Medis'
+})
+
+const toggleProfile = () => {
+  profileOpen.value = !profileOpen.value
+  notifOpen.value = false
+}
+
+const toggleNotif = () => {
+  notifOpen.value = !notifOpen.value
+  profileOpen.value = false
+}
+
+const openHelpModal = () => {
+  toast.info('Sistem SIMRS E-Clinic v2.0 aktif. Gunakan Ctrl+K untuk pencarian kilat pasien dan rekam medis.')
+}
+
+const goToSettings = () => {
+  profileOpen.value = false
+  router.push('/pengaturan-klinik')
+}
+
+const logout = () => {
+  localStorage.clear()
+  toast.success('Sesi berhasil diakhiri')
+  router.push('/login')
+}
+
+// Command palette
+const paletteItems = [
+  { title: 'Daftar Pasien Anak Terdaftar', subtitle: 'Pencarian RM, cetak karcis, gelang pasien & EMR', route: '/data-pasien', icon: 'pi pi-id-card' },
+  { title: 'Mapping Jadwal Praktik', subtitle: 'Penataan jadwal dokter, terapis, ruangan & kuota sesi', route: '/mapping-jadwal', icon: 'pi pi-calendar-plus' },
+  { title: 'Rekam Medis Elektronik (RME)', subtitle: 'Pemeriksaan SOAP, vital signs, order terapi', route: '/emr-timeline', icon: 'pi pi-file-edit' },
+  { title: 'Kasir & Billing (POS)', subtitle: 'Kwitansi, faktur, shift kasir, struk thermal', route: '/kasir-billing', icon: 'pi pi-wallet' },
+  { title: 'Farmasi & Stok FEFO', subtitle: 'Stok obat, BHP, batch kedaluwarsa', route: '/farmasi-logistik', icon: 'pi pi-box' },
+  { title: 'Dokumen & Surat Medis', subtitle: 'Surat keterangan terapi, rekomendasi sekolah', route: '/surat-dokumen', icon: 'pi pi-file' },
+  { title: 'Pendaftaran Kunjungan', subtitle: 'Registrasi anak baru dan penomoran RM', route: '/registrasi', icon: 'pi pi-user-plus' },
+  { title: 'Rawat Jalan / Antrian', subtitle: 'Monitoring status kedatangan & antrian poli', route: '/list-pendaftaran-layanan', icon: 'pi pi-users' },
+  { title: 'Pengaturan SIMRS', subtitle: 'Konfigurasi klinik, hak akses RBAC & audit log', route: '/pengaturan-klinik', icon: 'pi pi-cog' }
+]
+
+const filteredPaletteItems = computed(() => {
+  if (!paletteQuery.value) return paletteItems
+  const q = paletteQuery.value.toLowerCase()
+  return paletteItems.filter(item =>
+    item.title.toLowerCase().includes(q) || item.subtitle.toLowerCase().includes(q)
+  )
+})
+
+const navigatePalette = (targetRoute) => {
+  showCommandPalette.value = false
+  paletteQuery.value = ''
+  router.push(targetRoute)
+}
+
+// Global hotkey Ctrl+K / Cmd+K
+const handleKeyDown = (e) => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault()
+    showCommandPalette.value = !showCommandPalette.value
   }
 }
+
+onMounted(() => {
+  window.addEventListener('keydown', handleKeyDown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown)
+})
 </script>
-
-<style scoped>
-.navbar {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  transition: box-shadow 0.25s ease, border-color 0.25s ease;
-}
-
-.navbar.is-scrolled {
-  box-shadow: 0 1px 0 rgba(17, 24, 39, 0.04), 0 8px 24px -8px rgba(17, 24, 39, 0.08);
-}
-
-/* ---------- DROPDOWN PANEL ---------- */
-.dropdown-panel {
-  background: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(20px);
-  border-radius: 18px;
-  border: 1px solid rgba(17, 24, 39, 0.06);
-  box-shadow:
-    0 1px 2px rgba(17, 24, 39, 0.04),
-    0 12px 32px -8px rgba(17, 24, 39, 0.12),
-    0 0 0 1px rgba(17, 24, 39, 0.02);
-}
-
-.menu-item:hover {
-  background: rgba(99, 102, 241, 0.06);
-  color: #4338CA;
-}
-
-.menu-item:hover i {
-  color: #4338CA;
-}
-
-.menu-item--danger:hover {
-  background: rgba(244, 63, 94, 0.06);
-  color: #e11d48;
-}
-
-.notif-item:hover {
-  background: rgba(17, 24, 39, 0.03);
-}
-
-/* ---------- TRANSITIONS ---------- */
-.pop-enter-active {
-  transition: opacity 0.18s ease, transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.pop-leave-active {
-  transition: opacity 0.12s ease, transform 0.12s ease;
-}
-.pop-enter-from {
-  opacity: 0;
-  transform: translateY(-6px) scale(0.97);
-}
-.pop-leave-to {
-  opacity: 0;
-  transform: translateY(-4px) scale(0.98);
-}
-
-.modal-enter-active {
-  transition: opacity 0.2s ease;
-}
-.modal-leave-active {
-  transition: opacity 0.15s ease;
-}
-.modal-enter-from,
-.modal-leave-to {
-  opacity: 0;
-}
-.modal-enter-active > div,
-.modal-leave-active > div {
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
-}
-.modal-enter-from > div {
-  transform: scale(0.95) translateY(8px);
-  opacity: 0;
-}
-.modal-leave-to > div {
-  transform: scale(0.97);
-  opacity: 0;
-}
-</style>

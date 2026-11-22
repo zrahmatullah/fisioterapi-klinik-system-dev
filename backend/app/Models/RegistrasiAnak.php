@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\PelayananTerapiAnak;
-use App\Models\PembayaranRegistrasi;
 
 class RegistrasiAnak extends Model
 {
@@ -31,6 +30,28 @@ class RegistrasiAnak extends Model
         'alamat',
         'keluhan_saat_ini',
         'kemampuan_saat_ini',
+        'payment_track',
+        'guarantor_id',
+        'patient_insurance_id',
+        'patient_therapy_package_id',
+        'therapy_order_id',
+        'antrian_nomor',
+        'status_sesi',
+        'sesi_ke',
+        'total_sesi',
+        'mood_anak',
+        'durasi_menit',
+        'home_program_catatan',
+        'jadwal_hari',
+        'jadwal_jam',
+        'parent_confirmed_at',
+    ];
+
+    protected $casts = [
+        'sesi_ke' => 'integer',
+        'total_sesi' => 'integer',
+        'durasi_menit' => 'integer',
+        'parent_confirmed_at' => 'datetime',
     ];
 
     // ================= RELATIONS =================
@@ -50,6 +71,26 @@ class RegistrasiAnak extends Model
         return $this->belongsTo(Ruangan::class, 'ruangan_id');
     }
 
+    public function guarantor()
+    {
+        return $this->belongsTo(Guarantor::class, 'guarantor_id');
+    }
+
+    public function patientInsurance()
+    {
+        return $this->belongsTo(PatientInsurance::class, 'patient_insurance_id');
+    }
+
+    public function patientTherapyPackage()
+    {
+        return $this->belongsTo(PaketTerapiPasien::class, 'patient_therapy_package_id');
+    }
+
+    public function therapyOrder()
+    {
+        return $this->belongsTo(TherapyOrder::class, 'therapy_order_id');
+    }
+
     public function pelayanans()
     {
         return $this->hasMany(
@@ -58,11 +99,36 @@ class RegistrasiAnak extends Model
         );
     }
 
-    public function pembayarans()
+    public function eResep()
+    {
+        return $this->hasOne(EResep::class, 'registrasi_anak_id');
+    }
+
+    public function orderPenunjangs()
+    {
+        return $this->hasMany(OrderPenunjang::class, 'registrasi_anak_id');
+    }
+
+    public function appointments()
+    {
+        return $this->hasMany(PatientAppointment::class, 'registrasi_anak_id');
+    }
+
+    public function invoices()
     {
         return $this->hasMany(
-            PembayaranRegistrasi::class,
+            Invoice::class,
             'registrasi_anak_id'
+        );
+    }
+
+    public function pembayarans()
+    {
+        return $this->hasManyThrough(
+            PembayaranTransaksi::class,
+            Invoice::class,
+            'registrasi_anak_id',
+            'invoice_id'
         );
     }
 

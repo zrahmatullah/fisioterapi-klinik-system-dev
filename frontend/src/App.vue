@@ -15,30 +15,31 @@
 
   <!-- =========================
        FLOATING VOICE AI BUTTON
-       Persisten di semua halaman
+       Persisten di semua halaman (Pojok Kanan Bawah, Non-Overlapping)
   ========================== -->
   <button
     @click="toggleListening"
     class="
-      fixed bottom-6 left-6 z-[9000]
-      w-14 h-14
+      fixed bottom-4 right-4 z-[9000]
+      w-10 h-10
       rounded-full
       flex items-center justify-center
       text-white
       transition-all duration-200
-      hover:scale-110
+      hover:scale-105
       active:scale-95
+      shadow-md
     "
     :class="isListening
-      ? 'bg-red-500 shadow-[0_0_0_8px_rgba(239,68,68,0.25)] animate-pulse'
-      : 'bg-indigo-600 shadow-[0_8px_24px_rgba(99,102,241,0.4)]'"
+      ? 'bg-red-500 shadow-[0_0_0_6px_rgba(239,68,68,0.25)] animate-pulse'
+      : 'bg-[#0F766E] hover:bg-[#115E59] shadow-[0_4px_12px_rgba(15,118,110,0.3)]'"
     :aria-label="isListening ? 'Berhenti mendengarkan' : 'Mulai voice command'"
   >
     <!-- mic icon -->
     <svg
       v-if="!aiLoading"
       xmlns="http://www.w3.org/2000/svg"
-      class="w-6 h-6"
+      class="w-4 h-4"
       fill="none"
       viewBox="0 0 24 24"
       stroke="currentColor"
@@ -52,7 +53,7 @@
     </svg>
 
     <!-- spinner saat AI memproses hasil ucapan -->
-    <svg v-else class="w-6 h-6 animate-spin" fill="none" viewBox="0 0 24 24">
+    <svg v-else class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
       <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
       <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
     </svg>
@@ -64,16 +65,16 @@
   <transition name="loader">
     <div
       v-if="isListening || transcriptPreview"
-      class="fixed bottom-24 left-6 z-[9000] max-w-xs"
+      class="fixed bottom-16 right-4 z-[9000] max-w-xs"
     >
-      <div class="rounded-2xl border border-white/20 bg-white/90 backdrop-blur-xl shadow-lg px-4 py-3">
-        <div class="flex items-center gap-2 mb-1">
+      <div class="rounded-xl border border-white/20 bg-white/95 backdrop-blur-xl shadow-lg px-3 py-2 text-xs">
+        <div class="flex items-center gap-2 mb-0.5">
           <span v-if="isListening" class="flex h-2 w-2 rounded-full bg-red-500 animate-pulse"></span>
-          <p class="text-xs font-medium text-slate-500">
+          <p class="text-[11px] font-medium text-slate-500">
             {{ isListening ? 'Mendengarkan...' : 'Perintah dikenali' }}
           </p>
         </div>
-        <p class="text-sm text-slate-800">
+        <p class="text-[12px] text-slate-800">
           {{ transcriptPreview || 'Silakan bicara...' }}
         </p>
       </div>
@@ -85,9 +86,11 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
 import axios from 'axios'
 
 const router = useRouter()
+const toast = useToast()
 
 const loading = ref(false)
 const isListening = ref(false)
@@ -202,7 +205,7 @@ function setupSpeechRecognition() {
     isListening.value = false
 
     if (event.error === 'not-allowed') {
-      alert('Izin mikrofon ditolak. Aktifkan di setting browser.')
+      toast.warning('Izin mikrofon ditolak. Aktifkan di setting browser.')
     } else if (event.error === 'no-speech') {
       transcriptPreview.value = ''
       playErrorChime()
@@ -216,7 +219,7 @@ function setupSpeechRecognition() {
 
 function toggleListening() {
   if (!recognition) {
-    alert('Browser kamu tidak mendukung voice command. Coba pakai Chrome.')
+    toast.info('Browser Anda tidak mendukung voice command. Disarankan menggunakan Google Chrome.')
     return
   }
 
@@ -247,7 +250,7 @@ async function submitVoiceCommand(text) {
   } catch (e) {
     console.error('AI command failed:', e)
     playErrorChime()
-    alert('Terjadi kesalahan, coba lagi.')
+    toast.error('Terjadi kesalahan pemrosesan perintah suara.')
   } finally {
     aiLoading.value = false
     setTimeout(() => {
@@ -289,7 +292,7 @@ function executeCommand(result) {
   }
 
   playErrorChime()
-  alert('Maaf, perintah tidak dikenali. Coba kalimat lain.')
+  toast.info('Maaf, perintah belum dikenali. Silakan coba kembali.')
 }
 
 onBeforeUnmount(() => {
@@ -304,7 +307,7 @@ onBeforeUnmount(() => {
    TOP PROGRESS BAR — route loading
 ========================== */
 .route-progress {
-  background: rgba(99, 102, 241, 0.12);
+  background: rgba(15, 118, 110, 0.12);
 }
 
 .route-progress-track {
@@ -312,9 +315,9 @@ onBeforeUnmount(() => {
   inset: 0;
   background: linear-gradient(
     90deg,
-    #6366F1 0%,
-    #818CF8 50%,
-    #6366F1 100%
+    #0F766E 0%,
+    #2DD4BF 50%,
+    #0F766E 100%
   );
   transform-origin: left;
   animation: progressGrow 0.9s cubic-bezier(0.4, 0, 0.2, 1) infinite;

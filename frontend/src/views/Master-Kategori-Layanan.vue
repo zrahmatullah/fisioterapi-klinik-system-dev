@@ -1,188 +1,206 @@
 <template>
-  <div class="p-6 bg-gray-50 min-h-screen">
-
-    <!-- HEADER -->
-    <div class="bg-white rounded-xl shadow-sm p-5 mb-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-
-        <!-- KOLOM KIRI : TITLE + BUTTON + SEARCH -->
-        <div class="space-y-3">
-          <!-- TITLE -->
-          <div>
-            <h1 class="text-2xl font-bold text-gray-800">Master Kategori Layanan</h1>
-            <p class="text-sm text-gray-500">Kelola kategori layanan yang tersedia</p>
-          </div>
-
-          <!-- ACTIONS -->
-          <div class="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
-            <Button
-              @click="openAdd"
-              class="flex items-center gap-2 px-5 py-2.5 text-sm font-semibold rounded-md
-                     bg-indigo-600 hover:bg-indigo-700
-                     transition active:scale-95 border-0 text-white"
-            >
-              <i class="pi pi-plus text-sm"></i>
-              <span>Tambah Kategori</span>
-            </Button>
-          </div>
+  <div class="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden w-full">
+    <!-- TOP HEADER -->
+    <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-[#E6F2F5] border border-[#CBE3E9] flex items-center justify-center text-[#0F766E] font-bold text-sm shrink-0">
+          <i class="pi pi-list"></i>
         </div>
-
+        <div>
+          <h1 class="text-[15px] font-bold text-[#0F172A] leading-tight">Master Kategori Layanan</h1>
+          <p class="text-[11.5px] text-[#64748B] mt-0.5">Kelola pengelompokan jenis layanan terapi medis dan tumbuh kembang</p>
+        </div>
       </div>
-    </div>
 
-    <!-- TABLE -->
-
-    <div class="bg-white rounded-xl shadow overflow-hidden">
-      <DataTable
-        :value="filteredKategori"
-        :loading="loading"
-        paginator
-        :rows="10"
-        responsiveLayout="scroll"
-        class="p-datatable-sm"
-        rowHover
+      <button
+        type="button"
+        @click="openAdd"
+        class="btn-primary-clinical text-[12.5px] shrink-0"
       >
-        <Column header="No" style="width:60px">
-          <template #body="{ index }">{{ index + 1 }}</template>
-        </Column>
-
-        <Column field="kategori_layanan" header="Nama Kategori" />
-
-        <Column header="Status">
-          <template #body="{ data }">
-            <span
-              class="px-3 py-1 text-xs rounded-full font-medium"
-              :class="data.status_aktif ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
-            >
-              {{ data.status_aktif ? 'Aktif' : 'Non Aktif' }}
-            </span>
-          </template>
-        </Column>
-
-        <Column header="Aksi" style="width:140px">
-          <template #body="{ data }">
-            <div class="flex gap-2">
-              <Button icon="pi pi-pencil" severity="info" size="small" class="hover:-translate-y-0.5 transition" @click="openEdit(data)" />
-              <Button icon="pi pi-trash" severity="danger" size="small" class="hover:-translate-y-0.5 transition" @click="openDelete(data)" />
-            </div>
-          </template>
-        </Column>
-      </DataTable>
+        <i class="pi pi-plus text-xs"></i>
+        <span>Tambah Kategori</span>
+      </button>
     </div>
 
-        <!-- FORM DIALOG (CLEAN MODERN) -->
-    <Dialog
-      v-model:visible="dialog"
-      :header="isEdit ? 'Edit Kategori' : 'Tambah Kategori'"
-      modal
-      class="w-full max-w-md"
-    >
-      <div class="bg-white rounded-lg">
-        <div class="space-y-5">
-
-          <!-- FIELD: NAMA KATEGORI -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Nama Kategori</label>
-            <InputText
-              v-model="form.kategori_layanan"
-              placeholder="Contoh: Fisioterapi"
-              class="w-full rounded-md border-gray-300 focus:border-indigo-400 focus:ring focus:ring-indigo-100"
-            />
-          </div>
-
-          <!-- FIELD: STATUS -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-            <Dropdown
-              v-model="form.status_aktif"
-              :options="statusOptions"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Pilih status"
-              class="w-full rounded-md"
-            />
-          </div>
-
+    <!-- MAIN DATA TABLE CARD -->
+    <div class="flex-1 min-h-0 flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+      <!-- TABLE TOOLBAR -->
+      <div class="shrink-0 p-3 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2.5 bg-white">
+        <div class="relative w-full sm:w-72">
+          <i class="pi pi-search absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+          <input
+            v-model="search"
+            type="text"
+            placeholder="Cari kategori..."
+            class="w-full h-[34px] text-[12.5px] pl-8 pr-2.5 border border-slate-300 rounded-lg outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15 transition bg-white text-slate-800 placeholder:text-slate-400"
+          />
         </div>
+        <span class="text-[11.5px] text-slate-500 font-medium">
+          Total <strong>{{ filteredKategori.length }}</strong> kategori
+        </span>
       </div>
 
-      <template #footer>
-        <div class="flex justify-end gap-3 pt-2">
-          <Button
-            label="Batal"
-            class="text-gray-600"
-            text
-            @click="dialog = false"
-          />
+      <!-- TABLE BODY -->
+      <div class="flex-1 min-h-0 overflow-auto custom-scrollbar">
+        <table class="min-w-full text-[12.5px] text-slate-700">
+          <thead class="sticky top-0 z-10 bg-[#F8FAFC] border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600 select-none">
+            <tr>
+              <th class="py-2 px-3 text-center w-12">No</th>
+              <th class="py-2 px-3">Nama Kategori Layanan</th>
+              <th class="py-2 px-3 text-center">Status</th>
+              <th class="py-2 px-3 text-center w-24">Aksi</th>
+            </tr>
+          </thead>
 
-          <Button
-            label="Simpan"
-            icon="pi pi-check"
-            class="bg-indigo-600 hover:bg-indigo-700 border-0 px-5 rounded-md"
-            @click="save"
+          <tbody class="divide-y divide-slate-100">
+            <tr
+              v-for="(item, index) in filteredKategori"
+              :key="item.id || index"
+              class="hover:bg-[#F0F6F8]/60 transition-colors"
+            >
+              <td class="py-2 px-3 text-center text-slate-400 font-mono text-[11px]">{{ index + 1 }}</td>
+              <td class="py-2 px-3 font-semibold text-slate-900">{{ item.kategori_layanan }}</td>
+              <td class="py-2 px-3 text-center">
+                <StatusBadge
+                  :label="item.status_aktif ? 'Aktif' : 'Non Aktif'"
+                  :type="item.status_aktif ? 'success' : 'neutral'"
+                />
+              </td>
+              <td class="py-2 px-3 text-center">
+                <div class="flex items-center justify-center gap-1.5">
+                  <button
+                    type="button"
+                    @click="openEdit(item)"
+                    class="w-7 h-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 hover:text-slate-900 flex items-center justify-center transition shadow-2xs"
+                    title="Edit Kategori"
+                  >
+                    <i class="pi pi-pencil text-[11px]"></i>
+                  </button>
+                  <button
+                    type="button"
+                    @click="openDelete(item)"
+                    class="w-7 h-7 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition shadow-2xs"
+                    title="Hapus"
+                  >
+                    <i class="pi pi-trash text-[11px]"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <!-- EMPTY -->
+            <tr v-if="filteredKategori.length === 0">
+              <td colspan="4" class="py-12 text-center text-slate-400">
+                <div class="flex flex-col items-center justify-center">
+                  <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-2">
+                    <i class="pi pi-folder-open text-lg"></i>
+                  </div>
+                  <h4 class="text-[13px] font-semibold text-slate-800">Kategori Tidak Ditemukan</h4>
+                  <p class="text-[11.5px] text-slate-500 mt-0.5">Belum ada kategori yang sesuai pencarian.</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TABLE FOOTER -->
+      <div class="shrink-0 px-3.5 py-2 bg-[#F8FAFC] border-t border-slate-200 text-[11.5px] text-slate-500 flex items-center justify-between">
+        <span>Menampilkan {{ filteredKategori.length }} kategori</span>
+        <span>SIMRS Kategori Layanan</span>
+      </div>
+    </div>
+
+    <!-- MODAL FORM (COMPACT TIER 'sm': max-w-[420px]) -->
+    <BaseModal
+      v-model="dialog"
+      :title="isEdit ? 'Edit Kategori Layanan' : 'Tambah Kategori Layanan'"
+      :subtitle="isEdit ? 'Perbarui nama dan status kategori' : 'Buat kategori baru untuk pengelompokan layanan'"
+      icon="pi pi-list"
+      size="sm"
+      :loading="saving"
+      @submit="save"
+    >
+      <form @submit.prevent="save" class="space-y-3">
+        <div>
+          <label class="label-clinical">Nama Kategori <span class="text-rose-500">*</span></label>
+          <input
+            v-model="form.kategori_layanan"
+            required
+            class="input-clinical"
+            placeholder="Contoh: Fisioterapi, Terapi Wicara"
           />
         </div>
-      </template>
-    </Dialog>
 
-    <!-- CONFIRM DELETE -->
-    <Dialog v-model:visible="confirmDelete" header="Konfirmasi" modal class="w-full max-w-sm">
-      <p class="text-sm text-gray-600">Yakin ingin menghapus kategori ini?</p>
-      <template #footer>
-        <Button label="Batal" text @click="confirmDelete = false" />
-        <Button label="Hapus" icon="pi pi-trash" severity="danger" @click="remove" />
-      </template>
-    </Dialog>
+        <div>
+          <label class="label-clinical">Status Kategori</label>
+          <select v-model="form.status_aktif" class="input-clinical">
+            <option :value="true">Aktif</option>
+            <option :value="false">Non Aktif</option>
+          </select>
+        </div>
+      </form>
+    </BaseModal>
 
+    <!-- CONFIRM DELETE DIALOG -->
+    <ConfirmDialog
+      v-model="confirmDelete"
+      title="Hapus Kategori"
+      :message="`Yakin ingin menghapus kategori '${form.kategori_layanan}'?`"
+      type="danger"
+      confirmText="Ya, Hapus"
+      :loading="deleting"
+      @confirm="remove"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import api from '@/axios'
 import { useToast } from 'vue-toastification'
-
-import DataTable from 'primevue/datatable'
-import Column from 'primevue/column'
-import Button from 'primevue/button'
-import Dialog from 'primevue/dialog'
-import InputText from 'primevue/inputtext'
-import Dropdown from 'primevue/dropdown'
+import BaseModal from '../components/ui/BaseModal.vue'
+import ConfirmDialog from '../components/ui/ConfirmDialog.vue'
+import StatusBadge from '../components/ui/StatusBadge.vue'
 
 const toast = useToast()
 const kategoriList = ref([])
+const search = ref('')
 const loading = ref(false)
+const saving = ref(false)
+const deleting = ref(false)
+
 const dialog = ref(false)
 const confirmDelete = ref(false)
 const isEdit = ref(false)
 
-const search = ref('')
-
-const form = ref({ id: null, kategori_layanan: '', status_aktif: true })
-
-const statusOptions = [
-  { label: 'Aktif', value: true },
-  { label: 'Non Aktif', value: false }
-]
-
-const filteredKategori = computed(() => {
-  if (!search.value) return kategoriList.value
-  return kategoriList.value.filter(item =>
-    item.kategori_layanan.toLowerCase().includes(search.value.toLowerCase())
-  )
+const form = ref({
+  id: null,
+  kategori_layanan: '',
+  status_aktif: true
 })
 
-const fetchKategori = async () => {
+onMounted(loadKategori)
+
+async function loadKategori() {
   loading.value = true
   try {
     const res = await api.get('/kategori-layanan')
-    kategoriList.value = res.data
-  } catch {
-    toast.error('Gagal memuat data kategori')
+    kategoriList.value = res.data.data ?? res.data
+  } catch (err) {
+    toast.error('Gagal memuat kategori')
   } finally {
     loading.value = false
   }
 }
+
+const filteredKategori = computed(() => {
+  if (!search.value) return kategoriList.value
+  const q = search.value.toLowerCase()
+  return kategoriList.value.filter(k =>
+    (k.kategori_layanan || '').toLowerCase().includes(q)
+  )
+})
 
 const openAdd = () => {
   isEdit.value = false
@@ -190,40 +208,52 @@ const openAdd = () => {
   dialog.value = true
 }
 
-const openEdit = (row) => {
+const openEdit = (data) => {
   isEdit.value = true
-  form.value = { ...row }
+  form.value = { ...data }
   dialog.value = true
 }
 
-const save = async () => {
-  try {
-    if (isEdit.value) await api.put(`/kategori-layanan/${form.value.id}`, form.value)
-    else await api.post('/kategori-layanan', form.value)
-
-    toast.success('Data berhasil disimpan')
-    dialog.value = false
-    fetchKategori()
-  } catch {
-    toast.error('Gagal menyimpan data')
-  }
-}
-
-const openDelete = (row) => {
-  form.value = { ...row }
+const openDelete = (data) => {
+  form.value = { ...data }
   confirmDelete.value = true
 }
 
-const remove = async () => {
+const save = async () => {
+  if (!form.value.kategori_layanan) {
+    toast.warning('Nama kategori wajib diisi')
+    return
+  }
+
+  saving.value = true
   try {
-    await api.delete(`/kategori-layanan/${form.value.id}`)
-    toast.success('Data berhasil dihapus')
-    confirmDelete.value = false
-    fetchKategori()
-  } catch {
-    toast.error('Gagal menghapus data')
+    if (isEdit.value) {
+      await api.put(`/kategori-layanan/${form.value.id}`, form.value)
+      toast.success('Kategori berhasil diupdate')
+    } else {
+      await api.post('/kategori-layanan', form.value)
+      toast.success('Kategori berhasil ditambahkan')
+    }
+    dialog.value = false
+    loadKategori()
+  } catch (err) {
+    toast.error('Gagal menyimpan kategori')
+  } finally {
+    saving.value = false
   }
 }
 
-onMounted(fetchKategori)
+const remove = async () => {
+  deleting.value = true
+  try {
+    await api.delete(`/kategori-layanan/${form.value.id}`)
+    toast.success('Kategori berhasil dihapus')
+    confirmDelete.value = false
+    loadKategori()
+  } catch (err) {
+    toast.error('Gagal menghapus kategori')
+  } finally {
+    deleting.value = false
+  }
+}
 </script>

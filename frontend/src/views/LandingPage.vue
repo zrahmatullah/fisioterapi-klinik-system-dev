@@ -21,7 +21,7 @@
             v-for="n in nav"
             :key="n.href"
             :href="n.href"
-            class="hover:text-indigo-600 transition"
+            class="hover:text-[#0F766E] transition"
           >
             {{ n.label }}
           </a>
@@ -29,7 +29,7 @@
 
         <button
           @click="showModal = true"
-          class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 transition"
+          class="bg-[#0F766E] text-white px-5 py-2 rounded-lg hover:bg-[#115E59] transition"
         >
           Login / Daftar
         </button>
@@ -37,7 +37,7 @@
     </header>
 
     <!-- ================= HERO ================= -->
-    <section id="home" class="bg-indigo-50 py-24">
+    <section id="home" class="bg-[#E6F2F5] py-24">
   <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
 
     <div>
@@ -110,7 +110,7 @@
       >
         <!-- ICON TERAPIS -->
         <div
-          class="w-28 h-28 mx-auto mb-4 rounded-full bg-indigo-50
+          class="w-28 h-28 mx-auto mb-4 rounded-full bg-[#E6F2F5]
                  border border-indigo-100 flex items-center justify-center
                  transition-all duration-300
                  group-hover:scale-110 group-hover:rotate-6"
@@ -134,7 +134,7 @@
         <!-- NAMA -->
         <h3
           class="font-semibold text-lg text-gray-800
-                 transition group-hover:text-indigo-700"
+                 transition group-hover:text-[#115E59]"
         >
           {{ t.nama }}
         </h3>
@@ -142,7 +142,7 @@
         <!-- SPESIALISASI -->
         <p
           class="text-sm font-medium text-gray-500
-                 transition group-hover:text-indigo-600"
+                 transition group-hover:text-[#0F766E]"
         >
           {{ t.spesialisasi }}
         </p>
@@ -166,7 +166,7 @@
                    hover:-translate-y-2 hover:shadow-xl transition"
           >
             <div
-              class="w-12 h-12 rounded-full bg-indigo-600 text-white
+              class="w-12 h-12 rounded-full bg-[#0F766E] text-white
                      flex items-center justify-center font-bold mb-4"
             >
               {{ i + 1 }}
@@ -178,7 +178,7 @@
     </section>
 
     <!-- ================= PROMOSI ================= -->
-    <section id="promo" class="bg-indigo-50 py-24">
+    <section id="promo" class="bg-[#E6F2F5] py-24">
       <div class="max-w-7xl mx-auto px-6">
         <h2 class="text-3xl font-bold text-center mb-12">
           Promo Spesial
@@ -191,7 +191,7 @@
             class="bg-white rounded-2xl shadow p-6 hover:shadow-xl transition"
           >
             <div class="flex justify-between items-center mb-4">
-              <span class="bg-indigo-600 text-white text-xs px-3 py-1 rounded-full">
+              <span class="bg-[#0F766E] text-white text-xs px-3 py-1 rounded-full">
                 {{ p.kode_promo }}
               </span>
               <span class="text-xs text-gray-500">
@@ -199,7 +199,7 @@
               </span>
             </div>
 
-            <h3 class="text-xl font-bold text-indigo-600 mb-2">
+            <h3 class="text-xl font-bold text-[#0F766E] mb-2">
               {{ p.nama_promo }}
             </h3>
 
@@ -207,13 +207,13 @@
               {{ p.deskripsi }}
             </p>
 
-            <div class="text-2xl font-extrabold text-indigo-700 mb-6">
+            <div class="text-2xl font-extrabold text-[#115E59] mb-6">
               {{ formatDiskon(p) }}
             </div>
 
             <button
-              class="w-full bg-indigo-600 text-white py-2 rounded-lg
-                     hover:bg-indigo-700 transition"
+              class="w-full bg-[#0F766E] text-white py-2 rounded-lg
+                     hover:bg-[#115E59] transition"
             >
               View Promosi
             </button>
@@ -239,7 +239,7 @@
             :key="p.nama"
             class="border rounded-2xl p-6 shadow-sm hover:shadow-xl transition"
           >
-            <h3 class="text-xl font-bold mb-2 text-indigo-600">
+            <h3 class="text-xl font-bold mb-2 text-[#0F766E]">
               {{ p.nama }}
             </h3>
 
@@ -255,8 +255,8 @@
             </div>
 
             <button
-              class="mt-6 w-full bg-indigo-600 text-white py-2 rounded-lg
-                     hover:bg-indigo-700 transition"
+              class="mt-6 w-full bg-[#0F766E] text-white py-2 rounded-lg
+                     hover:bg-[#115E59] transition"
             >
               Informasi Layanan
             </button>
@@ -266,9 +266,9 @@
     </section>
 
     <!-- ================= CONTACT INFO ================= -->
-<section id="kontak" class="bg-indigo-50 py-12">
+<section id="kontak" class="bg-[#E6F2F5] py-12">
   <div class="max-w-7xl mx-auto px-6">
-    <h2 class="text-2xl font-bold text-center text-indigo-600 mb-8">
+    <h2 class="text-2xl font-bold text-center text-[#0F766E] mb-8">
       Informasi Kontak
     </h2>
 
@@ -306,43 +306,52 @@
 </section>
 
     <!-- ================= FOOTER ================= -->
-    <footer class="bg-indigo-600 text-white py-6 text-center">
+    <footer class="bg-[#0F766E] text-white py-6 text-center">
       © 2026 Klinik Abqary
     </footer>
 
     <!-- ================= MODAL ================= -->
-    <div
-      v-if="showModal"
-      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-    >
-      <div class="bg-white rounded-2xl p-8 w-full max-w-md text-center">
-        <h2 class="text-xl font-bold mb-6">
-          Apakah Anda sudah memiliki akun?
-        </h2>
+    <teleport to="body">
+      <div
+        v-if="showModal"
+        class="fixed inset-0 bg-slate-900/35 backdrop-blur-md flex items-center justify-center z-[9999] p-4"
+        @click.self="showModal = false"
+      >
+        <div class="w-full max-w-md rounded-xl bg-white/95 backdrop-blur-xl border border-white/70 shadow-[0_20px_50px_rgba(11,57,72,0.22)] overflow-hidden text-center p-6 animate-fadeIn">
+          <div class="w-12 h-12 rounded-full bg-[#E6F2F5] text-[#0F766E] flex items-center justify-center mx-auto mb-3 text-lg font-bold">
+            <i class="pi pi-user"></i>
+          </div>
+          <h2 class="text-base font-bold text-slate-900 mb-2">
+            Apakah Anda sudah memiliki akun?
+          </h2>
+          <p class="text-xs text-slate-600 mb-5">
+            Silakan pilih opsi berikut untuk melanjutkan akses ke portal pendaftaran & layanan klinik.
+          </p>
 
-        <div class="flex justify-center gap-4">
+          <div class="flex justify-center gap-3">
+            <button
+              @click="router.push('/login')"
+              class="h-[34px] px-4 rounded-lg bg-[#0F766E] hover:bg-[#115E59] text-white text-[12.5px] font-medium transition cursor-pointer"
+            >
+              Sudah Punya Akun
+            </button>
+            <button
+              @click="router.push('/register')"
+              class="h-[34px] px-4 rounded-lg bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-[12.5px] font-medium transition cursor-pointer"
+            >
+              Belum Punya Akun
+            </button>
+          </div>
+
           <button
-            @click="router.push('/login')"
-            class="bg-indigo-600 text-white px-6 py-2 rounded-lg"
+            class="mt-4 text-xs text-slate-400 hover:text-slate-600 cursor-pointer"
+            @click="showModal = false"
           >
-            Sudah Punya
-          </button>
-          <button
-            @click="router.push('/register')"
-            class="bg-gray-200 px-6 py-2 rounded-lg"
-          >
-            Belum Punya
+            Batal
           </button>
         </div>
-
-        <button
-          class="mt-6 text-sm text-gray-500 hover:underline"
-          @click="showModal = false"
-        >
-          Batal
-        </button>
       </div>
-    </div>
+    </teleport>
 
   </div>
 </template>

@@ -1,85 +1,77 @@
 <template>
-  <div class="page">
+  <div class="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden w-full">
 
     <!-- HEADER -->
-    <div class="page-header">
-      <div class="header-left">
-        <div class="header-icon">
+    <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex flex-wrap items-center justify-between gap-3 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-[#E6F2F5] border border-[#CBE3E9] flex items-center justify-center text-[#0F766E] font-bold text-sm shrink-0">
           <i class="pi pi-users"></i>
         </div>
 
         <div>
-          <h1 class="page-title">Daftar Pasien</h1>
-          <p class="page-sub">Kelola registrasi dan penjadwalan terapi pasien</p>
+          <h1 class="text-base font-bold text-[#0F172A] leading-tight">Daftar Pasien & Penjadwalan Layanan</h1>
+          <p class="text-xs text-[#64748B] mt-0.5">Kelola registrasi dan penjadwalan terapi pasien</p>
         </div>
       </div>
 
       <!-- STAT -->
-      <div class="stat-group">
-        <div class="stat-card">
-          <p class="stat-label">Total Data</p>
-          <h3 class="stat-value">{{ filteredSortedData.length }}</h3>
+      <div class="flex items-center gap-2.5">
+        <div class="bg-[#F0F6F8] border border-[#DCE8EC] rounded-lg px-3 py-1.5 flex items-center gap-2">
+          <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Data:</p>
+          <h3 class="text-sm font-bold text-[#0F766E] tabular-nums">{{ filteredSortedData.length }}</h3>
         </div>
 
-        <div class="stat-card">
-          <p class="stat-label">Halaman</p>
-          <h3 class="stat-value">{{ currentPage }}</h3>
+        <div class="bg-[#F0F6F8] border border-[#DCE8EC] rounded-lg px-3 py-1.5 flex items-center gap-2">
+          <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Halaman:</p>
+          <h3 class="text-sm font-bold text-slate-800 tabular-nums">{{ currentPage }}</h3>
         </div>
       </div>
     </div>
 
     <!-- FILTER -->
-    <div class="panel filter-panel">
-      <div class="filter-grid">
+    <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-sm shrink-0">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
 
         <div class="field">
-          <label class="filter-label">Cari Pasien</label>
-
-          <div class="input-wrap">
-            <i class="pi pi-search input-icon"></i>
+          <label class="text-[12px] font-medium text-slate-700 mb-1 block">Cari Pasien</label>
+          <div class="relative">
+            <i class="pi pi-search absolute left-3 top-2.5 text-slate-400 text-xs"></i>
             <input
               v-model="search"
               placeholder="Cari nama anak / no registrasi..."
-              class="filter-input"
+              class="w-full pl-8 pr-3 py-1.5 border border-slate-300 rounded-lg text-xs outline-none focus:border-[#0F766E]"
             />
           </div>
         </div>
 
         <div class="field">
-          <label class="filter-label">Filter Tanggal</label>
-
-          <div class="input-wrap">
-            <input
-              type="date"
-              v-model="filterTanggal"
-              class="filter-input"
-            />
-          </div>
+          <label class="text-[12px] font-medium text-slate-700 mb-1 block">Filter Tanggal</label>
+          <input
+            type="date"
+            v-model="filterTanggal"
+            class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs outline-none focus:border-[#0F766E]"
+          />
         </div>
 
         <div class="field">
-          <label class="filter-label">Data Per Halaman</label>
-
-          <div class="input-wrap">
-            <i class="pi pi-list input-icon"></i>
-            <input
-              type="number"
-              min="1"
-              v-model.number="perPage"
-              class="filter-input"
-            />
-          </div>
+          <label class="text-[12px] font-medium text-slate-700 mb-1 block">Data Per Halaman</label>
+          <input
+            type="number"
+            min="1"
+            v-model.number="perPage"
+            class="w-full px-3 py-1.5 border border-slate-300 rounded-lg text-xs outline-none focus:border-[#0F766E]"
+          />
         </div>
 
       </div>
     </div>
 
     <!-- TABLE -->
-    <div class="panel table-panel">
+    <div class="flex-1 min-h-0 flex flex-col bg-white border border-slate-200 rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] overflow-hidden">
 
-      <div class="table-scroll">
+      <div class="flex-1 min-h-0 overflow-auto custom-scrollbar">
         <table class="data-table">
-          <thead>
+          <thead class="sticky top-0 z-10 bg-[#F8FAFC] border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600 select-none">
             <tr>
               <th class="th w-16">No</th>
 
@@ -215,31 +207,33 @@
     </div>
 
     <!-- MODAL -->
+    <teleport to="body">
     <Transition name="fade">
-      <div v-if="showModal" class="modal-overlay">
-        <div class="modal-backdrop" @click="closeModal"></div>
+      <div v-if="showModal" class="fixed inset-0 z-[9999] bg-slate-900/35 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-xs" @click="closeModal"></div>
 
-        <div class="modal-wrapper">
-          <div class="modal-card animate-modal">
+        <div class="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-fadeIn flex flex-col max-h-[88vh]">
 
-            <!-- HEADER -->
-            <div class="modal-header">
-              <div class="modal-header-left">
-                <div class="modal-icon"><i class="pi pi-calendar-plus"></i></div>
-
-                <div>
-                  <h2 class="modal-title">Input Jadwal Layanan</h2>
-                  <p class="modal-sub">Atur sesi terapi dan jadwal pasien</p>
-                </div>
+          <!-- HEADER -->
+          <div class="bg-[#0B3948] text-white px-5 py-3.5 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-teal-500/20 border border-teal-400/30 flex items-center justify-center text-teal-300">
+                <i class="pi pi-calendar-plus text-sm"></i>
               </div>
 
-              <button @click="closeModal" class="modal-close">
-                <i class="pi pi-times"></i>
-              </button>
+              <div>
+                <h2 class="text-sm font-bold tracking-wide">Input Jadwal Layanan</h2>
+                <p class="text-[11px] text-teal-200 mt-0.5">Atur sesi terapi dan jadwal pasien</p>
+              </div>
             </div>
 
-            <!-- CONTENT -->
-            <div class="modal-content">
+            <button @click="closeModal" class="text-slate-300 hover:text-white p-1">
+              <i class="pi pi-times text-xs"></i>
+            </button>
+          </div>
+
+          <!-- CONTENT -->
+          <div class="p-5 overflow-y-auto custom-scrollbar flex-1 space-y-4 text-xs">
 
               <!-- PASIEN INFO -->
               <div class="info-card">
@@ -321,19 +315,19 @@
             </div>
 
             <!-- FOOTER -->
-            <div class="modal-footer">
-              <button @click="closeModal" class="btn-secondary">Batal</button>
+            <div class="p-3.5 bg-slate-50 border-t border-slate-200 flex justify-end gap-2 shrink-0">
+              <button @click="closeModal" class="btn-secondary-clinical text-xs py-2 px-3">Batal</button>
 
-              <button @click="submit" :disabled="!canSubmit" class="btn-primary btn-primary--lg">
+              <button @click="submit" :disabled="!canSubmit" class="btn-primary-clinical text-xs py-2 px-4 flex items-center gap-1.5">
                 <i class="pi pi-check"></i>
                 Simpan Jadwal
               </button>
             </div>
 
-          </div>
         </div>
       </div>
     </Transition>
+    </teleport>
 
   </div>
 </template>
@@ -594,14 +588,11 @@ const submit = async () => {
   --border: #ECEDF1;
   --ink: #1F2128;
   --muted: #98A0AE;
-  --accent: #6D5CE0;
-  --accent-soft: #F1EEFC;
+  --accent: #0F766E;
+  --accent-soft: #E6F2F5;
 
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--ink);
-  padding: 1.5rem;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  width: 100%;
+  height: 100%;
 }
 
 /* ===============================
@@ -1088,15 +1079,6 @@ const submit = async () => {
   position: fixed;
   inset: 0;
   background: rgba(31, 33, 40, 0.45);
-}
-
-.modal-wrapper {
-  position: relative;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1.5rem;
 }
 
 .modal-card {

@@ -1,8 +1,8 @@
 <template>
-  <div class="page">
+  <div class="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden w-full">
 
     <!-- ================= HEADER ================= -->
-    <div class="page-header">
+    <div class="page-header shrink-0">
       <div class="header-left">
         <div class="header-icon">
           <i class="pi pi-credit-card"></i>
@@ -26,7 +26,7 @@
     </div>
 
     <!-- ================= SUMMARY ================= -->
-    <div class="summary-grid">
+    <div class="summary-grid shrink-0">
 
       <div class="stat-card">
         <p class="stat-label">Total Pasien</p>
@@ -57,12 +57,12 @@
     </div>
 
     <!-- ================= TABLE ================= -->
-    <div class="panel table-panel">
+    <div class="panel table-panel flex-1 min-h-0 flex flex-col overflow-hidden">
 
-      <div class="table-scroll">
+      <div class="table-scroll flex-1 min-h-0 overflow-auto custom-scrollbar">
         <table class="data-table">
 
-          <thead>
+          <thead class="sticky top-0 z-10 bg-[#F8FAFC] border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600 select-none">
             <tr>
               <th class="th">Pasien</th>
               <th class="th">Orang Tua</th>
@@ -177,7 +177,8 @@
     </div>
 
     <!-- ================= DETAIL MODAL ================= -->
-    <div v-if="showDetail" class="modal-overlay">
+    <teleport to="body">
+    <div v-if="showDetail" class="fixed inset-0 z-[9999] bg-slate-900/35 backdrop-blur-md flex items-center justify-center p-4">
       <div class="modal-backdrop" @click="showDetail = false"></div>
 
       <div class="modal-wrapper">
@@ -227,7 +228,7 @@
 
               <div class="table-scroll">
                 <table class="data-table">
-                  <thead>
+                  <thead class="sticky top-0 z-10 bg-[#F8FAFC] border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600 select-none">
                     <tr>
                       <th class="th">Layanan</th>
                       <th class="th">Tanggal</th>
@@ -355,9 +356,11 @@
         </div>
       </div>
     </div>
+    </teleport>
 
     <!-- ================= MODAL BAYAR ================= -->
-    <div v-if="showBayar" class="modal-overlay">
+    <teleport to="body">
+    <div v-if="showBayar" class="fixed inset-0 z-[9999] bg-slate-900/35 backdrop-blur-md flex items-center justify-center p-4">
       <div class="modal-backdrop" @click="showBayar = false"></div>
 
       <div class="modal-wrapper">
@@ -435,13 +438,16 @@
         </div>
       </div>
     </div>
+    </teleport>
 
     <!-- ================= MODAL PREVIEW GAMBAR BUKTI ================= -->
-    <div v-if="showImage" class="image-overlay" @click="closeImage">
+    <teleport to="body">
+    <div v-if="showImage" class="image-overlay !z-[9999]" @click="closeImage">
       <img :src="imageUrl" class="image-preview" @click.stop />
 
       <button @click="closeImage" class="image-close"><i class="pi pi-times"></i></button>
     </div>
+    </teleport>
 
   </div>
 </template>
@@ -766,11 +772,9 @@ const ubahStatusVerifikasi = async (status) => {
   --red: #DC4747;
   --red-soft: #FBEAEA;
 
-  min-height: 100vh;
-  background: var(--bg);
+  background: transparent;
   color: var(--ink);
-  padding: 1.5rem;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: inherit;
 }
 
 .page > * + * {

@@ -1,292 +1,186 @@
 <template>
-  <div class="min-h-screen bg-slate-100 p-6">
+  <div class="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden w-full">
     <!-- HEADER -->
-    <div class="relative overflow-hidden rounded-3xl bg-indigo-600 p-8 shadow-lg mb-6">
-      <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-5">
+    <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-[#E6F2F5] border border-[#CBE3E9] flex items-center justify-center text-[#0F766E] font-bold text-sm shrink-0">
+          <i class="pi pi-comments"></i>
+        </div>
         <div>
-          <h1 class="text-3xl font-bold text-white">
-            Keluhan Orang Tua
-          </h1>
-          <p class="text-indigo-100 mt-1">
-            Monitoring dan tanggapan keluhan orang tua siswa
-          </p>
+          <h2 class="text-base font-bold text-[#0F172A] leading-tight">Keluhan Orang Tua & Pasien</h2>
+          <p class="text-xs text-[#64748B] mt-0.5">Monitoring komplain, kendala sesi terapi anak, dan tanggapan admin</p>
         </div>
+      </div>
 
-        <div class="flex gap-4 flex-wrap">
-          <div class="bg-white/10 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/15">
-            <div class="text-indigo-100 text-sm">Total Keluhan</div>
-            <div class="text-2xl font-bold text-white">
-              {{ keluhan.length }}
-            </div>
-          </div>
-
-          <div class="bg-white/10 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/15">
-            <div class="text-indigo-100 text-sm">Sudah Ditanggapi</div>
-            <div class="text-2xl font-bold text-white">
-              {{ sudahDitanggapi }}
-            </div>
-          </div>
-
-          <div class="bg-white/10 backdrop-blur-md rounded-2xl px-5 py-3 border border-white/15">
-            <div class="text-indigo-100 text-sm">Belum Ditanggapi</div>
-            <div class="text-2xl font-bold text-white">
-              {{ belumDitanggapi }}
-            </div>
-          </div>
+      <!-- METRICS PILLS -->
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="bg-[#F0F6F8] border border-[#DCE8EC] px-3 py-1.5 rounded-lg flex items-center gap-2">
+          <span class="text-[11px] text-slate-500 font-medium">Total:</span>
+          <span class="text-xs font-bold text-slate-900 tabular-nums">{{ keluhan.length }}</span>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg flex items-center gap-2">
+          <span class="text-[11px] text-emerald-700 font-medium">Ditanggapi:</span>
+          <span class="text-xs font-bold text-emerald-800 tabular-nums">{{ sudahDitanggapi }}</span>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-lg flex items-center gap-2">
+          <span class="text-[11px] text-amber-700 font-medium">Belum:</span>
+          <span class="text-xs font-bold text-amber-800 tabular-nums">{{ belumDitanggapi }}</span>
         </div>
       </div>
     </div>
 
-    <!-- FILTER -->
-    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 p-5 mb-6">
-      <div class="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
-        <div class="flex flex-col md:flex-row gap-4 flex-1">
-          <!-- SEARCH -->
-          <div class="relative flex-1">
-            <svg
-              class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 21l-4.35-4.35M16 10.5a5.5 5.5 0 11-11 0 5.5 5.5 0 0111 0z"
-              />
-            </svg>
-
-            <input
-              v-model="search"
-              type="text"
-              placeholder="Cari No Keluhan / Nama Anak..."
-              class="w-full pl-12 pr-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
-            />
-          </div>
-
-          <!-- FILTER -->
-          <select
-            v-model="filterStatus"
-            class="px-4 py-3 rounded-2xl border border-slate-200 bg-slate-50 focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
-          >
-            <option value="">Semua Status</option>
-            <option value="belum">Belum Ditanggapi</option>
-            <option value="sudah">Sudah Ditanggapi</option>
-          </select>
+    <!-- FILTER TOOLBAR -->
+    <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-2.5 shrink-0">
+      <div class="flex items-center gap-2 flex-1">
+        <div class="relative flex-1 max-w-sm">
+          <i class="pi pi-search absolute left-2.5 top-2.5 text-slate-400 text-xs"></i>
+          <input
+            v-model="search"
+            type="text"
+            placeholder="Cari nomor keluhan / nama anak..."
+            class="w-full pl-8 pr-3 h-[34px] text-[12.5px] bg-white border border-slate-300 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F766E] focus:ring-2 focus:ring-[#0F766E]/15"
+          />
         </div>
 
-        <div class="text-sm text-slate-500 font-medium">
-          Total Data : {{ filteredKeluhan.length }}
-        </div>
+        <select
+          v-model="filterStatus"
+          class="h-[34px] px-3 text-[12.5px] bg-white border border-slate-300 rounded-lg text-slate-700 focus:outline-none focus:border-[#0F766E]"
+        >
+          <option value="">Semua Status</option>
+          <option value="sudah">Sudah Ditanggapi</option>
+          <option value="belum">Belum Ditanggapi</option>
+        </select>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <button
+          type="button"
+          @click="toggleSortTanggal"
+          class="h-[34px] px-3 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-medium inline-flex items-center gap-1 transition"
+          :class="{ 'bg-teal-50 border-[#0F766E] text-[#0F766E]': sortTanggal }"
+        >
+          <i class="pi pi-calendar text-xs"></i>
+          <span>Tanggal</span>
+        </button>
+        <button
+          type="button"
+          @click="toggleSortKategori"
+          class="h-[34px] px-3 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-medium inline-flex items-center gap-1 transition"
+          :class="{ 'bg-teal-50 border-[#0F766E] text-[#0F766E]': sortKategori }"
+        >
+          <i class="pi pi-tags text-xs"></i>
+          <span>Kategori</span>
+        </button>
       </div>
     </div>
 
-    <!-- TABLE -->
-    <div class="bg-white rounded-3xl shadow-sm overflow-hidden border border-slate-200">
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead class="bg-slate-50 text-slate-600">
+    <!-- TABLE CARD -->
+    <div class="flex-1 min-h-0 flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+      <div class="flex-1 min-h-0 overflow-auto custom-scrollbar">
+        <table class="w-full text-left border-collapse text-[12.5px]">
+          <thead class="sticky top-0 z-10 bg-[#F8FAFC] border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600 select-none">
             <tr>
-              <th class="px-5 py-4 text-center font-semibold">No</th>
-              <th class="px-5 py-4 text-left font-semibold">No Keluhan</th>
-              <th class="px-5 py-4 text-left font-semibold">Nama Anak</th>
-
-              <!-- SORT KATEGORI -->
-              <th
-                class="px-5 py-4 text-left font-semibold cursor-pointer hover:bg-slate-100 transition"
-                @click="toggleSortKategori"
-              >
-                <div class="flex items-center gap-2">
-                  Kategori
-                  <i
-                    class="pi text-[10px] text-slate-400"
-                    :class="
-                      sortKategori === 'desc'
-                        ? 'pi-sort-amount-down'
-                        : sortKategori === 'asc'
-                        ? 'pi-sort-amount-up'
-                        : 'pi-sort-alt'
-                    "
-                  ></i>
-                </div>
-              </th>
-
-              <!-- SORT TANGGAL -->
-              <th
-                class="px-5 py-4 text-left font-semibold cursor-pointer hover:bg-slate-100 transition"
-                @click="toggleSortTanggal"
-              >
-                <div class="flex items-center gap-2">
-                  Tanggal
-                  <i
-                    class="pi text-[10px] text-slate-400"
-                    :class="
-                      sortTanggal === 'desc'
-                        ? 'pi-sort-amount-down'
-                        : sortTanggal === 'asc'
-                        ? 'pi-sort-amount-up'
-                        : 'pi-sort-alt'
-                    "
-                  ></i>
-                </div>
-              </th>
-
-              <th class="px-5 py-4 text-center font-semibold">Status</th>
-              <th class="px-5 py-4 text-center font-semibold">Aksi</th>
-              <th class="px-5 py-4 text-center font-semibold">Cetak</th>
+              <th class="py-2.5 px-3">No Keluhan</th>
+              <th class="py-2.5 px-3">Nama Pasien Anak</th>
+              <th class="py-2.5 px-3">Kategori</th>
+              <th class="py-2.5 px-3">Tanggal</th>
+              <th class="py-2.5 px-3 text-center">Status</th>
+              <th class="py-2.5 px-3 text-center w-36">Aksi</th>
             </tr>
           </thead>
 
-          <tbody>
+          <tbody class="divide-y divide-slate-100">
             <tr
-              v-for="(k, i) in paginatedKeluhan"
+              v-for="k in paginatedKeluhan"
               :key="k.id"
-              class="border-t border-slate-100 hover:bg-indigo-50/50 transition duration-150"
+              class="hover:bg-[#F0F6F8]/60 transition"
             >
-              <td class="px-5 py-4 text-center font-medium text-slate-500">
-                {{ (currentPage - 1) * perPage + i + 1 }}
+              <td class="py-2 px-3 font-mono font-semibold text-[#0F766E] text-xs">
+                {{ k.no_keluhan }}
               </td>
 
-              <td class="px-5 py-4">
-                <div class="font-semibold text-slate-800">
-                  {{ k.no_keluhan }}
-                </div>
-              </td>
-
-              <td class="px-5 py-4">
-                <div class="flex items-center gap-3">
-                  <div
-                    class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-sm shrink-0"
-                  >
+              <td class="py-2 px-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-full bg-[#E6F2F5] text-[#0F766E] border border-[#CBE3E9] flex items-center justify-center font-bold text-xs shrink-0">
                     {{ (k.anak?.nama_anak || 'A').charAt(0) }}
                   </div>
-
-                  <div>
-                    <div class="font-semibold text-slate-800">
-                      {{ k.anak?.nama_anak || '-' }}
-                    </div>
-                  </div>
+                  <span class="font-semibold text-slate-800">{{ k.anak?.nama_anak || '-' }}</span>
                 </div>
               </td>
 
-              <td class="px-5 py-4">
-                <span
-                  class="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-semibold"
-                >
+              <td class="py-2 px-3">
+                <span class="px-2 py-0.5 rounded-full bg-[#E6F2F5] text-[#0F766E] border border-[#CBE3E9] text-[10.5px] font-semibold">
                   {{ k.kategori_keluhan }}
                 </span>
               </td>
 
-              <td class="px-5 py-4 text-slate-600">
+              <td class="py-2 px-3 text-slate-600 tabular-nums">
                 {{ formatDate(k.tanggal_keluhan) }}
               </td>
 
-              <td class="px-5 py-4 text-center">
+              <td class="py-2 px-3 text-center">
                 <span
-                  class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold"
-                  :class="
-                    k.status_tanggapan === 'sudah_ditanggapi'
-                      ? 'bg-emerald-50 text-emerald-700'
-                      : 'bg-amber-50 text-amber-700'
-                  "
+                  class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold"
+                  :class="k.status_tanggapan === 'sudah_ditanggapi' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800 border border-amber-200'"
                 >
-                  <span
-                    class="w-2 h-2 rounded-full"
-                    :class="
-                      k.status_tanggapan === 'sudah_ditanggapi'
-                        ? 'bg-emerald-500'
-                        : 'bg-amber-500'
-                    "
-                  ></span>
-
-                  {{
-                    k.status_tanggapan === 'sudah_ditanggapi'
-                      ? 'Sudah Ditanggapi'
-                      : 'Belum Ditanggapi'
-                  }}
+                  <span class="w-1.5 h-1.5 rounded-full" :class="k.status_tanggapan === 'sudah_ditanggapi' ? 'bg-emerald-600' : 'bg-amber-600'"></span>
+                  {{ k.status_tanggapan === 'sudah_ditanggapi' ? 'Sudah Ditanggapi' : 'Belum Ditanggapi' }}
                 </span>
               </td>
 
-              <td class="px-5 py-4 text-center">
-                <button
-                  class="px-4 py-2 rounded-xl bg-indigo-600 text-white font-medium hover:bg-indigo-700 transition"
-                  @click="openDetail(k)"
-                >
-                  Detail
-                </button>
-              </td>
+              <td class="py-2 px-3 text-center">
+                <div class="inline-flex items-center gap-1.5">
+                  <button
+                    type="button"
+                    class="h-[28px] px-2.5 rounded-lg bg-[#0F766E] text-white text-xs font-medium hover:bg-[#115E59] active:scale-95 transition shadow-2xs cursor-pointer inline-flex items-center gap-1"
+                    @click="openDetail(k)"
+                  >
+                    <i class="pi pi-comment text-[11px]"></i>
+                    <span>Tanggapi</span>
+                  </button>
 
-              <td class="px-5 py-4 text-center">
-                <button
-                  class="px-4 py-2 rounded-xl text-white font-medium transition"
-                  :class="
-                    k.status_tanggapan === 'sudah_ditanggapi'
-                      ? 'bg-emerald-600 hover:bg-emerald-700'
-                      : 'bg-slate-300 cursor-not-allowed'
-                  "
-                  :disabled="k.status_tanggapan !== 'sudah_ditanggapi'"
-                  @click="cetakKeluhan(k)"
-                >
-                  Cetak
-                </button>
+                  <button
+                    type="button"
+                    class="h-[28px] px-2.5 rounded-lg border text-xs font-medium transition inline-flex items-center gap-1"
+                    :class="k.status_tanggapan === 'sudah_ditanggapi' ? 'bg-white border-slate-300 text-slate-700 hover:bg-slate-50 cursor-pointer' : 'bg-slate-100 border-slate-200 text-slate-400 cursor-not-allowed'"
+                    :disabled="k.status_tanggapan !== 'sudah_ditanggapi'"
+                    @click="cetakKeluhan(k)"
+                  >
+                    <i class="pi pi-print text-[11px]"></i>
+                    <span>Cetak</span>
+                  </button>
+                </div>
               </td>
             </tr>
 
             <tr v-if="filteredKeluhan.length === 0">
-              <td colspan="8" class="py-16 text-center">
-                <div class="flex flex-col items-center">
-                  <div
-                    class="w-16 h-16 rounded-2xl bg-slate-50 flex items-center justify-center mb-4"
-                  >
-                    <i class="pi pi-inbox text-2xl text-slate-300"></i>
-                  </div>
-
-                  <div class="text-slate-600 text-base font-semibold">
-                    Tidak ada data keluhan
-                  </div>
-
-                  <div class="text-slate-400 text-sm mt-1">
-                    Data akan muncul di sini
-                  </div>
-                </div>
+              <td colspan="6" class="py-12 text-center text-slate-400">
+                <i class="pi pi-inbox text-2xl text-slate-300 block mb-1"></i>
+                <span class="text-xs">Tidak ada data keluhan</span>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- PAGINATION -->
-      <div
-        class="flex flex-col md:flex-row gap-4 md:items-center md:justify-between px-6 py-5 border-t border-slate-100 bg-slate-50"
-      >
-        <div class="text-sm text-slate-600 font-medium">
-          Halaman {{ currentPage }} dari {{ totalPages }}
-        </div>
-
-        <div class="flex items-center gap-2 flex-wrap">
+      <!-- FOOTER PAGINATION -->
+      <div class="shrink-0 px-3.5 py-2 bg-[#F8FAFC] border-t border-slate-200 text-[11.5px] text-slate-500 flex items-center justify-between">
+        <span>Menampilkan {{ paginatedKeluhan.length }} dari {{ filteredKeluhan.length }} keluhan</span>
+        <div class="flex items-center gap-1" v-if="totalPages > 1">
           <button
-            class="page-btn"
+            type="button"
             :disabled="currentPage === 1"
             @click="currentPage--"
+            class="h-7 px-2 rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs"
           >
             Prev
           </button>
-
+          <span class="px-2 text-xs font-medium text-slate-700">{{ currentPage }} / {{ totalPages }}</span>
           <button
-            v-for="p in totalPages"
-            :key="p"
-            class="page-btn"
-            :class="{ active: p === currentPage }"
-            @click="currentPage = p"
-          >
-            {{ p }}
-          </button>
-
-          <button
-            class="page-btn"
+            type="button"
             :disabled="currentPage === totalPages"
             @click="currentPage++"
+            class="h-7 px-2 rounded border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed text-xs"
           >
             Next
           </button>
@@ -294,93 +188,90 @@
       </div>
     </div>
 
-    <!-- MODAL -->
-    <Transition name="fade">
+    <!-- MODAL DETAIL & TANGGAPAN -->
+    <teleport to="body">
       <div
         v-if="activeKeluhan"
-        class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4"
+        class="fixed inset-0 z-[9999] bg-slate-900/35 backdrop-blur-md flex items-center justify-center p-4 animate-fadeIn"
       >
-        <div
-          class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden"
-        >
+        <div class="bg-white/95 backdrop-blur-xl border border-white/70 shadow-[0_20px_50px_rgba(11,57,72,0.22)] w-full max-w-xl rounded-xl max-h-[88dvh] flex flex-col overflow-hidden">
           <!-- HEADER -->
-          <div class="bg-indigo-600 p-6 text-white">
-            <div class="flex items-center justify-between">
+          <div class="px-4 py-2.5 bg-[#0B3948] text-white flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-2">
+              <i class="pi pi-comments text-[#2DD4BF] text-sm"></i>
               <div>
-                <h3 class="text-2xl font-bold">
-                  Detail Keluhan
-                </h3>
-
-                <p class="text-indigo-100 mt-1">
-                  {{ activeKeluhan.no_keluhan }}
-                </p>
+                <h3 class="font-semibold text-[13px] leading-tight">Detail & Tanggapan Keluhan</h3>
+                <p class="text-[10px] text-teal-200 font-mono">{{ activeKeluhan.no_keluhan }}</p>
               </div>
-
-              <button
-                @click="activeKeluhan = null"
-                class="w-10 h-10 rounded-full bg-white/15 hover:bg-white/25 transition flex items-center justify-center"
-                aria-label="Tutup"
-              >
-                <i class="pi pi-times"></i>
-              </button>
             </div>
+            <button
+              type="button"
+              @click="activeKeluhan = null"
+              class="w-6 h-6 rounded flex items-center justify-center text-white/70 hover:text-white hover:bg-white/10 transition"
+            >
+              ✕
+            </button>
           </div>
 
-          <!-- CONTENT -->
-          <div class="p-6 space-y-5">
-            <!-- KELUHAN -->
-            <div class="bg-slate-50 border border-slate-200 rounded-2xl p-5">
-              <div class="flex items-center gap-2 mb-3">
-                <div
-                  class="w-9 h-9 rounded-full bg-rose-50 flex items-center justify-center"
-                >
-                  <i class="pi pi-file-edit text-rose-500 text-sm"></i>
-                </div>
-
-                <h4 class="font-bold text-slate-800">
-                  Isi Keluhan
-                </h4>
+          <!-- BODY -->
+          <div class="p-4 flex-1 min-h-0 overflow-y-auto custom-scrollbar space-y-3.5 text-xs text-slate-700">
+            <!-- INFO -->
+            <div class="bg-[#F0F6F8] border border-[#DCE8EC] rounded-xl p-3 grid grid-cols-2 gap-2 text-xs">
+              <div>
+                <span class="text-[10px] text-slate-500 block">Nama Anak</span>
+                <strong class="text-slate-900">{{ activeKeluhan.anak?.nama_anak || '-' }}</strong>
               </div>
+              <div>
+                <span class="text-[10px] text-slate-500 block">Kategori Keluhan</span>
+                <strong class="text-[#0F766E]">{{ activeKeluhan.kategori_keluhan }}</strong>
+              </div>
+            </div>
 
-              <p class="text-slate-600 leading-relaxed whitespace-pre-line">
+            <!-- ISI KELUHAN -->
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-3">
+              <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">
+                Isi Keluhan Orang Tua
+              </label>
+              <p class="text-slate-800 leading-relaxed whitespace-pre-line">
                 {{ activeKeluhan.isi }}
               </p>
             </div>
 
             <!-- TANGGAPAN -->
             <div>
-              <label class="block text-sm font-semibold text-slate-700 mb-2">
-                Tanggapan Admin
+              <label class="block text-xs font-semibold text-slate-700 mb-1">
+                Tanggapan Admin / Petugas Klinik
               </label>
-
               <textarea
                 v-model="tanggapan"
-                rows="5"
-                placeholder="Masukkan tanggapan..."
-                class="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500 transition"
+                rows="4"
+                placeholder="Tuliskan tanggapan atau solusi untuk orang tua..."
+                class="w-full p-2.5 text-xs rounded-lg border border-slate-300 bg-white focus:outline-none focus:ring-2 focus:ring-[#0F766E]/20 focus:border-[#0F766E] transition custom-scrollbar"
               ></textarea>
             </div>
+          </div>
 
-            <!-- ACTION -->
-            <div class="flex justify-end gap-3 pt-2">
-              <button
-                class="px-5 py-3 rounded-2xl border border-slate-300 hover:bg-slate-100 transition"
-                @click="activeKeluhan = null"
-              >
-                Batal
-              </button>
-
-              <button
-                class="px-6 py-3 rounded-2xl bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition"
-                @click="kirimTanggapan"
-              >
-                Simpan Tanggapan
-              </button>
-            </div>
+          <!-- FOOTER -->
+          <div class="px-4 py-2.5 bg-slate-50/95 border-t border-slate-200/80 flex items-center justify-end gap-2 shrink-0">
+            <button
+              type="button"
+              class="h-[34px] px-3.5 rounded-lg border border-slate-300 text-slate-700 hover:bg-slate-100 text-xs font-medium transition"
+              @click="activeKeluhan = null"
+            >
+              Batal
+            </button>
+            <button
+              type="button"
+              class="h-[34px] px-4 rounded-lg bg-[#0F766E] hover:bg-[#115E59] active:scale-95 text-white text-xs font-medium inline-flex items-center gap-1.5 shadow-sm transition"
+              @click="kirimTanggapan"
+            >
+              <i class="pi pi-check text-xs"></i>
+              <span>Simpan Tanggapan</span>
+            </button>
           </div>
         </div>
       </div>
-    </Transition>
+    </teleport>
   </div>
 </template>
 
@@ -406,8 +297,12 @@ const sortKategori = ref('')
 onMounted(loadData)
 
 async function loadData() {
-  const res = await api.get('/admin/keluhan-anak')
-  keluhan.value = res.data
+  try {
+    const res = await api.get('/admin/keluhan-anak')
+    keluhan.value = res.data
+  } catch (err) {
+    console.error('Gagal mengambil keluhan:', err)
+  }
 }
 
 const sudahDitanggapi = computed(() =>
@@ -486,7 +381,7 @@ const filteredKeluhan = computed(() => {
 })
 
 const totalPages = computed(() =>
-  Math.ceil(filteredKeluhan.value.length / perPage)
+  Math.ceil(filteredKeluhan.value.length / perPage) || 1
 )
 
 const paginatedKeluhan = computed(() => {
@@ -509,9 +404,7 @@ const kirimTanggapan = async () => {
     )
 
     toast.success('Tanggapan berhasil disimpan')
-
     activeKeluhan.value = null
-
     await loadData()
   } catch {
     toast.error('Gagal menyimpan tanggapan')
@@ -525,32 +418,11 @@ const cetakKeluhan = (k) => {
   }
 
   window.open(
-    `${import.meta.env.VITE_API_BASE_URL}/api/cetak/keluhan-anak/${k.id}`,
+    `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'}/api/cetak/keluhan-anak/${k.id}`,
     '_blank'
   )
 }
 
 const formatDate = (d) =>
-  new Date(d).toLocaleDateString('id-ID')
+  d ? new Date(d).toLocaleDateString('id-ID') : '-'
 </script>
-
-<style scoped>
-.page-btn {
-  @apply px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 font-medium hover:bg-indigo-50 hover:border-indigo-300 transition disabled:opacity-40 disabled:cursor-not-allowed;
-}
-
-.page-btn.active {
-  @apply bg-indigo-600 text-white border-transparent;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: all 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-  transform: scale(0.97);
-}
-</style>

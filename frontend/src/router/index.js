@@ -37,6 +37,22 @@ import RiwayatEvaluasi from '../views/RiwayatEvaluasi.vue'
 import ListReschedule from '../views/List-Reschedule.vue'
 import PemanggilAntrian from '../views/PemanggilAntrian.vue'
 import MasterProduk from '../views/Master-Produk.vue'
+import EMRTimeline from '../views/EMR-Timeline.vue'
+import KasirBilling from '../views/Kasir-Billing.vue'
+import SuratDokumen from '../views/Surat-Dokumen.vue'
+import FarmasiLogistik from '../views/Farmasi-Logistik.vue'
+import PengaturanKlinik from '../views/Pengaturan-Klinik.vue'
+import DataPasien from '../views/Data-Pasien.vue'
+import MappingJadwal from '../views/Mapping-Jadwal.vue'
+import MasterData from '../views/Master-Data.vue'
+import MasterPenjamin from '../views/Master-Penjamin.vue'
+import MasterPaketTerapi from '../views/Master-Paket-Terapi.vue'
+import MasterIcd from '../views/Master-Icd.vue'
+import MasterSupplier from '../views/Master-Supplier.vue'
+import VerifikasiResepPenunjang from '../views/Verifikasi-Resep-Penunjang.vue'
+import DashboardFarmasi from '../views/DashboardFarmasi.vue'
+import DashboardPenunjang from '../views/DashboardPenunjang.vue'
+import { isRouteAllowed, getDefaultLandingRoute, ROLE_IDS } from '../config/menuConfig'
 
 const routes = [
   // ================= GUEST =================
@@ -118,7 +134,7 @@ const routes = [
       {
         path: 'input-layanan',
         name: 'InputLayanan',
-        component: InputLayanan
+        redirect: '/list-pendaftaran-layanan'
       },
       {
         path: 'list-pendaftaran-layanan',
@@ -128,12 +144,12 @@ const routes = [
       {
         path: 'pembayaran-tagihan',
         name: 'PembayaranTagihan',
-        component: PembayaranTagihan
+        redirect: '/kasir-billing'
       },
       {
         path: 'assesment',
         name: 'Assesment',
-        component: Assesment_1
+        redirect: '/emr-timeline'
       },
       {
         path: 'riwayat-pembayaran-anak',
@@ -173,7 +189,7 @@ const routes = [
       {
         path: 'hasil-evaluasi',
         name: 'HasilEvaluasi',
-        component: HasilEvaluasi
+        redirect: '/evaluasi-terapi'
       },
       {
         path: 'catatan-aktivitas-anak',
@@ -208,7 +224,7 @@ const routes = [
       {
         path: 'riwayat-evaluasi',
         name: 'RiwayatEvaluasi',
-        component: RiwayatEvaluasi
+        redirect: '/evaluasi-terapi'
       },
       {
         path: 'list-reschedule',
@@ -224,6 +240,81 @@ const routes = [
         path: 'master-produk',
         name: 'MasterProduk',
         component: MasterProduk
+      },
+      {
+        path: 'emr-timeline',
+        name: 'EMRTimeline',
+        component: EMRTimeline
+      },
+      {
+        path: 'kasir-billing',
+        name: 'KasirBilling',
+        component: KasirBilling
+      },
+      {
+        path: 'surat-dokumen',
+        name: 'SuratDokumen',
+        component: SuratDokumen
+      },
+      {
+        path: 'farmasi-logistik',
+        name: 'FarmasiLogistik',
+        component: FarmasiLogistik
+      },
+      {
+        path: 'pengaturan-klinik',
+        name: 'PengaturanKlinik',
+        component: PengaturanKlinik
+      },
+      {
+        path: 'data-pasien',
+        name: 'DataPasien',
+        component: DataPasien
+      },
+      {
+        path: 'mapping-jadwal',
+        name: 'MappingJadwal',
+        component: MappingJadwal
+      },
+      {
+        path: 'master-data',
+        name: 'MasterData',
+        component: MasterData
+      },
+      {
+        path: 'master-penjamin',
+        name: 'MasterPenjamin',
+        component: MasterPenjamin
+      },
+      {
+        path: 'master-paket-terapi',
+        name: 'MasterPaketTerapi',
+        component: MasterPaketTerapi
+      },
+      {
+        path: 'master-icd',
+        name: 'MasterIcd',
+        component: MasterIcd
+      },
+      {
+        path: 'master-supplier',
+        name: 'MasterSupplier',
+        component: MasterSupplier
+      },
+      {
+        path: 'verifikasi-resep-penunjang',
+        name: 'VerifikasiResepPenunjang',
+        component: VerifikasiResepPenunjang
+      },
+      {
+        path: 'dashboard-farmasi',
+        name: 'DashboardFarmasi',
+        component: DashboardFarmasi
+      },
+      {
+        path: 'dashboard-penunjang',
+        name: 'DashboardPenunjang',
+        component: DashboardPenunjang
       }
     ]
   }
@@ -234,7 +325,7 @@ const router = createRouter({
   routes
 })
 
-// ================= AUTH GUARD =================
+// ================= AUTH & RBAC GUARD =================
 router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('token')
 
@@ -246,8 +337,26 @@ router.beforeEach((to, from, next) => {
 
   // 🚫 Sudah login tapi mau ke guest page
   if (to.meta.guestOnly && token) {
-    next('/dashboard')
+    const roleId = Number(localStorage.getItem('role_id') || 13)
+    next(getDefaultLandingRoute(roleId))
     return
+  }
+
+  // 🛡️ RBAC Check on protected routes
+  if (to.meta.requiresAuth && token) {
+    let user = {}
+    try {
+      user = JSON.parse(localStorage.getItem('user')) || {}
+    } catch (e) {}
+
+    const roleId = Number(user.role_id || localStorage.getItem('role_id') || 0)
+    const username = (user.username || '').toLowerCase()
+
+    if (!isRouteAllowed(to.path, roleId, username)) {
+      const defaultRoute = getDefaultLandingRoute(roleId)
+      next(defaultRoute)
+      return
+    }
   }
 
   next()

@@ -1,41 +1,99 @@
 <template>
-  <div class="p-6">
-    <h1 class="text-2xl font-semibold mb-6">Manajemen Jadwal</h1>
-
-    <!-- TAB -->
-    <div class="flex gap-6 border-b mb-6">
-      <button @click="activeTab='master'" :class="tabStyle('master')">Master Jadwal</button>
-      <button @click="activeTab='user'" :class="tabStyle('user')">Jadwal Terapis</button>
-    </div>
-
-    <!-- MASTER JADWAL -->
-    <div v-if="activeTab==='master'" class="space-y-4">
-      <div class="flex justify-end">
-        <button @click="openMasterCreate" class="btn-primary">+ Tambah Jadwal</button>
+  <div class="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden w-full">
+    <!-- TOP HEADER -->
+    <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-[#E6F2F5] border border-[#CBE3E9] flex items-center justify-center text-[#0F766E] font-bold text-sm shrink-0">
+          <i class="pi pi-calendar"></i>
+        </div>
+        <div>
+          <h1 class="text-[15px] font-bold text-[#0F172A] leading-tight">Master Jadwal & Penugasan Terapis</h1>
+          <p class="text-[11.5px] text-[#64748B] mt-0.5">Konfigurasi slot master hari/jam serta penugasan jadwal kerja tenaga medis</p>
+        </div>
       </div>
 
-      <div class="bg-white rounded-xl shadow overflow-hidden">
-        <table class="w-full text-sm">
-          <thead class="bg-gray-100">
+      <!-- TAB SELECTION -->
+      <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg shrink-0">
+        <button
+          type="button"
+          @click="activeTab = 'master'"
+          class="h-7 px-3 rounded-md text-[12px] font-semibold transition cursor-pointer"
+          :class="activeTab === 'master' ? 'bg-white text-[#0F766E] shadow-2xs' : 'text-slate-600 hover:text-slate-900'"
+        >
+          Master Slot Waktu
+        </button>
+        <button
+          type="button"
+          @click="activeTab = 'user'"
+          class="h-7 px-3 rounded-md text-[12px] font-semibold transition cursor-pointer"
+          :class="activeTab === 'user' ? 'bg-white text-[#0F766E] shadow-2xs' : 'text-slate-600 hover:text-slate-900'"
+        >
+          Penugasan Terapis
+        </button>
+      </div>
+    </div>
+
+    <!-- TAB 1: MASTER JADWAL -->
+    <div v-if="activeTab === 'master'" class="flex-1 min-h-0 flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+      <div class="shrink-0 p-3 border-b border-slate-200 flex justify-between items-center bg-white">
+        <span class="text-[12px] font-bold text-slate-800 uppercase tracking-wider">Slot Waktu Hari & Jam Praktik</span>
+        <button
+          type="button"
+          @click="openMasterCreate"
+          class="btn-primary-clinical text-[12px]"
+        >
+          <i class="pi pi-plus text-xs"></i>
+          <span>Tambah Slot Jadwal</span>
+        </button>
+      </div>
+
+      <div class="flex-1 min-h-0 overflow-auto custom-scrollbar">
+        <table class="min-w-full text-[12.5px] text-slate-700">
+          <thead class="sticky top-0 z-10 bg-[#F8FAFC] border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600 select-none">
             <tr>
-              <th class="th">Hari</th>
-              <th class="th">Jam</th>
-              <th class="th">Status</th>
-              <th class="th text-center">Aksi</th>
+              <th class="py-2 px-3 text-center w-12">No</th>
+              <th class="py-2 px-3">Hari Praktik</th>
+              <th class="py-2 px-3">Rentang Jam</th>
+              <th class="py-2 px-3 text-center">Status</th>
+              <th class="py-2 px-3 text-center w-24">Aksi</th>
             </tr>
           </thead>
-          <tbody>
-            <tr v-for="j in jadwalMaster" :key="j.id" class="border-t hover:bg-gray-50">
-              <td class="td">{{ hariLabel(j.hari) }}</td>
-              <td class="td">{{ j.jam_mulai }} - {{ j.jam_selesai }}</td>
-              <td class="td">
-                <span :class="j.status_aktif ? badgeActive : badgeInactive">
-                  {{ j.status_aktif ? 'Aktif' : 'Nonaktif' }}
-                </span>
+          <tbody class="divide-y divide-slate-100">
+            <tr
+              v-for="(j, idx) in jadwalMaster"
+              :key="j.id || idx"
+              class="hover:bg-[#F0F6F8]/60 transition-colors"
+            >
+              <td class="py-2 px-3 text-center text-slate-400 font-mono text-[11px]">{{ idx + 1 }}</td>
+              <td class="py-2 px-3 font-semibold text-slate-900">{{ hariLabel(j.hari) }}</td>
+              <td class="py-2 px-3 font-mono text-[12px] tabular-nums text-slate-800">
+                {{ j.jam_mulai }} - {{ j.jam_selesai }}
               </td>
-              <td class="td text-center">
-                <button @click="openMasterEdit(j)" class="link">Edit</button>
-                <button @click="deleteMaster(j.id)" class="link text-red-600 ml-3">Hapus</button>
+              <td class="py-2 px-3 text-center">
+                <StatusBadge
+                  :label="j.status_aktif ? 'Aktif' : 'Nonaktif'"
+                  :type="j.status_aktif ? 'success' : 'neutral'"
+                />
+              </td>
+              <td class="py-2 px-3 text-center">
+                <div class="flex items-center justify-center gap-1.5">
+                  <button
+                    type="button"
+                    @click="openMasterEdit(j)"
+                    class="w-7 h-7 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-600 flex items-center justify-center transition shadow-2xs"
+                    title="Edit Slot"
+                  >
+                    <i class="pi pi-pencil text-[11px]"></i>
+                  </button>
+                  <button
+                    type="button"
+                    @click="deleteMaster(j.id)"
+                    class="w-7 h-7 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition shadow-2xs"
+                    title="Hapus"
+                  >
+                    <i class="pi pi-trash text-[11px]"></i>
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -43,118 +101,138 @@
       </div>
     </div>
 
-    <!-- JADWAL TERAPIS -->
-    <div v-if="activeTab==='user'" class="space-y-4">
-
-      <!-- pilih terapis -->
-      <div class="bg-white p-4 rounded-xl shadow">
-        <label class="label">Pilih Terapis</label>
-        <select v-model="selectedUser" @change="fetchJadwalUser" class="input">
-          <option value="">-- Pilih Terapis --</option>
-          <option v-for="u in terapis" :key="u.id" :value="u.id">
-            {{ u.nama }}
-          </option>
-        </select>
+    <!-- TAB 2: JADWAL TERAPIS -->
+    <div v-if="activeTab === 'user'" class="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden">
+      <!-- PILIH TERAPIS CARD -->
+      <div class="bg-white border border-slate-200 rounded-xl p-3 shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex items-center gap-3 shrink-0">
+        <label class="text-[12px] font-semibold text-slate-700 shrink-0">Pilih Tenaga Terapis:</label>
+        <div class="w-72">
+          <select v-model="selectedUser" @change="fetchJadwalUser" class="input-clinical">
+            <option value="">-- Pilih Terapis --</option>
+            <option v-for="u in terapis" :key="u.id" :value="u.id">
+              {{ u.nama }}
+            </option>
+          </select>
+        </div>
       </div>
 
-      <div v-if="selectedUser" class="space-y-6">
-
-        <!-- jadwal saat ini -->
-        <div class="bg-white p-5 rounded-xl shadow">
-          <h3 class="font-semibold mb-3">Jadwal Terapis Saat Ini</h3>
-
-          <div v-if="jadwalUserDetail.length">
+      <!-- ATUR JADWAL CONTENT -->
+      <div v-if="selectedUser" class="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-2 gap-3 overflow-hidden">
+        <!-- CURRENT SCHEDULE -->
+        <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex flex-col overflow-hidden">
+          <h3 class="text-[13px] font-bold text-slate-900 pb-2 border-b border-slate-100 shrink-0">
+            Jadwal Terapis Saat Ini
+          </h3>
+          <div class="flex-1 min-h-0 overflow-auto custom-scrollbar pt-2 space-y-1.5">
             <div
               v-for="j in jadwalUserDetail"
               :key="j.id"
-              class="border rounded-lg p-3 mb-2"
+              class="bg-[#F0F6F8] border border-[#DCE8EC] rounded-lg p-2.5 flex items-center justify-between"
             >
-              <div class="text-sm font-medium">
-                {{ hariLabel(j.jadwal_master.hari) }}
+              <div>
+                <span class="font-bold text-slate-900 text-xs block">{{ hariLabel(j.jadwal_master.hari) }}</span>
+                <span class="text-[11px] text-slate-500 font-mono">{{ j.jadwal_master.jam_mulai }} - {{ j.jadwal_master.jam_selesai }}</span>
               </div>
-              <div class="text-xs text-gray-500">
-                {{ j.jadwal_master.jam_mulai }} - {{ j.jadwal_master.jam_selesai }}
-              </div>
+              <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-teal-50 text-[#0F766E] border border-teal-200">
+                Ditugaskan
+              </span>
             </div>
-          </div>
-
-          <div v-else class="text-xs text-gray-400">
-            Belum ada jadwal
+            <p v-if="!jadwalUserDetail.length" class="text-xs text-slate-400 italic py-4 text-center">
+              Belum ada slot waktu yang ditugaskan.
+            </p>
           </div>
         </div>
 
-        <!-- atur jadwal -->
-        <div class="bg-white p-5 rounded-xl shadow">
-          <h3 class="font-semibold mb-3">Atur Jadwal Terapis</h3>
+        <!-- SYNC / EDIT SCHEDULE -->
+        <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex flex-col overflow-hidden">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100 shrink-0">
+            <h3 class="text-[13px] font-bold text-slate-900">Pilih Slot Jadwal Praktik</h3>
+            <button
+              type="button"
+              @click="saveJadwalUser"
+              class="btn-primary-clinical text-xs"
+            >
+              <i class="pi pi-check text-xs"></i>
+              <span>Simpan Sinkronisasi</span>
+            </button>
+          </div>
 
-          <div class="grid md:grid-cols-2 gap-4">
+          <div class="flex-1 min-h-0 overflow-auto custom-scrollbar pt-2 space-y-2">
             <label
               v-for="j in jadwalMaster"
               :key="j.id"
-              class="border rounded-lg p-4 flex items-start gap-3 hover:bg-gray-50"
+              class="flex items-center gap-3 p-2 rounded-lg border border-slate-200 hover:bg-[#F0F6F8]/60 transition cursor-pointer"
             >
-              <input type="checkbox" :value="j.id" v-model="jadwalUser" />
+              <input type="checkbox" :value="j.id" v-model="jadwalUser" class="w-4 h-4 text-[#0F766E] rounded" />
               <div>
-                <div class="font-medium">{{ hariLabel(j.hari) }}</div>
-                <div class="text-xs text-gray-500">
-                  {{ j.jam_mulai }} - {{ j.jam_selesai }}
-                </div>
+                <div class="font-bold text-slate-900 text-xs">{{ hariLabel(j.hari) }}</div>
+                <div class="text-[11px] text-slate-500 font-mono">{{ j.jam_mulai }} - {{ j.jam_selesai }}</div>
               </div>
             </label>
           </div>
-
-          <div class="flex justify-end mt-6">
-            <button @click="saveJadwalUser" class="btn-primary">
-              Simpan Jadwal Terapis
-            </button>
-          </div>
         </div>
-
       </div>
     </div>
 
-    <!-- MODAL MASTER -->
-    <transition name="fade-scale">
-      <div v-if="showMasterModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-        <div class="bg-white rounded-xl w-full max-w-md p-6">
-          <h2 class="font-semibold mb-4">{{ editMasterId ? 'Edit Jadwal' : 'Tambah Jadwal' }}</h2>
+    <!-- MODAL FORM MASTER JADWAL (COMPACT TIER 'sm': max-w-[420px]) -->
+    <BaseModal
+      v-model="showMasterModal"
+      :title="editMasterId ? 'Edit Slot Jadwal' : 'Tambah Slot Jadwal'"
+      :subtitle="editMasterId ? 'Perbarui jam dan hari slot master' : 'Buat slot waktu operasional baru'"
+      icon="pi pi-calendar"
+      size="sm"
+      @submit="saveMaster"
+    >
+      <form @submit.prevent="saveMaster" class="space-y-3">
+        <div>
+          <label class="label-clinical">Hari Praktik <span class="text-rose-500">*</span></label>
+          <select v-model="masterForm.hari" required class="input-clinical">
+            <option v-for="(h, i) in hariList" :key="i" :value="i">{{ h }}</option>
+          </select>
+        </div>
 
-          <div class="space-y-3">
-            <select v-model="masterForm.hari" class="input">
-              <option v-for="(h,i) in hariList" :key="i" :value="i">{{ h }}</option>
-            </select>
-            <input type="time" v-model="masterForm.jam_mulai" class="input" />
-            <input type="time" v-model="masterForm.jam_selesai" class="input" />
-            <label class="flex items-center gap-2 text-sm">
-              <input type="checkbox" v-model="masterForm.status_aktif" /> Aktif
-            </label>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="label-clinical">Jam Mulai <span class="text-rose-500">*</span></label>
+            <input type="time" v-model="masterForm.jam_mulai" required class="input-clinical" />
           </div>
-
-          <div class="flex justify-end gap-3 mt-6">
-            <button @click="closeMasterModal" class="btn-secondary">Batal</button>
-            <button @click="saveMaster" class="btn-primary">Simpan</button>
+          <div>
+            <label class="label-clinical">Jam Selesai <span class="text-rose-500">*</span></label>
+            <input type="time" v-model="masterForm.jam_selesai" required class="input-clinical" />
           </div>
         </div>
-      </div>
-    </transition>
 
-    <!-- TOAST -->
-    <transition name="fade">
-      <div
-        v-if="toast.show"
-        class="fixed top-6 right-6 px-4 py-3 rounded-lg text-white shadow-lg"
-        :class="toast.type==='success' ? 'bg-green-600' : 'bg-red-600'"
-      >
-        {{ toast.message }}
-      </div>
-    </transition>
+        <div>
+          <label class="label-clinical">Status Slot</label>
+          <select v-model="masterForm.status_aktif" class="input-clinical">
+            <option :value="true">Aktif</option>
+            <option :value="false">Nonaktif</option>
+          </select>
+        </div>
+      </form>
+    </BaseModal>
 
+    <!-- CONFIRM DELETE DIALOG -->
+    <ConfirmDialog
+      v-model="confirmDeleteModal"
+      title="Hapus Jadwal Master"
+      message="Apakah Anda yakin ingin menghapus slot jadwal master ini?"
+      confirmText="Ya, Hapus Jadwal"
+      type="danger"
+      @confirm="executeDeleteMaster"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import api from '@/axios'
+import { useToast } from 'vue-toastification'
+import BaseModal from '../components/ui/BaseModal.vue'
+import ConfirmDialog from '../components/ui/ConfirmDialog.vue'
+import StatusBadge from '../components/ui/StatusBadge.vue'
+
+const toast = useToast()
 
 const activeTab = ref('master')
 const jadwalMaster = ref([])
@@ -163,98 +241,106 @@ const selectedUser = ref('')
 const jadwalUser = ref([])
 const jadwalUserDetail = ref([])
 
+const confirmDeleteModal = ref(false)
+const selectedScheduleIdToDelete = ref(null)
+
 const showMasterModal = ref(false)
 const editMasterId = ref(null)
 
-const masterForm = ref({ hari:1, jam_mulai:'', jam_selesai:'', status_aktif:true })
-const hariList = ['Minggu','Senin','Selasa','Rabu','Jumat','Sabtu','Kamis']
+const masterForm = ref({ hari: 1, jam_mulai: '', jam_selesai: '', status_aktif: true })
+const hariList = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']
+const hariLabel = (h) => hariList[h]
 
-const toast = ref({ show:false, message:'', type:'success' })
-
-const tabStyle = t => activeTab.value===t
-  ? 'pb-2 border-b-2 border-blue-600 font-medium'
-  : 'pb-2 text-gray-500'
-
-const hariLabel = h => hariList[h]
-
-const showToast = (m,t='success')=>{
-  toast.value={show:true,message:m,type:t}
-  setTimeout(()=>toast.value.show=false,3000)
+const fetchMaster = async () => {
+  try {
+    const r = await api.get('/jadwal-master')
+    jadwalMaster.value = r.data.data ?? r.data
+  } catch (e) {
+    console.error(e)
+  }
 }
 
-const fetchMaster = async()=>{
-  const r=await api.get('/jadwal-master')
-  jadwalMaster.value=r.data.data
+const fetchTerapis = async () => {
+  try {
+    const r = await api.get('/user-profile?jenis_user_id=9')
+    terapis.value = r.data.data ?? r.data
+  } catch (e) {
+    console.error(e)
+  }
 }
 
-const fetchTerapis = async()=>{
-  const r=await api.get('/user-profile?jenis_user_id=9')
-  terapis.value=r.data.data
+const fetchJadwalUser = async () => {
+  if (!selectedUser.value) return
+  try {
+    const r = await api.get(`/jadwal-user?user_profile_id=${selectedUser.value}`)
+    const d = r.data.data ?? r.data
+    jadwalUser.value = d.map((j) => j.jadwal_master_id)
+    jadwalUserDetail.value = d
+  } catch (e) {
+    console.error(e)
+  }
 }
 
-const fetchJadwalUser = async()=>{
-  const r=await api.get(`/jadwal-user?user_profile_id=${selectedUser.value}`)
-  jadwalUser.value = r.data.data.map(j=>j.jadwal_master_id)
-  jadwalUserDetail.value = r.data.data
+const saveJadwalUser = async () => {
+  try {
+    await api.post('/jadwal-user/sync', {
+      user_profile_id: selectedUser.value,
+      jadwal_master_id: jadwalUser.value
+    })
+    toast.success('Jadwal terapis berhasil disinkronkan')
+    fetchJadwalUser()
+  } catch (e) {
+    toast.error('Gagal sinkronisasi jadwal')
+  }
 }
 
-const saveJadwalUser = async()=>{
-  await api.post('/jadwal-user/sync',{
-    user_profile_id:selectedUser.value,
-    jadwal_master_id:jadwalUser.value
-  })
-  showToast('Jadwal terapis berhasil disimpan')
-  fetchJadwalUser()
+const openMasterCreate = () => {
+  editMasterId.value = null
+  masterForm.value = { hari: 1, jam_mulai: '08:00', jam_selesai: '09:00', status_aktif: true }
+  showMasterModal.value = true
 }
 
-const openMasterCreate=()=>{
-  editMasterId.value=null
-  masterForm.value={hari:1,jam_mulai:'',jam_selesai:'',status_aktif:true}
-  showMasterModal.value=true
+const openMasterEdit = (j) => {
+  editMasterId.value = j.id
+  masterForm.value = { ...j }
+  showMasterModal.value = true
 }
 
-const openMasterEdit=j=>{
-  editMasterId.value=j.id
-  masterForm.value={...j}
-  showMasterModal.value=true
+const saveMaster = async () => {
+  try {
+    if (editMasterId.value) {
+      await api.put(`/jadwal-master/${editMasterId.value}`, masterForm.value)
+      toast.success('Jadwal berhasil diupdate')
+    } else {
+      await api.post('/jadwal-master', masterForm.value)
+      toast.success('Jadwal berhasil ditambahkan')
+    }
+    showMasterModal.value = false
+    fetchMaster()
+  } catch (e) {
+    toast.error('Gagal menyimpan jadwal')
+  }
 }
 
-const saveMaster=async()=>{
-  editMasterId.value
-    ? await api.put(`/jadwal-master/${editMasterId.value}`,masterForm.value)
-    : await api.post('/jadwal-master',masterForm.value)
+const deleteMaster = (id) => {
+  selectedScheduleIdToDelete.value = id
+  confirmDeleteModal.value = true
+}
 
-  showMasterModal.value=false
+const executeDeleteMaster = async () => {
+  if (!selectedScheduleIdToDelete.value) return
+  try {
+    await api.delete(`/jadwal-master/${selectedScheduleIdToDelete.value}`)
+    toast.success('Jadwal berhasil dihapus')
+    confirmDeleteModal.value = false
+    fetchMaster()
+  } catch (e) {
+    toast.error('Gagal menghapus jadwal')
+  }
+}
+
+onMounted(() => {
   fetchMaster()
-  showToast('Jadwal master disimpan')
-}
-
-const deleteMaster=async(id)=>{
-  if(!confirm('Hapus jadwal?'))return
-  await api.delete(`/jadwal-master/${id}`)
-  fetchMaster()
-  showToast('Jadwal dihapus')
-}
-
-const closeMasterModal=()=>showMasterModal.value=false
-
-onMounted(async()=>{
-  await fetchMaster()
-  await fetchTerapis()
+  fetchTerapis()
 })
 </script>
-
-<style scoped>
-.input{ @apply border rounded-lg px-3 py-2 w-full }
-.th{ @apply p-3 text-left }
-.td{ @apply p-3 }
-.link{ @apply text-blue-600 hover:underline }
-.btn-primary{ @apply bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 }
-.btn-secondary{ @apply border px-4 py-2 rounded-lg }
-.badgeActive{ @apply bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs }
-.badgeInactive{ @apply bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs }
-.fade-scale-enter-active,.fade-scale-leave-active{transition:.2s}
-.fade-scale-enter-from,.fade-scale-leave-to{opacity:0;transform:scale(.95)}
-.fade-enter-active,.fade-leave-active{transition:.3s}
-.fade-enter-from,.fade-leave-to{opacity:0}
-</style>

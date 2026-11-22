@@ -2,7 +2,7 @@
   <div class="min-h-screen flex items-center justify-center bg-gray-100 px-4">
     <div class="bg-white w-full max-w-md rounded-xl shadow-lg p-8">
 
-      <h2 class="text-2xl font-bold text-center text-indigo-600 mb-6">
+      <h2 class="text-2xl font-bold text-center text-[#0F766E] mb-6">
         Registrasi Akun Orang Tua
       </h2>
 
@@ -116,8 +116,8 @@
 
         <button
           type="submit"
-          class="w-full bg-indigo-600 text-white py-2 rounded-lg
-                 font-semibold hover:bg-indigo-700 transition
+          class="w-full bg-[#0F766E] text-white py-2 rounded-lg
+                 font-semibold hover:bg-[#115E59] transition
                  disabled:opacity-50"
           :disabled="loading || !emailVerified"
         >
@@ -128,7 +128,7 @@
       <p class="text-sm text-center mt-5 text-gray-600">
         Sudah punya akun?
         <span
-          class="text-indigo-600 font-semibold cursor-pointer hover:underline"
+          class="text-[#0F766E] font-semibold cursor-pointer hover:underline"
           @click="$router.push('/login')"
         >
           Login

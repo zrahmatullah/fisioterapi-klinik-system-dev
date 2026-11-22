@@ -1,32 +1,32 @@
 <template>
-  <div class="page">
+  <div class="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden w-full">
 
     <!-- HEADER -->
-    <div class="page-header">
-      <div class="header-left">
-        <div class="header-icon">
+    <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex items-center justify-between gap-3 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-[#E6F2F5] border border-[#CBE3E9] flex items-center justify-center text-[#0F766E] font-bold text-sm shrink-0">
           <i class="pi pi-calendar-times"></i>
         </div>
 
         <div>
-          <h1 class="page-title">Request Reschedule</h1>
-          <p class="page-sub">Daftar permintaan perubahan jadwal terapi dari orang tua</p>
+          <h1 class="text-base font-bold text-[#0F172A] leading-tight">Request Reschedule Jadwal</h1>
+          <p class="text-xs text-[#64748B] mt-0.5">Daftar permintaan perubahan jadwal terapi dari orang tua</p>
         </div>
       </div>
 
-      <div class="stat-card">
-        <p class="stat-label">Pending Request</p>
-        <h2 class="stat-value">{{ list.length }}</h2>
+      <div class="bg-[#F0F6F8] border border-[#DCE8EC] rounded-lg px-3 py-1.5 flex items-center gap-2 shrink-0">
+        <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Pending Request:</p>
+        <h2 class="text-sm font-bold text-amber-700 tabular-nums">{{ list.length }}</h2>
       </div>
     </div>
 
     <!-- TABLE -->
-    <div class="panel table-panel">
+    <div class="flex-1 min-h-0 flex flex-col bg-white border border-slate-200 rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] overflow-hidden">
 
-      <div class="table-scroll">
+      <div class="flex-1 min-h-0 overflow-auto custom-scrollbar">
         <table class="data-table">
 
-          <thead>
+          <thead class="sticky top-0 z-10 bg-[#F8FAFC] border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600 select-none">
             <tr>
               <th class="th">Anak</th>
               <th class="th">Layanan</th>
@@ -124,79 +124,61 @@
     </div>
 
     <!-- MODAL -->
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal-backdrop" @click="closeModal"></div>
+    <teleport to="body">
+    <div v-if="showModal" class="fixed inset-0 z-[9999] bg-slate-900/35 backdrop-blur-md flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-xs" @click="closeModal"></div>
 
-      <div class="modal-wrapper">
-        <div class="modal-card animate-modal">
+      <div class="relative bg-white w-full max-w-md rounded-2xl shadow-2xl border border-slate-200 overflow-hidden animate-fadeIn flex flex-col">
 
-          <!-- HEADER MODAL -->
-          <div class="modal-header" :class="actionType === 'approve' ? 'modal-header--approve' : 'modal-header--reject'">
-
-            <div class="modal-header-icon" :class="actionType === 'approve' ? 'modal-header-icon--approve' : 'modal-header-icon--reject'">
-              <i :class="actionType === 'approve' ? 'pi pi-check' : 'pi pi-times'"></i>
-            </div>
-
-            <div class="flex-1">
-              <h3 class="modal-title">
-                {{ actionType === 'approve' ? 'Konfirmasi approve' : 'Konfirmasi reject' }}
-              </h3>
-
-              <p class="modal-sub">
-                {{ actionType === 'approve' ? 'Setujui perubahan jadwal terapi' : 'Tolak permintaan perubahan jadwal' }}
-              </p>
-            </div>
-
-            <button @click="closeModal" class="modal-close">
-              <i class="pi pi-times"></i>
-            </button>
+        <!-- HEADER MODAL -->
+        <div class="px-5 py-3.5 flex items-center justify-between" :class="actionType === 'approve' ? 'bg-[#0F766E] text-white' : 'bg-rose-700 text-white'">
+          <div class="flex items-center gap-2">
+            <i :class="actionType === 'approve' ? 'pi pi-check text-teal-200' : 'pi pi-times text-rose-200'"></i>
+            <h3 class="text-sm font-bold tracking-wide">
+              {{ actionType === 'approve' ? 'Konfirmasi Approve Reschedule' : 'Konfirmasi Reject Reschedule' }}
+            </h3>
           </div>
-
-          <!-- CONTENT -->
-          <div class="modal-content">
-
-            <div class="info-card">
-              <div class="info-row">
-                <span class="cell-faint">Nama Anak</span>
-                <span class="cell-strong">{{ selectedRow?.registrasi?.profile_anak?.nama_anak || '-' }}</span>
-              </div>
-
-              <div class="info-row">
-                <span class="cell-faint">Layanan</span>
-                <span class="cell-strong">{{ selectedRow?.layanan?.layanan || '-' }}</span>
-              </div>
-
-              <div class="info-row">
-                <span class="cell-faint">Tanggal Lama</span>
-                <span class="cell-strong">{{ formatDate(selectedRow?.tanggal_penjadwalan) }}</span>
-              </div>
-
-              <div class="info-row">
-                <span class="cell-faint">Tanggal Baru</span>
-                <span class="cell-strong cell-strong--accent">{{ formatDate(selectedRow?.tanggal_reschedule_request) }}</span>
-              </div>
-            </div>
-
-            <!-- FOOTER -->
-            <div class="modal-footer">
-              <button class="btn-secondary" @click="closeModal">Batal</button>
-
-              <button v-if="actionType === 'approve'" class="btn-confirm-approve" @click="confirmApprove">
-                <i class="pi pi-check"></i>
-                Ya, approve
-              </button>
-
-              <button v-if="actionType === 'reject'" class="btn-confirm-reject" @click="confirmReject">
-                <i class="pi pi-times"></i>
-                Ya, reject
-              </button>
-            </div>
-
-          </div>
-
+          <button @click="closeModal" class="text-white/80 hover:text-white p-1">
+            <i class="pi pi-times text-xs"></i>
+          </button>
         </div>
+
+        <!-- CONTENT -->
+        <div class="p-5 space-y-3 text-xs">
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+            <div class="flex justify-between">
+              <span class="text-slate-500">Nama Anak:</span>
+              <span class="font-bold text-slate-900">{{ selectedRow?.registrasi?.profile_anak?.nama_anak || '-' }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Layanan:</span>
+              <span class="font-semibold text-slate-800">{{ selectedRow?.layanan?.layanan || '-' }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Tanggal Lama:</span>
+              <span class="font-mono text-slate-700">{{ formatDate(selectedRow?.tanggal_penjadwalan) }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-slate-500">Tanggal Baru:</span>
+              <span class="font-mono font-bold text-[#0F766E]">{{ formatDate(selectedRow?.tanggal_reschedule_request) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="p-3.5 bg-slate-50 border-t border-slate-200 flex justify-end gap-2">
+          <button class="btn-secondary-clinical text-xs py-1.5 px-3" @click="closeModal">Batal</button>
+          <button v-if="actionType === 'approve'" class="btn-primary-clinical text-xs py-1.5 px-4" @click="confirmApprove">
+            <i class="pi pi-check text-xs"></i> Ya, Approve
+          </button>
+          <button v-if="actionType === 'reject'" class="bg-rose-600 hover:bg-rose-700 text-white text-xs py-1.5 px-4 rounded-lg font-medium transition cursor-pointer" @click="confirmReject">
+            <i class="pi pi-times text-xs"></i> Ya, Reject
+          </button>
+        </div>
+
       </div>
     </div>
+    </teleport>
 
   </div>
 </template>
@@ -322,25 +304,11 @@ const formatDate = (dateStr) => {
   --border: #ECEDF1;
   --ink: #1F2128;
   --muted: #98A0AE;
-  --accent: #6D5CE0;
-  --accent-soft: #F1EEFC;
+  --accent: #0F766E;
+  --accent-soft: #E6F2F5;
 
-  --amber: #B98900;
-  --amber-soft: #FBF3DB;
-  --green: #1A9469;
-  --green-soft: #E5F6EE;
-  --red: #DC4747;
-  --red-soft: #FBEAEA;
-
-  min-height: 100vh;
-  background: var(--bg);
-  color: var(--ink);
-  padding: 1.5rem;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-.page > * + * {
-  margin-top: 1.5rem;
+  width: 100%;
+  height: 100%;
 }
 
 /* ===============================

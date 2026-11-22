@@ -1,56 +1,56 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-6 space-y-6">
+  <div class="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden w-full">
 
     <!-- HEADER -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white p-3.5 rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-slate-200 shrink-0">
       <div>
-        <h1 class="text-2xl font-bold text-gray-800 tracking-tight">
-          Catatan Aktivitas Sesi Terapi Anak
+        <h1 class="text-base font-bold text-[#0F172A] tracking-tight">
+          Catatan Sesi Terapi Anak
         </h1>
-        <p class="text-gray-500 text-sm mt-1">
-          Rekap aktivitas terapi & tugas rumah anak secara lengkap
+        <p class="text-xs text-[#64748B] mt-0.5">
+          Rekap aktivitas sesi klinis, catatan respons anak, dan evaluasi tugas rumah
         </p>
       </div>
 
       <!-- SEARCH -->
       <div class="relative w-full sm:w-64">
-        <i class="pi pi-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+        <i class="pi pi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
         <input
           v-model="search"
-          placeholder="Cari nama anak..."
-          class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 text-sm transition focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500"
+          placeholder="Cari nama pasien..."
+          class="w-full pl-8 pr-3 py-1.5 rounded-lg border border-slate-300 bg-white text-xs transition focus:outline-none focus:ring-2 focus:ring-[#0F766E]/15 focus:border-[#0F766E]"
         />
       </div>
     </div>
 
     <!-- TABLE -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead class="bg-gray-50 text-gray-600">
+    <div class="flex-1 min-h-0 flex flex-col bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div class="flex-1 min-h-0 overflow-auto custom-scrollbar">
+        <table class="w-full text-xs">
+          <thead class="sticky top-0 z-10 bg-[#F8FAFC] border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600 select-none">
             <tr>
-              <th class="px-5 py-3.5 text-center font-semibold">No</th>
+              <th class="px-4 py-3 text-center font-bold text-[11px] uppercase tracking-wider w-12">No</th>
 
               <!-- SORT TANGGAL -->
               <th
-                class="px-5 py-3.5 text-left font-semibold cursor-pointer select-none hover:bg-gray-100 transition"
+                class="px-4 py-3 text-left font-bold text-[11px] uppercase tracking-wider cursor-pointer select-none hover:bg-slate-100 transition"
                 @click="toggleSort"
               >
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1.5">
                   Tanggal
                   <i
-                    class="pi text-[10px] text-gray-400"
+                    class="pi text-[10px] text-slate-400"
                     :class="sortOrder === 'desc' ? 'pi-sort-amount-down' : 'pi-sort-amount-up'"
                   ></i>
                 </div>
               </th>
 
-              <th class="px-5 py-3.5 text-left font-semibold">Jam</th>
-              <th class="px-5 py-3.5 text-center font-semibold">Status</th>
-              <th class="px-5 py-3.5 text-left font-semibold">Aktivitas</th>
-              <th class="px-5 py-3.5 text-left font-semibold">Keterangan</th>
-              <th class="px-5 py-3.5 text-left font-semibold">Tugas Rumah</th>
-              <th class="px-5 py-3.5 text-center font-semibold">Aksi</th>
+              <th class="px-4 py-3 text-left font-bold text-[11px] uppercase tracking-wider">Jam</th>
+              <th class="px-4 py-3 text-center font-bold text-[11px] uppercase tracking-wider">Status</th>
+              <th class="px-4 py-3 text-left font-bold text-[11px] uppercase tracking-wider">Aktivitas Terapi</th>
+              <th class="px-4 py-3 text-left font-bold text-[11px] uppercase tracking-wider">Keterangan / Respons</th>
+              <th class="px-4 py-3 text-left font-bold text-[11px] uppercase tracking-wider">Tugas Rumah</th>
+              <th class="px-4 py-3 text-center font-bold text-[11px] uppercase tracking-wider w-28">Aksi</th>
             </tr>
           </thead>
 
@@ -58,65 +58,66 @@
             <tr
               v-for="(row, i) in paginatedRows"
               :key="row.id"
-              class="border-t border-gray-100 hover:bg-indigo-50/40 transition align-top"
+              class="border-b border-slate-100 hover:bg-[#F0F6F8]/60 transition align-top"
             >
-              <td class="px-5 py-4 text-center font-medium text-gray-500">
+              <td class="px-4 py-3 text-center font-medium text-slate-400 tabular-nums">
                 {{ (currentPage - 1) * perPage + i + 1 }}
               </td>
 
-              <td class="px-5 py-4">
-                <div class="font-semibold text-gray-800">{{ row.hari }}</div>
-                <div class="text-xs text-gray-400 mt-0.5">{{ formatTanggal(row.tanggal) }}</div>
+              <td class="px-4 py-3">
+                <div class="font-bold text-[#0F172A]">{{ row.hari }}</div>
+                <div class="text-[11px] text-slate-500 font-medium tabular-nums">{{ formatTanggal(row.tanggal) }}</div>
               </td>
 
-              <td class="px-5 py-4 text-gray-600">
+              <td class="px-4 py-3 text-slate-700 font-mono text-[11px] tabular-nums">
                 {{ row.jam_mulai }} - {{ row.jam_selesai }}
               </td>
 
-              <td class="px-5 py-4 text-center">
+              <td class="px-4 py-3 text-center">
                 <span
-                  class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold"
+                  class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold"
                   :class="row.status === 'hadir'
-                    ? 'bg-emerald-50 text-emerald-700'
-                    : 'bg-amber-50 text-amber-700'"
+                    ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                    : 'bg-amber-50 text-amber-700 border border-amber-200'"
                 >
                   <span class="w-1.5 h-1.5 rounded-full" :class="row.status === 'hadir' ? 'bg-emerald-500' : 'bg-amber-500'"></span>
                   {{ row.status === 'hadir' ? 'Hadir' : 'Terjadwal' }}
                 </span>
               </td>
 
-              <td class="px-5 py-4 text-gray-600 max-w-[180px] truncate">{{ row.aktivitas || '-' }}</td>
-              <td class="px-5 py-4 text-gray-600 max-w-[180px] truncate">{{ row.keterangan || '-' }}</td>
-              <td class="px-5 py-4 text-gray-600 max-w-[180px] truncate">{{ row.tugas_rumah || '-' }}</td>
+              <td class="px-4 py-3 text-slate-700 max-w-[180px] truncate">{{ row.aktivitas || '-' }}</td>
+              <td class="px-4 py-3 text-slate-700 max-w-[180px] truncate">{{ row.keterangan || '-' }}</td>
+              <td class="px-4 py-3 text-slate-700 max-w-[180px] truncate">{{ row.tugas_rumah || '-' }}</td>
 
-              <td class="px-5 py-4 text-center">
-                <div class="flex flex-col gap-2 items-stretch min-w-[110px]">
+              <td class="px-4 py-3 text-center">
+                <div class="flex items-center justify-center gap-1.5">
                   <button
-                    class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-xs font-medium hover:bg-indigo-700 transition flex items-center justify-center gap-1.5"
+                    class="px-2.5 py-1 rounded-lg bg-[#E6F2F5] text-[#0F766E] border border-[#CBE3E9] text-xs font-semibold hover:bg-[#0F766E] hover:text-white transition flex items-center justify-center gap-1 cursor-pointer"
                     @click="openModal(row)"
+                    title="Detail Catatan"
                   >
-                    <i class="pi pi-eye text-[11px]"></i>
-                    Lihat
+                    <i class="pi pi-eye text-[10px]"></i>
+                    Detail
                   </button>
 
                   <button
-                    class="px-3 py-1.5 rounded-lg bg-gray-100 text-gray-600 text-xs font-medium hover:bg-gray-200 transition flex items-center justify-center gap-1.5"
+                    class="px-2 py-1 rounded-lg bg-white border border-slate-300 text-slate-700 text-xs font-semibold hover:bg-slate-50 transition flex items-center justify-center cursor-pointer"
                     @click="cetak(row)"
+                    title="Cetak Catatan"
                   >
-                    <i class="pi pi-print text-[11px]"></i>
-                    Cetak
+                    <i class="pi pi-print text-[10px]"></i>
                   </button>
                 </div>
               </td>
             </tr>
 
             <tr v-if="paginatedRows.length === 0">
-              <td colspan="8" class="py-14 text-center">
+              <td colspan="8" class="py-12 text-center">
                 <div class="flex flex-col items-center">
-                  <div class="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mb-3">
-                    <i class="pi pi-inbox text-xl text-gray-300"></i>
+                  <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mb-2">
+                    <i class="pi pi-inbox text-xl text-slate-400"></i>
                   </div>
-                  <p class="text-gray-500 font-medium text-sm">Tidak ada data</p>
+                  <p class="text-slate-500 font-medium text-xs">Belum ada catatan aktivitas sesi terapi</p>
                 </div>
               </td>
             </tr>
@@ -125,14 +126,14 @@
       </div>
 
       <!-- PAGINATION -->
-      <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between px-6 py-4 border-t border-gray-100 bg-gray-50">
-        <div class="text-sm text-gray-500">
+      <div class="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between px-4 py-2.5 border-t border-slate-200 bg-[#F8FAFC] text-[11.5px] shrink-0">
+        <div class="text-slate-500">
           Halaman {{ currentPage }} dari {{ totalPages || 1 }}
         </div>
 
         <div class="flex items-center gap-1.5 flex-wrap">
           <button
-            class="page-btn"
+            class="px-2.5 py-1 border border-slate-300 rounded text-xs hover:bg-slate-50 disabled:opacity-40"
             :disabled="currentPage === 1"
             @click="currentPage--"
           >
@@ -142,15 +143,15 @@
           <button
             v-for="p in totalPages"
             :key="p"
-            class="page-btn"
-            :class="{ active: p === currentPage }"
+            class="px-2.5 py-1 border rounded text-xs"
+            :class="p === currentPage ? 'bg-[#0F766E] text-white border-[#0F766E]' : 'border-slate-300 hover:bg-slate-50'"
             @click="currentPage = p"
           >
             {{ p }}
           </button>
 
           <button
-            class="page-btn"
+            class="px-2.5 py-1 border border-slate-300 rounded text-xs hover:bg-slate-50 disabled:opacity-40"
             :disabled="currentPage === totalPages"
             @click="currentPage++"
           >
@@ -160,133 +161,124 @@
       </div>
     </div>
 
+    <teleport to="body">
     <!-- MODAL DETAIL -->
     <transition name="fade">
       <div
         v-if="showModal"
-        class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+        class="fixed inset-0 z-[9999] bg-slate-900/35 backdrop-blur-md flex items-center justify-center p-4"
       >
-        <div class="bg-white w-full max-w-4xl rounded-2xl shadow-xl overflow-hidden max-h-[92vh] flex flex-col">
+        <div class="bg-white w-full max-w-3xl rounded-xl shadow-2xl border border-slate-200 overflow-hidden max-h-[92vh] flex flex-col animate-fadeIn">
 
           <!-- HEADER -->
-          <div class="bg-indigo-600 px-6 py-5 shrink-0">
-            <div class="flex items-center justify-between">
-              <div>
-                <h3 class="text-lg font-bold text-white">Catatan Aktivitas Sesi Terapi Anak</h3>
-                <p class="text-indigo-100 text-sm mt-0.5">{{ selected.nama_anak }}</p>
-              </div>
-              <button
-                @click="showModal = false"
-                class="w-9 h-9 rounded-full bg-white/15 hover:bg-white/25 transition flex items-center justify-center text-white"
-                aria-label="Tutup"
-              >
-                <i class="pi pi-times text-sm"></i>
-              </button>
+          <div class="bg-[#0B3948] px-6 py-4 shrink-0 flex items-center justify-between text-white">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <i class="pi pi-book text-teal-300"></i>
+                Catatan Sesi Terapi Pasien
+              </h3>
+              <p class="text-xs text-teal-200/80 mt-0.5">Pasien: {{ selected.nama_anak }}</p>
             </div>
+            <button
+              @click="showModal = false"
+              class="w-7 h-7 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition flex items-center justify-center cursor-pointer"
+              aria-label="Tutup"
+            >
+              <i class="pi pi-times text-xs"></i>
+            </button>
           </div>
 
-          <div class="p-6 space-y-6 text-sm overflow-y-auto">
+          <div class="p-6 space-y-4 text-xs overflow-y-auto">
 
             <!-- INFO GRID -->
-            <div class="grid grid-cols-2 gap-4 bg-gray-50 border border-gray-100 p-4 rounded-2xl">
+            <div class="grid grid-cols-2 gap-3 bg-[#E6F2F5] border border-[#CBE3E9] p-3.5 rounded-xl">
               <div>
-                <div class="text-gray-400 text-xs mb-1.5">Nama Anak</div>
-                <div class="bg-white border border-gray-200 px-3.5 py-2.5 rounded-xl font-medium text-gray-800">
+                <div class="text-[11px] font-semibold text-[#15576B] uppercase tracking-wider mb-1">Nama Pasien Anak</div>
+                <div class="bg-white border border-[#CBE3E9] px-3 py-2 rounded-lg font-bold text-slate-800">
                   {{ selected.nama_anak }}
                 </div>
               </div>
 
               <div>
-                <div class="text-gray-400 text-xs mb-1.5">Hari & Tanggal</div>
-                <div class="bg-white border border-gray-200 px-3.5 py-2.5 rounded-xl font-medium text-gray-800">
+                <div class="text-[11px] font-semibold text-[#15576B] uppercase tracking-wider mb-1">Hari & Tanggal Sesi</div>
+                <div class="bg-white border border-[#CBE3E9] px-3 py-2 rounded-lg font-bold text-slate-800 tabular-nums">
                   {{ selected.hari }}, {{ formatTanggal(selected.tanggal) }}
                 </div>
               </div>
 
               <div>
-                <div class="text-gray-400 text-xs mb-1.5">Jam</div>
-                <div class="bg-white border border-gray-200 px-3.5 py-2.5 rounded-xl font-medium text-gray-800">
+                <div class="text-[11px] font-semibold text-[#15576B] uppercase tracking-wider mb-1">Jam Sesi</div>
+                <div class="bg-white border border-[#CBE3E9] px-3 py-2 rounded-lg font-bold text-slate-800 tabular-nums font-mono">
                   {{ selected.jam_mulai }} - {{ selected.jam_selesai }}
                 </div>
               </div>
 
               <div>
-                <div class="text-gray-400 text-xs mb-1.5">Terapis</div>
-                <div class="bg-white border border-gray-200 px-3.5 py-2.5 rounded-xl font-medium text-gray-800">
+                <div class="text-[11px] font-semibold text-[#15576B] uppercase tracking-wider mb-1">Terapis Bertugas</div>
+                <div class="bg-white border border-[#CBE3E9] px-3 py-2 rounded-lg font-bold text-slate-800">
                   {{ selected.terapis }}
                 </div>
               </div>
 
-              <div class="flex items-center justify-end col-span-2">
-                <span class="text-gray-500 mr-3 text-sm">Status :</span>
-                <span
-                  class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold"
-                  :class="selected.status === 'hadir'
-                    ? 'bg-emerald-50 text-emerald-700'
-                    : 'bg-amber-50 text-amber-700'"
-                >
-                  <span class="w-1.5 h-1.5 rounded-full" :class="selected.status === 'hadir' ? 'bg-emerald-500' : 'bg-amber-500'"></span>
-                  {{ selected.status === 'hadir' ? 'Hadir' : 'Terjadwal' }}
-                </span>
+              <div class="col-span-2">
+                <div class="text-[11px] font-semibold text-[#15576B] uppercase tracking-wider mb-1">Layanan Terapi</div>
+                <div class="bg-white border border-[#CBE3E9] px-3 py-2 rounded-lg font-bold text-[#0F766E]">
+                  {{ selected.layanan }}
+                </div>
               </div>
             </div>
 
-            <!-- AKTIVITAS & KETERANGAN -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <div class="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                  <i class="pi pi-bolt text-indigo-500 text-sm"></i>
-                  Aktivitas Terapi
-                </div>
-                <div class="border border-gray-200 p-3.5 min-h-[120px] bg-gray-50 rounded-xl whitespace-pre-line text-gray-600">
-                  {{ selected.aktivitas }}
-                </div>
+            <!-- AKTIVITAS -->
+            <div>
+              <label class="font-bold text-slate-800 mb-1.5 block">Aktivitas Terapi yang Dijalankan</label>
+              <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 whitespace-pre-line leading-relaxed">
+                {{ selected.aktivitas || 'Tidak ada catatan aktivitas.' }}
               </div>
+            </div>
 
-              <div>
-                <div class="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                  <i class="pi pi-file-edit text-indigo-500 text-sm"></i>
-                  Keterangan Terapi
-                </div>
-                <div class="border border-gray-200 p-3.5 min-h-[120px] bg-gray-50 rounded-xl whitespace-pre-line text-gray-600">
-                  {{ selected.keterangan }}
-                </div>
+            <!-- KETERANGAN / RESPONS -->
+            <div>
+              <label class="font-bold text-slate-800 mb-1.5 block">Keterangan / Respons Klinis Anak</label>
+              <div class="p-3 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 whitespace-pre-line leading-relaxed">
+                {{ selected.keterangan || 'Tidak ada catatan keterangan respons.' }}
               </div>
             </div>
 
             <!-- TUGAS RUMAH -->
             <div>
-              <div class="font-semibold text-gray-800 mb-2 flex items-center gap-2">
-                <i class="pi pi-home text-indigo-500 text-sm"></i>
-                Tugas Rumah
+              <label class="font-bold text-[#0F766E] mb-1.5 block flex items-center gap-1.5">
+                <i class="pi pi-home"></i>
+                Tugas Rumah untuk Orang Tua (Home Program)
+              </label>
+              <div class="p-3 bg-[#E6F2F5] border border-[#CBE3E9] rounded-lg text-slate-800 whitespace-pre-line leading-relaxed">
+                {{ selected.tugas_rumah || 'Tidak ada tugas rumah khusus untuk sesi ini.' }}
               </div>
-              <div class="border border-gray-200 p-3.5 min-h-[100px] bg-gray-50 rounded-xl whitespace-pre-line text-gray-600">
-                {{ selected.tugas_rumah }}
-              </div>
-            </div>
-
-            <!-- ACTION -->
-            <div class="flex justify-end gap-3 pt-2">
-              <button
-                class="px-5 py-2.5 border border-gray-200 rounded-xl text-gray-600 font-medium hover:bg-gray-50 transition"
-                @click="showModal = false"
-              >
-                Tutup
-              </button>
-
-              <button
-                class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition flex items-center gap-2"
-                @click="cetak(selected)"
-              >
-                <i class="pi pi-print text-sm"></i>
-                Cetak
-              </button>
             </div>
 
           </div>
+
+          <!-- FOOTER -->
+          <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-between items-center shrink-0">
+            <button
+              @click="cetak(selected)"
+              class="px-4 py-2 rounded-lg bg-white border border-slate-300 text-slate-700 font-semibold text-xs hover:bg-slate-100 transition inline-flex items-center gap-2 cursor-pointer"
+            >
+              <i class="pi pi-print"></i>
+              Cetak Dokumen
+            </button>
+
+            <button
+              @click="showModal = false"
+              class="px-5 py-2 rounded-lg bg-[#0F766E] text-white font-semibold text-xs hover:bg-[#115E59] transition cursor-pointer"
+            >
+              Tutup
+            </button>
+          </div>
+
         </div>
       </div>
     </transition>
+    </teleport>
 
   </div>
 </template>
@@ -297,103 +289,85 @@ import api from '@/axios'
 
 const rows = ref([])
 const search = ref('')
+const sortOrder = ref('desc')
+
+const currentPage = ref(1)
+const perPage = 10
+
 const showModal = ref(false)
 const selected = ref({})
 
-const currentPage = ref(1)
-const perPage = 8
+const loadData = async () => {
+  try {
+    const res = await api.get('/catatan-aktivitas-anak')
+    rows.value = (res.data || []).map(item => ({
+      id: item.id,
+      hari: item.hari || '-',
+      tanggal: item.tanggal,
+      jam_mulai: item.jam_mulai,
+      jam_selesai: item.jam_selesai,
+      status: item.checkin_sesi ? 'hadir' : 'terjadwal',
+      aktivitas: item.aktivitas_terapi,
+      keterangan: item.keterangan_terapi,
+      tugas_rumah: item.tugas_rumah,
+      nama_anak: item.registrasi_anak?.profile_anak?.nama_anak || '-',
+      terapis: item.pelayanan_terapi_anak?.terapis?.nama || '-',
+      layanan: item.pelayanan_terapi_anak?.layanan?.layanan || '-'
+    }))
+  } catch (err) {
+    console.error('Gagal mengambil data catatan terapi:', err)
+  }
+}
 
-const sortOrder = ref('desc') // terbaru dulu
+onMounted(() => {
+  loadData()
+})
+
+const filteredRows = computed(() => {
+  let data = rows.value
+
+  if (search.value) {
+    data = data.filter(r =>
+      r.nama_anak.toLowerCase().includes(search.value.toLowerCase()) ||
+      r.aktivitas?.toLowerCase().includes(search.value.toLowerCase())
+    )
+  }
+
+  return data.sort((a, b) => {
+    const dateA = new Date(a.tanggal)
+    const dateB = new Date(b.tanggal)
+    return sortOrder.value === 'asc' ? dateA - dateB : dateB - dateA
+  })
+})
+
+const totalPages = computed(() =>
+  Math.ceil(filteredRows.value.length / perPage)
+)
+
+const paginatedRows = computed(() => {
+  const start = (currentPage.value - 1) * perPage
+  return filteredRows.value.slice(start, start + perPage)
+})
+
+const toggleSort = () => {
+  sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+}
 
 const openModal = (row) => {
   selected.value = row
   showModal.value = true
 }
 
-const cetak = (row) => {
-  window.open(`/api/catatan-aktivitas-anak/cetak/${row.id}`, '_blank')
-}
-
-const toggleSort = () => {
-  sortOrder.value = sortOrder.value === 'desc' ? 'asc' : 'desc'
-}
-
-const filteredRows = computed(() => {
-  if (!search.value) return rows.value
-  return rows.value.filter(r =>
-    r.nama_anak.toLowerCase().includes(search.value.toLowerCase())
-  )
-})
-
-const sortedRows = computed(() => {
-  return [...filteredRows.value].sort((a, b) => {
-    const da = new Date(a.tanggal)
-    const db = new Date(b.tanggal)
-    return sortOrder.value === 'desc' ? db - da : da - db
-  })
-})
-
-const totalPages = computed(() =>
-  Math.ceil(sortedRows.value.length / perPage)
-)
-
-const paginatedRows = computed(() => {
-  const start = (currentPage.value - 1) * perPage
-  return sortedRows.value.slice(start, start + perPage)
-})
-
 const formatTanggal = (d) => {
   if (!d) return '-'
   return new Intl.DateTimeFormat('id-ID', {
     day: '2-digit',
-    month: '2-digit',
+    month: 'short',
     year: 'numeric'
   }).format(new Date(d))
 }
 
-onMounted(async () => {
-  const res = await api.get('/riwayat-pembayaran-anak')
-  const temp = []
-
-  res.data.forEach(p => {
-    p.registrasi?.pelayanans?.forEach(pl => {
-      const c = pl.catatan_aktivitas
-      temp.push({
-        id: pl.id,
-        nama_anak: p.registrasi.profile_anak.nama_anak,
-        hari: new Date(pl.tanggal_penjadwalan).toLocaleDateString('id-ID', { weekday: 'long' }),
-        tanggal: pl.tanggal_penjadwalan,
-        jam_mulai: pl.jam_mulai || '-',
-        jam_selesai: pl.jam_selesai || '-',
-        terapis: pl.terapis?.nama || '-',
-        status: c?.checkin_sesi ? 'hadir' : 'terjadwal',
-        aktivitas: c?.aktivitas_terapi || '-',
-        keterangan: c?.keterangan_terapi || '-',
-        tugas_rumah: c?.tugas_rumah || '-'
-      })
-    })
-  })
-
-  rows.value = temp
-})
+const cetak = (row) => {
+  window.open(`/api/cetak/catatan-terapi/${row.id}`, '_blank')
+}
 </script>
-
-<style scoped>
-.page-btn {
-  @apply px-3.5 py-1.5 rounded-lg border border-gray-200 bg-white text-gray-600 text-xs font-medium hover:bg-indigo-50 hover:border-indigo-300 transition disabled:opacity-40 disabled:cursor-not-allowed;
-}
-
-.page-btn.active {
-  @apply bg-indigo-600 text-white border-transparent;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>

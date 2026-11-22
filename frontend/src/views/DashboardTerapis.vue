@@ -1,57 +1,94 @@
 <template>
-  <div class="min-h-screen bg-gray-50 p-6 space-y-8">
+  <div class="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden w-full">
 
     <!-- HEADER -->
-    <div>
-      <h1 class="text-2xl font-bold text-gray-800">Dashboard Terapis</h1>
-      <p class="text-gray-500 mt-1 text-sm">Daftar pasien & status assesment hari ini</p>
-    </div>
-
-    <!-- SUMMARY CARDS -->
-    <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-        <div class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-          <i class="pi pi-users text-lg"></i>
-        </div>
-        <div>
-          <p class="text-sm text-gray-500">Total Pasien</p>
-          <p class="text-2xl font-bold text-gray-800">{{ data.length }}</p>
-        </div>
+    <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shrink-0">
+      <div>
+        <h1 class="text-[17px] font-bold text-[#0F172A] tracking-tight flex items-center gap-2">
+          <span>Dashboard & Pasien Terapi Saya</span>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E6F2F5] text-[#0F766E] border border-[#CBE3E9]">
+            Stage 4: Sesi & EMR Terapi
+          </span>
+        </h1>
+        <p class="text-xs text-[#64748B] mt-0.5">
+          Kelola sesi terapi terjadwal, pencatatan SOAP harian, pemotongan kuota paket otomatis, dan penugasan Home Program orang tua
+        </p>
       </div>
 
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-        <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-          <i class="pi pi-check-circle text-lg"></i>
-        </div>
-        <div>
-          <p class="text-sm text-gray-500">Sudah Assesment</p>
-          <p class="text-2xl font-bold text-gray-800">{{ sudahAssesment }}</p>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 flex items-center gap-4">
-        <div class="w-11 h-11 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
-          <i class="pi pi-clock text-lg"></i>
-        </div>
-        <div>
-          <p class="text-sm text-gray-500">Belum Assesment</p>
-          <p class="text-2xl font-bold text-gray-800">{{ belumAssesment }}</p>
-        </div>
+      <div class="flex items-center gap-2">
+        <button
+          type="button"
+          @click="loadData"
+          class="bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs"
+        >
+          <i class="pi pi-refresh text-xs text-slate-400"></i>
+          <span>Refresh Data</span>
+        </button>
       </div>
     </div>
 
-    <!-- TABLE -->
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-          <thead class="bg-gray-50 text-gray-600">
+    <!-- SUMMARY METRICS -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-3 shrink-0">
+      <div class="bg-white rounded-xl shadow-xs border border-slate-200 p-3.5 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-[#E6F2F5] text-[#0F766E] border border-[#CBE3E9] flex items-center justify-center shrink-0">
+          <i class="pi pi-users text-sm"></i>
+        </div>
+        <div>
+          <p class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Pasien</p>
+          <p class="text-lg font-bold text-[#0F172A] tabular-nums mt-0.5">{{ data.length }}</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-xs border border-slate-200 p-3.5 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-teal-50 text-[#0F766E] border border-teal-200 flex items-center justify-center shrink-0">
+          <i class="pi pi-clock text-sm"></i>
+        </div>
+        <div>
+          <p class="text-[11px] font-semibold text-[#0F766E] uppercase tracking-wider">Menunggu Terapi</p>
+          <p class="text-lg font-bold text-[#0F766E] tabular-nums mt-0.5">
+            {{ data.filter(x => x.status_sesi === 'menunggu' || (x.status_kedatangan === 'sudah_datang' && x.status_sesi !== 'selesai_terapi')).length }}
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-xs border border-slate-200 p-3.5 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 border border-amber-200 flex items-center justify-center shrink-0">
+          <i class="pi pi-spin pi-spinner text-sm"></i>
+        </div>
+        <div>
+          <p class="text-[11px] font-semibold text-amber-600 uppercase tracking-wider">Sedang Terapi</p>
+          <p class="text-lg font-bold text-amber-700 tabular-nums mt-0.5">
+            {{ data.filter(x => x.status_sesi === 'sedang_terapi').length }}
+          </p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-xl shadow-xs border border-slate-200 p-3.5 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200 flex items-center justify-center shrink-0">
+          <i class="pi pi-check-circle text-sm"></i>
+        </div>
+        <div>
+          <p class="text-[11px] font-semibold text-emerald-600 uppercase tracking-wider">Selesai Hari Ini</p>
+          <p class="text-lg font-bold text-emerald-700 tabular-nums mt-0.5">
+            {{ data.filter(x => x.status_sesi === 'selesai_terapi').length }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLE PASIEN TERAPIS -->
+    <div class="flex-1 min-h-0 flex flex-col bg-white rounded-xl shadow-xs border border-slate-200 overflow-hidden">
+      <div class="flex-1 min-h-0 overflow-auto custom-scrollbar">
+        <table class="w-full text-xs">
+          <thead class="sticky top-0 z-10 bg-[#F8FAFC] border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600 select-none">
             <tr>
-              <th class="px-5 py-3.5 text-left font-semibold">No Regis</th>
-              <th class="px-5 py-3.5 text-left font-semibold">Nama Anak</th>
-              <th class="px-5 py-3.5 text-center font-semibold">Tanggal</th>
-              <th class="px-5 py-3.5 text-center font-semibold">Ruangan</th>
-              <th class="px-5 py-3.5 text-center font-semibold">Status</th>
-              <th class="px-5 py-3.5 text-center font-semibold w-20">Aksi</th>
+              <th class="px-4 py-3 text-left font-bold text-[11px] uppercase tracking-wider">Antrian & Regis</th>
+              <th class="px-4 py-3 text-left font-bold text-[11px] uppercase tracking-wider">Nama Pasien Anak</th>
+              <th class="px-4 py-3 text-left font-bold text-[11px] uppercase tracking-wider">Program & Sesi</th>
+              <th class="px-4 py-3 text-center font-bold text-[11px] uppercase tracking-wider">Ruangan</th>
+              <th class="px-4 py-3 text-center font-bold text-[11px] uppercase tracking-wider">Status Kedatangan</th>
+              <th class="px-4 py-3 text-center font-bold text-[11px] uppercase tracking-wider">Status Sesi</th>
+              <th class="px-4 py-3 text-center font-bold text-[11px] uppercase tracking-wider w-48">Aksi Terapi</th>
             </tr>
           </thead>
 
@@ -59,62 +96,150 @@
             <tr
               v-for="item in data"
               :key="item.id"
-              class="border-t border-gray-100 hover:bg-indigo-50/40 transition"
+              class="border-b border-slate-100 hover:bg-[#F0F6F8]/60 transition"
             >
-              <td class="px-5 py-3.5 text-gray-600">{{ item.no_regis }}</td>
+              <!-- Antrian & Regis -->
+              <td class="px-4 py-3">
+                <span class="inline-flex items-center px-2 py-0.5 rounded font-bold font-mono text-xs bg-[#0B3948] text-white mr-1.5 shadow-2xs">
+                  {{ item.antrian_nomor || item.no_antrian || 'TW-01' }}
+                </span>
+                <span class="text-slate-500 font-mono text-[11px]">{{ item.no_regis }}</span>
+              </td>
 
-              <td class="px-5 py-3.5">
-                <div class="flex items-center gap-3">
-                  <div class="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center font-semibold text-xs shrink-0">
+              <!-- Pasien Anak -->
+              <td class="px-4 py-3">
+                <div class="flex items-center gap-2.5">
+                  <div class="w-8 h-8 rounded-full bg-[#E6F2F5] border border-[#CBE3E9] text-[#0F766E] flex items-center justify-center font-bold text-xs shrink-0">
                     {{ (item.profile_anak?.nama_anak || 'A').charAt(0) }}
                   </div>
-                  <span class="font-semibold text-gray-800">{{ item.profile_anak?.nama_anak || '-' }}</span>
+                  <div>
+                    <span class="font-bold text-slate-800 text-xs block leading-tight">{{ item.profile_anak?.nama_anak || '-' }}</span>
+                    <span class="text-[10px] text-slate-500 font-mono">
+                      {{ item.profile_anak?.no_rm || item.id_pasien }} &bull; {{ item.profile_anak?.usia_pediatrik || item.profile_anak?.usia_lengkap || 'Anak' }}
+                    </span>
+                  </div>
                 </div>
               </td>
 
-              <td class="px-5 py-3.5 text-center text-gray-600">{{ formatTanggal(item.tgl_regis) }}</td>
-              <td class="px-5 py-3.5 text-center text-gray-600">{{ item.ruangan?.ruangan || '-' }}</td>
+              <!-- Program & Sesi -->
+              <td class="px-4 py-3">
+                <div class="font-semibold text-slate-800 text-xs">
+                  Sesi #{{ item.sesi_ke || 1 }} <span class="text-slate-400 font-normal">dari {{ item.total_sesi || 8 }}</span>
+                </div>
+                <div class="text-[10px] text-teal-700 font-medium">
+                  {{ item.payment_track === 'umum_package' ? 'Paket Terapi (Multi-Sesi)' : (item.payment_track === 'asuransi' ? 'Jaminan Asuransi (GL)' : 'Umum (Per Kunjungan)') }}
+                </div>
+              </td>
 
-              <td class="px-5 py-3.5 text-center">
+              <!-- Ruangan -->
+              <td class="px-4 py-3 text-center text-slate-600 font-medium">{{ item.ruangan?.ruangan || '-' }}</td>
+
+              <!-- Kedatangan -->
+              <td class="px-4 py-3 text-center">
                 <span
-                  v-if="item.assesment"
-                  class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full bg-emerald-50 text-emerald-700"
+                  v-if="item.status_kedatangan === 'sudah_datang'"
+                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200"
                 >
                   <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                  Sudah
+                  Hadir
                 </span>
                 <span
                   v-else
-                  class="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full bg-amber-50 text-amber-700"
+                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-slate-100 text-slate-500 border border-slate-200"
                 >
-                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                  Belum
+                  Belum Hadir
                 </span>
               </td>
 
-              <td class="px-5 py-3.5 text-center">
-                <button
-                  @click="openAssesment(item)"
-                  :disabled="item.assesment"
-                  class="w-9 h-9 rounded-lg transition inline-flex items-center justify-center"
-                  :class="item.assesment
-                    ? 'bg-gray-100 text-gray-300 cursor-not-allowed'
-                    : 'bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white'"
-                  :aria-label="item.assesment ? 'Assesment sudah diisi' : 'Isi assesment'"
+              <!-- Status Sesi -->
+              <td class="px-4 py-3 text-center">
+                <span
+                  v-if="item.status_sesi === 'selesai_terapi'"
+                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200"
                 >
-                  <i class="pi pi-file-edit text-sm"></i>
-                </button>
+                  <i class="pi pi-check text-[9px]"></i>
+                  Selesai
+                </span>
+                <span
+                  v-else-if="item.status_sesi === 'sedang_terapi'"
+                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 animate-pulse"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                  Sedang Sesi
+                </span>
+                <span
+                  v-else-if="item.status_sesi === 'menunggu' || item.status_kedatangan === 'sudah_datang'"
+                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-50 text-teal-700 border border-teal-200"
+                >
+                  <span class="w-1.5 h-1.5 rounded-full bg-teal-500"></span>
+                  Siap Terapi
+                </span>
+                <span
+                  v-else
+                  class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-100 text-slate-500 border border-slate-200"
+                >
+                  Terjadwal
+                </span>
+              </td>
+
+              <!-- Aksi Terapi -->
+              <td class="px-4 py-3 text-center">
+                <div class="flex items-center justify-center gap-1.5">
+                  <!-- Start Session Button -->
+                  <button
+                    v-if="item.status_sesi !== 'sedang_terapi' && item.status_sesi !== 'selesai_terapi'"
+                    @click="startSession(item)"
+                    type="button"
+                    class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-[#0F766E] hover:bg-[#115E59] text-white flex items-center gap-1 transition cursor-pointer shadow-2xs"
+                    title="Mulai sesi terapi dengan anak"
+                  >
+                    <i class="pi pi-play text-[9px]"></i>
+                    Mulai Sesi
+                  </button>
+
+                  <!-- Complete Session Button (prominent) -->
+                  <button
+                    v-if="item.status_sesi === 'sedang_terapi'"
+                    @click="openCompleteModal(item)"
+                    type="button"
+                    class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1 transition cursor-pointer shadow-2xs animate-pulse"
+                    title="Selesaikan sesi, isi SOAP & Home Program"
+                  >
+                    <i class="pi pi-check-circle text-[10px]"></i>
+                    Selesaikan Sesi
+                  </button>
+
+                  <!-- Session Completed View Button -->
+                  <span
+                    v-if="item.status_sesi === 'selesai_terapi'"
+                    class="text-[11px] text-emerald-700 font-semibold flex items-center gap-1"
+                  >
+                    <i class="pi pi-lock text-[10px]"></i>
+                    EMR Terkunci
+                  </span>
+
+                  <!-- Intake Assessment Button -->
+                  <button
+                    @click="openAssesment(item)"
+                    :disabled="item.assesment"
+                    class="w-7 h-7 rounded-lg transition inline-flex items-center justify-center cursor-pointer ml-1"
+                    :class="item.assesment
+                      ? 'bg-slate-100 text-slate-300 cursor-not-allowed'
+                      : 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-100'"
+                    :title="item.assesment ? 'Asesmen awal sudah diisi' : 'Isi Asesmen Awal Pasien'"
+                  >
+                    <i class="pi pi-file-edit text-[11px]"></i>
+                  </button>
+                </div>
               </td>
             </tr>
 
             <tr v-if="data.length === 0">
-              <td colspan="6" class="py-14 text-center">
-                <div class="flex flex-col items-center">
-                  <div class="w-14 h-14 rounded-2xl bg-gray-50 flex items-center justify-center mb-3">
-                    <i class="pi pi-inbox text-xl text-gray-300"></i>
-                  </div>
-                  <p class="text-gray-500 font-medium text-sm">Tidak ada data pasien</p>
+              <td colspan="7" class="py-12 text-center">
+                <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-2">
+                  <i class="pi pi-inbox text-xl text-slate-400"></i>
                 </div>
+                <p class="text-slate-500 font-medium text-xs">Tidak ada antrian pasien terapi yang ditugaskan kepada Anda saat ini</p>
               </td>
             </tr>
           </tbody>
@@ -122,319 +247,374 @@
       </div>
     </div>
 
-    <!-- MODAL WIZARD ASSESMENT -->
-    <transition name="fade">
-      <div
-        v-if="showModal"
-        class="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-      >
-        <div class="bg-white w-full max-w-3xl rounded-2xl shadow-xl max-h-[92vh] flex flex-col overflow-hidden">
+    <!-- ========================================================================= -->
+    <!-- MODAL PELAKSANAAN SESI & CATATAN EMR HARIAN (STAGE 4: ATOMIC TRANSACTION) -->
+    <!-- ========================================================================= -->
+    <teleport to="body">
+    <div v-if="showCompleteModal" class="fixed inset-0 z-[9999] bg-slate-900/35 backdrop-blur-md flex items-center justify-center p-4">
+      <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl border border-slate-200 max-h-[92vh] flex flex-col overflow-hidden animate-fadeIn">
+        
+        <!-- HEADER -->
+        <div class="px-6 py-4 bg-[#0B3948] text-white flex items-center justify-between shrink-0">
+          <div>
+            <h3 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="pi pi-heart text-teal-300 text-sm"></i>
+              Catatan EMR Harian & Selesai Sesi Terapi
+            </h3>
+            <p class="text-xs text-teal-200/80 mt-0.5">
+              Pasien: {{ activeSession?.profile_anak?.nama_anak }} &middot; Sesi #{{ activeSession?.sesi_ke }} dari {{ activeSession?.total_sesi }}
+            </p>
+          </div>
+          <button @click="showCompleteModal = false" class="w-7 h-7 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition flex items-center justify-center cursor-pointer">
+            <i class="pi pi-times text-xs"></i>
+          </button>
+        </div>
 
-          <!-- HEADER -->
-          <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100 shrink-0">
+        <!-- BODY -->
+        <form @submit.prevent="submitCompleteSession" class="flex-1 overflow-y-auto px-6 py-4 space-y-4 text-xs">
+          
+          <!-- Banner Child & Session Quota -->
+          <div class="p-3 rounded-xl bg-[#E6F2F5] border border-[#CBE3E9] flex items-center justify-between">
             <div>
-              <h2 class="text-lg font-bold text-gray-800">Assesment Anak</h2>
-              <p class="text-sm text-gray-500">
-                {{ selected?.profile_anak?.nama_anak }} &middot; {{ selected?.no_regis }}
-              </p>
+              <span class="text-[10px] text-[#15576B] uppercase font-bold tracking-wider block">Pemeriksaan Klinis Terapi</span>
+              <span class="text-xs font-bold text-[#0F172A]">{{ activeSession?.profile_anak?.nama_anak }}</span>
+              <span class="text-slate-500 ml-1 font-mono">({{ activeSession?.profile_anak?.no_rm || activeSession?.id_pasien }})</span>
             </div>
-            <button
-              @click="closeModal"
-              class="w-9 h-9 rounded-full text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition flex items-center justify-center"
-              aria-label="Tutup"
-            >
-              <i class="pi pi-times"></i>
-            </button>
-          </div>
-
-          <!-- STEP INDICATOR -->
-          <div class="px-6 pt-5 pb-1 shrink-0">
-            <div class="flex items-center">
-              <template v-for="(s, idx) in steps" :key="s.id">
-                <div class="flex items-center gap-2.5 flex-1">
-                  <div
-                    class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition"
-                    :class="currentStep === idx
-                      ? 'bg-indigo-600 text-white'
-                      : currentStep > idx
-                        ? 'bg-emerald-50 text-emerald-600'
-                        : 'bg-gray-100 text-gray-400'"
-                  >
-                    <i v-if="currentStep > idx" class="pi pi-check text-xs"></i>
-                    <span v-else>{{ idx + 1 }}</span>
-                  </div>
-                  <span
-                    class="text-xs font-semibold hidden sm:block"
-                    :class="currentStep === idx ? 'text-gray-800' : 'text-gray-400'"
-                  >
-                    {{ s.label }}
-                  </span>
-                </div>
-                <div
-                  v-if="idx < steps.length - 1"
-                  class="h-px flex-1 mx-1 transition"
-                  :class="currentStep > idx ? 'bg-emerald-300' : 'bg-gray-200'"
-                ></div>
-              </template>
+            <div class="text-right">
+              <span class="text-[10px] text-teal-700 font-bold block">POTONG KUOTA OTOMATIS</span>
+              <span class="text-xs font-semibold text-[#0F766E]">
+                {{ activeSession?.payment_track === 'umum_package' ? 'Paket Terapi Pasien (-1 Sesi)' : (activeSession?.payment_track === 'asuransi' ? 'Jaminan Asuransi / GL (-1 Sesi)' : 'Per Kunjungan') }}
+              </span>
             </div>
           </div>
 
-          <!-- FORM BODY -->
-          <form @submit.prevent="handleSubmit" class="flex-1 overflow-y-auto px-6 py-5">
-
-            <!-- STEP 1: DATA KELAHIRAN -->
-            <div v-show="currentStep === 0" class="space-y-4">
-              <p class="text-sm text-gray-500 -mt-1 mb-2">Riwayat kelahiran dan kondisi awal anak.</p>
-
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="label">Umur Anak</label>
-                  <input v-model="form.umur" class="input" />
-                </div>
-                <div>
-                  <label class="label">Usia Kehamilan</label>
-                  <input v-model="form.usia_kehamilan_lahir" class="input" />
-                </div>
-              </div>
-
-              <div>
-                <label class="label">Gangguan Kehamilan</label>
-                <input v-model="form.gangguan_kehamilan" class="input" />
-              </div>
-
-              <div>
-                <label class="label">Proses Kelahiran</label>
-                <input v-model="form.proses_kelahiran" class="input" />
-              </div>
-
-              <div>
-                <label class="label">Gangguan Saat Melahirkan</label>
-                <input v-model="form.gangguan_melahirkan" class="input" />
-              </div>
+          <!-- Mood Anak & Durasi -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="label">Kondisi & Mood Anak Saat Sesi</label>
+              <select v-model="sessionForm.mood_anak" required class="input">
+                <option value="kooperatif">Kooperatif (Fokus & Ceria)</option>
+                <option value="fokus_baik">Fokus Sangat Baik</option>
+                <option value="tantrum">Tantrum / Menolak Instruksi</option>
+                <option value="cemas">Cemas / Menangis</option>
+                <option value="lelah">Lelah / Mengantuk</option>
+              </select>
             </div>
 
-            <!-- STEP 2: PERILAKU & PERKEMBANGAN -->
-            <div v-show="currentStep === 1" class="space-y-3">
-              <p class="text-sm text-gray-500 -mt-1 mb-2">Tandai sesuai kondisi anak. Pilih "Ya" untuk menambahkan keterangan.</p>
+            <div>
+              <label class="label">Durasi Terapi (Menit)</label>
+              <input type="number" v-model="sessionForm.durasi_menit" min="15" max="180" class="input" />
+            </div>
+          </div>
 
-              <div
-                v-for="item in booleanFields"
-                :key="item.key"
-                class="border border-gray-100 rounded-xl p-4 space-y-3"
-              >
-                <div class="flex items-center justify-between gap-3">
-                  <p class="font-medium text-gray-700 text-sm">{{ item.label }}</p>
-
-                  <div class="flex gap-1 shrink-0 bg-gray-100 rounded-lg p-1">
-                    <button
-                      type="button"
-                      @click="form[item.key] = '1'"
-                      class="px-3 py-1 text-xs font-semibold rounded-md transition"
-                      :class="String(form[item.key]) === '1' ? 'bg-indigo-600 text-white' : 'text-gray-500 hover:bg-white'"
-                    >
-                      Ya
-                    </button>
-                    <button
-                      type="button"
-                      @click="form[item.key] = '0'"
-                      class="px-3 py-1 text-xs font-semibold rounded-md transition"
-                      :class="String(form[item.key]) === '0' ? 'bg-gray-600 text-white' : 'text-gray-500 hover:bg-white'"
-                    >
-                      Tidak
-                    </button>
-                  </div>
-                </div>
-
-                <textarea
-                  v-if="String(form[item.key]) === '1'"
-                  v-model="form[item.ket]"
-                  class="textarea"
-                  placeholder="Keterangan tambahan..."
-                ></textarea>
-              </div>
+          <!-- Aktivitas & Respons Anak -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="label">Aktivitas Stimulasi Terapi</label>
+              <textarea
+                v-model="sessionForm.aktivitas_terapi"
+                rows="3"
+                placeholder="Misal: Stimulasi motorik oral, puzzle warna, latihan meniup gelembung..."
+                class="textarea"
+              ></textarea>
             </div>
 
-            <!-- STEP 3: CATATAN KLINIS -->
-            <div v-show="currentStep === 2" class="space-y-4">
-              <p class="text-sm text-gray-500 -mt-1 mb-2">Catatan subjektif dan objektif dari sesi terapi.</p>
+            <div>
+              <label class="label">Respons & Capaian Anak</label>
+              <textarea
+                v-model="sessionForm.respons_anak"
+                rows="3"
+                placeholder="Misal: Mampu menirukan bunyi konsonan B dan M sebanyak 8 repetisi..."
+                class="textarea"
+              ></textarea>
+            </div>
+          </div>
 
-              <div>
-                <label class="label">Informasi Subjektif</label>
-                <textarea v-model="form.informasi_subjektif" class="textarea" placeholder="Keluhan atau informasi dari orang tua / anak..."></textarea>
-              </div>
-
-              <div>
-                <label class="label">Informasi Objektif</label>
-                <textarea v-model="form.informasi_objektif" class="textarea" placeholder="Observasi dan temuan klinis terapis..."></textarea>
-              </div>
+          <!-- SOAP Klinis Ringkas -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="label">Catatan Subjektif & Objektif</label>
+              <textarea
+                v-model="sessionForm.subjektif"
+                rows="2"
+                placeholder="Observasi fisik dan perilaku anak..."
+                class="textarea"
+              ></textarea>
             </div>
 
-          </form>
+            <div>
+              <label class="label">Asesmen & Rencana Pertemuan Berikutnya</label>
+              <textarea
+                v-model="sessionForm.planning"
+                rows="2"
+                placeholder="Target kemampuan yang akan dilatih selanjutnya..."
+                class="textarea"
+              ></textarea>
+            </div>
+          </div>
 
-          <!-- FOOTER NAVIGATION -->
-          <div class="flex items-center justify-between gap-3 px-6 py-4 border-t border-gray-100 shrink-0">
+          <!-- HOME PROGRAM UNTUK ORANG TUA (CRITICAL FOR PARENT PORTAL) -->
+          <div class="p-3.5 rounded-xl border border-teal-200 bg-teal-50/70 space-y-2">
+            <div class="flex items-center gap-2">
+              <i class="pi pi-home text-[#0F766E] text-sm"></i>
+              <label class="text-xs font-bold text-[#0F766E] uppercase tracking-wider block">
+                Home Program / PR untuk Orang Tua di Rumah (Wajib)
+              </label>
+            </div>
+            <p class="text-[11px] text-teal-800">
+              Instruksi ini akan otomatis dipublikasikan ke <strong>Portal Orang Tua</strong> agar orang tua dapat melanjutkan latihan stimulasi di rumah.
+            </p>
+            <textarea
+              v-model="sessionForm.home_program_catatan"
+              rows="3"
+              required
+              placeholder="Contoh: Orang tua diharapkan melatih anak meniup lilin berjarak 20 cm 10x setiap pagi, dan mengajak komunikasi dua arah di depan cermin selama 10 menit..."
+              class="textarea bg-white"
+            ></textarea>
+          </div>
+
+          <!-- FOOTER ACTION BUTTONS -->
+          <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
             <button
               type="button"
-              @click="currentStep === 0 ? closeModal() : currentStep--"
+              @click="showCompleteModal = false"
               class="btn-secondary"
             >
-              {{ currentStep === 0 ? 'Batal' : 'Kembali' }}
+              Batal
             </button>
 
             <button
-              v-if="currentStep < steps.length - 1"
-              type="button"
-              @click="currentStep++"
+              type="submit"
+              :disabled="savingComplete"
               class="btn-primary"
             >
-              Lanjut
-              <i class="pi pi-arrow-right text-xs ml-1.5"></i>
-            </button>
-            <button
-              v-else
-              type="button"
-              @click="handleSubmit"
-              class="btn-primary"
-            >
-              <i class="pi pi-check text-xs mr-1.5"></i>
-              Simpan Assesment
+              <span v-if="savingComplete" class="flex items-center gap-1.5">
+                <i class="pi pi-spin pi-spinner text-xs"></i>
+                Menyimpan Transaksi...
+              </span>
+              <span v-else class="flex items-center gap-1.5">
+                <i class="pi pi-lock text-xs"></i>
+                Selesaikan Sesi & Kunci EMR
+              </span>
             </button>
           </div>
-
-        </div>
+        </form>
       </div>
-    </transition>
+    </div>
+    </teleport>
+
+    <!-- MODAL INTAKE ASSESMENT 1 (EXISTING) -->
+    <teleport to="body">
+    <div
+      v-if="showModal"
+      class="fixed inset-0 z-[9999] bg-slate-900/35 backdrop-blur-md flex items-center justify-center p-4"
+    >
+      <div class="bg-white w-full max-w-2xl rounded-xl shadow-2xl border border-slate-200 max-h-[90vh] flex flex-col overflow-hidden animate-fadeIn">
+        <div class="flex justify-between items-center px-6 py-4 bg-[#0B3948] text-white shrink-0">
+          <div>
+            <h2 class="text-sm font-bold text-white flex items-center gap-2">
+              <i class="pi pi-clipboard text-teal-300"></i>
+              Form Asesmen Klinis Awal Pasien
+            </h2>
+            <p class="text-xs text-teal-200/80 mt-0.5">
+              {{ selected?.profile_anak?.nama_anak }} &middot; No. Regis: {{ selected?.no_regis }}
+            </p>
+          </div>
+          <button @click="closeModal" class="w-7 h-7 rounded-lg text-slate-300 hover:text-white hover:bg-white/10 transition flex items-center justify-center cursor-pointer">
+            <i class="pi pi-times text-xs"></i>
+          </button>
+        </div>
+
+        <form @submit.prevent="handleSubmit" class="flex-1 overflow-y-auto px-6 py-4 space-y-3 text-xs">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="label">Usia Kehamilan Saat Lahir</label>
+              <input v-model="form.usia_kehamilan_lahir" placeholder="Contoh: 38 minggu" class="input" />
+            </div>
+            <div>
+              <label class="label">Proses Kelahiran</label>
+              <input v-model="form.proses_kelahiran" placeholder="Normal / Caesar" class="input" />
+            </div>
+          </div>
+
+          <div>
+            <label class="label">Riwayat Gangguan Kelahiran</label>
+            <input v-model="form.gangguan_melahirkan" placeholder="Asfiksia, kuning, dll..." class="input" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="label">Kontak Mata</label>
+              <select v-model="form.kontak_mata" class="input">
+                <option value="1">Ada (Baik)</option>
+                <option value="0">Kurang / Menghindar</option>
+              </select>
+            </div>
+            <div>
+              <label class="label">Komunikasi Dua Arah</label>
+              <select v-model="form.komunikasi_dua_arah" class="input">
+                <option value="1">Mampu</option>
+                <option value="0">Belum Mampu</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="label">Catatan Perkembangan Anak</label>
+            <textarea v-model="form.informasi_subjektif" rows="3" placeholder="Deskripsi keluhan dan observasi awal terapis..." class="textarea"></textarea>
+          </div>
+
+          <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
+            <button type="button" @click="closeModal" class="btn-secondary">Batal</button>
+            <button type="submit" class="btn-primary">Simpan Asesmen Awal</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    </teleport>
+
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import api from '../axios'
+import { useToast } from 'vue-toastification'
 
-const formatTanggal = (dateStr) => {
-  if (!dateStr) return '-'
-  const d = new Date(dateStr)
-  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`
-}
-
+const toast = useToast()
 const data = ref([])
 const showModal = ref(false)
 const selected = ref(null)
 
-const sudahAssesment = computed(() => data.value.filter(d => d.assesment).length)
-const belumAssesment = computed(() => data.value.filter(d => !d.assesment).length)
+// Complete Session Modal (Stage 4)
+const showCompleteModal = ref(false)
+const activeSession = ref(null)
+const savingComplete = ref(false)
 
-/* ================= WIZARD STEP ================= */
-const steps = [
-  { id: 'kelahiran', label: 'Data Kelahiran' },
-  { id: 'perilaku', label: 'Perilaku & Perkembangan' },
-  { id: 'catatan', label: 'Catatan Klinis' }
-]
-const currentStep = ref(0)
+const sessionForm = reactive({
+  mood_anak: 'kooperatif',
+  durasi_menit: 60,
+  aktivitas_terapi: '',
+  respons_anak: '',
+  subjektif: '',
+  planning: '',
+  home_program_catatan: ''
+})
 
 const form = reactive({
   registrasi_anak_id: null,
-  umur: '',
   usia_kehamilan_lahir: '',
-  gangguan_kehamilan: '',
   proses_kelahiran: '',
   gangguan_melahirkan: '',
-  informasi_subjektif: '',
-  informasi_objektif: '',
-
-  riwayat_kejang: null,
-  riwayat_kejang_ket: '',
-  konsumsi_obat_epilepsi: null,
-  konsumsi_obat_epilepsi_ket: '',
-  perkembangan_sesuai_usia: null,
-  perkembangan_sesuai_usia_ket: '',
-  disusui_ibu: null,
-  disusui_ibu_ket: '',
-  tv_gadget_addict: null,
-  tv_gadget_addict_ket: '',
-  sering_memutar_benda: null,
-  sering_memutar_benda_ket: '',
-  main_mobil_berulang: null,
-  main_mobil_berulang_ket: '',
-  flapping: null,
-  flapping_ket: '',
-  tantrum: null,
-  tantrum_ket: '',
-  kontak_mata: null,
-  kontak_mata_ket: '',
-  gangguan_makan_menelan: null,
-  gangguan_makan_menelan_ket: '',
-  komunikasi_dua_arah: null,
-  komunikasi_dua_arah_ket: ''
+  kontak_mata: '1',
+  komunikasi_dua_arah: '1',
+  informasi_subjektif: ''
 })
-
-const booleanFields = [
-  { key: 'riwayat_kejang', ket: 'riwayat_kejang_ket', label: 'Riwayat Kejang' },
-  { key: 'konsumsi_obat_epilepsi', ket: 'konsumsi_obat_epilepsi_ket', label: 'Konsumsi Obat Epilepsi' },
-  { key: 'perkembangan_sesuai_usia', ket: 'perkembangan_sesuai_usia_ket', label: 'Perkembangan Sesuai Usia' },
-  { key: 'disusui_ibu', ket: 'disusui_ibu_ket', label: 'Disusui Ibu' },
-  { key: 'tv_gadget_addict', ket: 'tv_gadget_addict_ket', label: 'TV / Gadget Addict' },
-  { key: 'sering_memutar_benda', ket: 'sering_memutar_benda_ket', label: 'Sering Memutar Benda' },
-  { key: 'main_mobil_berulang', ket: 'main_mobil_berulang_ket', label: 'Main Mobil Berulang' },
-  { key: 'flapping', ket: 'flapping_ket', label: 'Flapping' },
-  { key: 'tantrum', ket: 'tantrum_ket', label: 'Tantrum' },
-  { key: 'kontak_mata', ket: 'kontak_mata_ket', label: 'Kontak Mata' },
-  { key: 'gangguan_makan_menelan', ket: 'gangguan_makan_menelan_ket', label: 'Gangguan Makan & Menelan' },
-  { key: 'komunikasi_dua_arah', ket: 'komunikasi_dua_arah_ket', label: 'Komunikasi Dua Arah' }
-]
-
-const resetForm = () => {
-  Object.keys(form).forEach(k => {
-    form[k] = k.endsWith('_ket') ? '' : null
-  })
-  currentStep.value = 0
-}
 
 onMounted(async () => {
-  const res = await api.get('/dashboard-terapis')
-  data.value = res.data
+  await loadData()
 })
 
-const openAssesment = (item) => {
-  resetForm()
+async function loadData() {
+  try {
+    const res = await api.get('/dashboard-terapis')
+    data.value = res.data ?? []
+  } catch (err) {
+    console.error('Error fetching therapist data:', err)
+  }
+}
+
+async function startSession(item) {
+  try {
+    const res = await api.post(`/pediatric-workflow/session/${item.id}/start`)
+    toast.success('Sesi terapi dimulai!')
+    item.status_sesi = 'sedang_terapi'
+    await loadData()
+  } catch (err) {
+    toast.error(err.response?.data?.message || 'Gagal memulai sesi')
+  }
+}
+
+function openCompleteModal(item) {
+  activeSession.value = item
+  sessionForm.mood_anak = item.mood_anak || 'kooperatif'
+  sessionForm.durasi_menit = item.durasi_menit || 60
+  sessionForm.aktivitas_terapi = ''
+  sessionForm.respons_anak = ''
+  sessionForm.subjektif = `Kondisi anak stabil saat sesi ke-${item.sesi_ke}.`
+  sessionForm.planning = `Lanjut sesi ke-${(item.sesi_ke || 1) + 1}.`
+  sessionForm.home_program_catatan = item.home_program_catatan || ''
+  showCompleteModal.value = true
+}
+
+async function submitCompleteSession() {
+  if (!sessionForm.home_program_catatan) {
+    toast.error('Harap isi Home Program untuk orang tua di rumah.')
+    return
+  }
+
+  savingComplete.value = true
+  try {
+    const res = await api.post(`/pediatric-workflow/session/${activeSession.value.id}/complete`, sessionForm)
+    toast.success('Sesi selesai! Catatan EMR tersimpan, kuota terpotong & draf kasir diperbarui.')
+    showCompleteModal.value = false
+    await loadData()
+  } catch (err) {
+    toast.error(err.response?.data?.message || 'Gagal menyelesaikan sesi')
+  } finally {
+    savingComplete.value = false
+  }
+}
+
+function openAssesment(item) {
   selected.value = item
   form.registrasi_anak_id = item.id
   showModal.value = true
 }
 
-const closeModal = () => {
+function closeModal() {
   showModal.value = false
 }
 
-const handleSubmit = async () => {
-  await api.post('/assesment-1', form)
-  alert('Assesment berhasil disimpan')
-  closeModal()
-  const res = await api.get('/dashboard-terapis')
-  data.value = res.data
+async function handleSubmit() {
+  try {
+    await api.post('/assesment-1', form)
+    toast.success('Asesmen awal berhasil disimpan')
+    closeModal()
+    await loadData()
+  } catch (err) {
+    toast.error('Gagal menyimpan asesmen')
+  }
 }
 </script>
 
 <style scoped>
 .label {
-  @apply text-sm font-medium text-gray-600 mb-1.5 block;
+  @apply text-xs font-semibold text-slate-700 mb-1 block;
 }
 .input {
-  @apply w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm transition focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500;
+  @apply w-full px-3 py-2 border border-slate-300 rounded-lg text-xs transition focus:outline-none focus:ring-2 focus:ring-[#0F766E]/20 focus:border-[#0F766E];
 }
 .textarea {
-  @apply w-full px-3.5 py-2.5 border border-gray-200 rounded-xl text-sm min-h-[80px] transition focus:outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500;
+  @apply w-full px-3 py-2 border border-slate-300 rounded-lg text-xs min-h-[70px] transition focus:outline-none focus:ring-2 focus:ring-[#0F766E]/20 focus:border-[#0F766E];
 }
 .btn-primary {
-  @apply px-5 py-2.5 rounded-xl bg-indigo-600 text-white font-semibold text-sm hover:bg-indigo-700 transition inline-flex items-center;
+  @apply px-4 py-2 rounded-lg bg-[#0F766E] text-white font-semibold text-xs hover:bg-[#115E59] active:scale-95 transition inline-flex items-center gap-1.5 shadow-sm cursor-pointer;
 }
 .btn-secondary {
-  @apply px-5 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-semibold text-sm hover:bg-gray-50 transition;
+  @apply px-4 py-2 rounded-lg border border-slate-300 bg-white text-slate-700 font-semibold text-xs hover:bg-slate-50 transition cursor-pointer;
 }
-.fade-enter-active, .fade-leave-active {
-  transition: opacity 0.2s ease;
+.animate-fadeIn {
+  animation: fadeIn 0.15s ease;
 }
-.fade-enter-from, .fade-leave-to {
-  opacity: 0;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.98) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 </style>

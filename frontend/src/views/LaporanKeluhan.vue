@@ -1,367 +1,172 @@
 <template>
-  <div class="min-h-screen bg-slate-100 p-6 space-y-6">
+  <div class="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden w-full">
 
     <!-- HEADER -->
-    <div
-      class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 p-8 shadow-2xl"
-    >
-      <div class="relative z-10 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-
-        <div>
-          <h1 class="text-3xl font-bold text-white">
-            Laporan Keluhan
-          </h1>
-
-          <p class="text-indigo-100 mt-2">
-            Monitoring data keluhan pasien & tanggapan admin
-          </p>
-
-          <div
-            class="mt-4 inline-flex items-center gap-2 bg-white/15 backdrop-blur-md border border-white/20 px-4 py-2 rounded-2xl text-white text-sm"
-          >
-            📅 {{ periode }}
-          </div>
+    <div class="bg-white border border-slate-200 rounded-xl p-3.5 shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-lg bg-[#E6F2F5] border border-[#CBE3E9] flex items-center justify-center text-[#0F766E] font-bold text-sm shrink-0">
+          <i class="pi pi-comments"></i>
         </div>
-
-        <!-- CARD -->
-        <div
-          class="bg-white/15 backdrop-blur-xl border border-white/20 rounded-3xl p-6 min-w-[260px]"
-        >
-          <div class="text-indigo-100 text-sm mb-2">
-            Total Keluhan
-          </div>
-
-          <div class="text-5xl font-black text-white">
-            {{ filteredRows.length }}
-          </div>
-
-          <div class="mt-2 text-xs text-indigo-100">
-            Data sesuai filter
-          </div>
+        <div>
+          <h2 class="text-base font-bold text-[#0F172A] leading-tight">Laporan Rekapitulasi Keluhan</h2>
+          <p class="text-xs text-[#64748B] mt-0.5">
+            Periode: <span class="font-medium text-slate-700">{{ periode }}</span>
+          </p>
         </div>
       </div>
 
-      <!-- ORNAMENT -->
-      <div class="absolute top-0 right-0 w-72 h-72 bg-white/10 rounded-full blur-3xl"></div>
-      <div class="absolute bottom-0 left-0 w-52 h-52 bg-pink-500/20 rounded-full blur-3xl"></div>
+      <div class="flex items-center gap-2">
+        <div class="bg-[#F0F6F8] border border-[#DCE8EC] px-3 py-1.5 rounded-lg flex items-center gap-2">
+          <span class="text-[11px] text-slate-500 font-medium">Total Keluhan:</span>
+          <span class="text-xs font-bold text-slate-900 tabular-nums">{{ filteredRows.length }}</span>
+        </div>
+
+        <button
+          type="button"
+          class="h-[34px] px-3.5 rounded-lg bg-[#0F766E] hover:bg-[#115E59] active:scale-95 text-white text-xs font-semibold inline-flex items-center gap-1.5 shadow-sm transition shrink-0 cursor-pointer"
+          @click="cetakPdf"
+        >
+          <i class="pi pi-print text-xs"></i>
+          <span>Cetak PDF</span>
+        </button>
+      </div>
     </div>
 
-    <!-- FILTER -->
-    <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-6">
-
-      <div class="flex items-center justify-between mb-5">
+    <!-- FILTER TOOLBAR -->
+    <div class="bg-white rounded-xl shadow-2xs border border-slate-200 p-3 shrink-0">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2.5 items-end text-xs">
         <div>
-          <h2 class="text-lg font-bold text-slate-800">
-            Filter Laporan
-          </h2>
-
-          <p class="text-sm text-slate-500">
-            Gunakan filter untuk mencari data keluhan
-          </p>
-        </div>
-
-        <div
-          class="hidden md:flex items-center gap-2 bg-indigo-50 text-indigo-700 px-4 py-2 rounded-xl text-sm font-semibold"
-        >
-          📄 {{ filteredRows.length }} Data
-        </div>
-      </div>
-
-      <!-- FILTER GRID -->
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-5 gap-4">
-
-        <!-- START DATE -->
-        <div>
-          <label class="label">
-            Tanggal Mulai
-          </label>
-
+          <label class="block text-[11px] font-medium text-slate-600 mb-1">Tanggal Mulai</label>
           <input
             type="date"
             v-model="startDate"
-            class="input"
+            class="w-full h-[34px] px-2.5 text-xs bg-white border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:border-[#0F766E]"
           />
         </div>
 
-        <!-- END DATE -->
         <div>
-          <label class="label">
-            Tanggal Akhir
-          </label>
-
+          <label class="block text-[11px] font-medium text-slate-600 mb-1">Tanggal Akhir</label>
           <input
             type="date"
             v-model="endDate"
-            class="input"
+            class="w-full h-[34px] px-2.5 text-xs bg-white border border-slate-300 rounded-lg text-slate-900 focus:outline-none focus:border-[#0F766E]"
           />
         </div>
 
-        <!-- NAMA -->
         <div>
-          <label class="label">
-            Nama Pasien
-          </label>
-
-          <div class="relative">
-            <svg
-              class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 21l-4.35-4.35M16 10.5a5.5 5.5 0 11-11 0 5.5 5.5 0 0111 0z"
-              />
-            </svg>
-
-            <input
-              type="text"
-              v-model="filterNama"
-              placeholder="Cari nama pasien"
-              class="input-search"
-            />
-          </div>
+          <label class="block text-[11px] font-medium text-slate-600 mb-1">Nama Pasien</label>
+          <input
+            type="text"
+            v-model="filterNama"
+            placeholder="Cari nama pasien..."
+            class="w-full h-[34px] px-2.5 text-xs bg-white border border-slate-300 rounded-lg text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-[#0F766E]"
+          />
         </div>
 
-        <!-- KATEGORI -->
         <div>
-          <label class="label">
-            Kategori Keluhan
-          </label>
-
+          <label class="block text-[11px] font-medium text-slate-600 mb-1">Kategori Keluhan</label>
           <select
             v-model="filterKategori"
-            class="input"
+            class="w-full h-[34px] px-2.5 text-xs bg-white border border-slate-300 rounded-lg text-slate-700 focus:outline-none focus:border-[#0F766E]"
           >
             <option value="">Semua Kategori</option>
-
-            <option value="Pelayanan Administrasi">
-              Pelayanan Administrasi
-            </option>
-
-            <option value="Sarana & Prasarana">
-              Sarana & Prasarana
-            </option>
-
-            <option value="Kualitas Terapi">
-              Kualitas Terapi
-            </option>
-
-            <option value="Jadwal / Waktu Pelayanan">
-              Jadwal / Waktu Pelayanan
-            </option>
+            <option value="Pelayanan Administrasi">Pelayanan Administrasi</option>
+            <option value="Sarana & Prasarana">Sarana & Prasarana</option>
+            <option value="Kualitas Terapi">Kualitas Terapi</option>
+            <option value="Jadwal / Waktu Pelayanan">Jadwal / Waktu Pelayanan</option>
           </select>
         </div>
 
-        <!-- ACTION -->
-        <div class="flex flex-wrap gap-3 items-end">
-
+        <div class="flex gap-2">
           <button
+            type="button"
+            class="h-[34px] flex-1 bg-[#0F766E] hover:bg-[#115E59] active:scale-95 text-white font-medium text-xs rounded-lg inline-flex items-center justify-center gap-1.5 transition shadow-2xs cursor-pointer"
             @click="loadData"
-            class="btn-primary"
           >
-            🔍 Search
+            <i class="pi pi-search text-xs"></i>
+            <span>Cari</span>
           </button>
 
           <button
+            type="button"
+            class="h-[34px] px-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-medium text-xs rounded-lg inline-flex items-center justify-center gap-1 transition cursor-pointer"
             @click="resetFilter"
-            class="btn-secondary"
           >
-            🔄 Reset
+            <i class="pi pi-refresh text-xs"></i>
+            <span>Reset</span>
           </button>
-
-          <button
-            @click="cetakPdf"
-            class="btn-pdf"
-          >
-            🖨 PDF
-          </button>
-
         </div>
       </div>
     </div>
 
-    <!-- TABLE -->
-    <div class="bg-white rounded-3xl shadow-xl overflow-hidden border border-slate-200">
-
-      <!-- HEADER TABLE -->
-      <div
-        class="px-6 py-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between"
-      >
-        <div>
-          <h3 class="font-bold text-slate-800">
-            Data Keluhan Pasien
-          </h3>
-
-          <p class="text-sm text-slate-500 mt-1">
-            Menampilkan seluruh data keluhan pasien
-          </p>
-        </div>
-
-        <div class="hidden md:flex items-center gap-2">
-          <div class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
-
-          <span class="text-sm text-slate-500">
-            Data realtime
-          </span>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-sm">
-
-          <!-- TABLE HEAD -->
-          <thead class="bg-slate-100 text-slate-700">
+    <!-- TABLE CARD -->
+    <div class="flex-1 min-h-0 flex flex-col bg-white border border-slate-200 rounded-xl overflow-hidden shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+      <div class="flex-1 min-h-0 overflow-auto custom-scrollbar">
+        <table class="w-full text-left border-collapse text-[12.5px]">
+          <thead class="sticky top-0 z-10 bg-[#F8FAFC] border-b border-slate-200 text-left text-[11px] font-semibold uppercase tracking-wider text-slate-600 select-none">
             <tr>
-              <th class="th text-center">No</th>
-              <th class="th">No Keluhan</th>
-              <th class="th">Nama Anak</th>
-              <th class="th">Kategori</th>
-              <th class="th">Tanggal</th>
-              <th class="th">Isi Keluhan</th>
-              <th class="th text-center">Status</th>
-              <th class="th">Tanggapan</th>
+              <th class="py-2.5 px-3 w-12 text-center">No</th>
+              <th class="py-2.5 px-3">No Keluhan</th>
+              <th class="py-2.5 px-3">Nama Anak</th>
+              <th class="py-2.5 px-3">Kategori</th>
+              <th class="py-2.5 px-3">Tanggal</th>
+              <th class="py-2.5 px-3">Isi Keluhan</th>
+              <th class="py-2.5 px-3 text-center">Status</th>
+              <th class="py-2.5 px-3">Tanggapan Admin</th>
             </tr>
           </thead>
 
-          <!-- BODY -->
-          <tbody>
-
+          <tbody class="divide-y divide-slate-100">
             <tr
               v-for="row in filteredRows"
               :key="row.no"
-              class="border-b border-slate-100 hover:bg-indigo-50/40 transition duration-200"
+              class="hover:bg-[#F0F6F8]/60 transition"
             >
-              <td class="td text-center font-semibold text-slate-600">
-                {{ row.no }}
-              </td>
-
-              <td class="td">
-                <div class="font-bold text-indigo-600">
-                  {{ row.no_keluhan }}
+              <td class="py-2 px-3 text-center text-slate-400 tabular-nums">{{ row.no }}</td>
+              <td class="py-2 px-3 font-mono font-semibold text-[#0F766E] text-xs">{{ row.no_keluhan }}</td>
+              <td class="py-2 px-3">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-full bg-[#E6F2F5] text-[#0F766E] border border-[#CBE3E9] flex items-center justify-center font-bold text-xs shrink-0">
+                    {{ (row.nama_pasien || 'A').charAt(0) }}
+                  </div>
+                  <span class="font-semibold text-slate-800">{{ row.nama_pasien }}</span>
                 </div>
               </td>
-
-              <!-- NAMA -->
-              <td class="td">
-                <div class="flex items-center gap-3">
-
-                  <div
-                    class="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-500 to-violet-500 text-white flex items-center justify-center font-bold"
-                  >
-                    {{ row.nama_pasien?.charAt(0) }}
-                  </div>
-
-                  <div>
-                    <div class="font-semibold text-slate-800">
-                      {{ row.nama_pasien }}
-                    </div>
-
-                    <div class="text-xs text-slate-400">
-                      Pasien
-                    </div>
-                  </div>
-                </div>
-              </td>
-
-              <!-- KATEGORI -->
-              <td class="td">
-                <span class="badge-indigo">
+              <td class="py-2 px-3">
+                <span class="px-2 py-0.5 rounded-full bg-[#E6F2F5] text-[#0F766E] border border-[#CBE3E9] text-[10.5px] font-semibold">
                   {{ row.kategori_keluhan }}
                 </span>
               </td>
-
-              <!-- TANGGAL -->
-              <td class="td text-slate-600 whitespace-nowrap">
-                {{ row.tanggal_keluhan }}
-              </td>
-
-              <!-- ISI -->
-              <td class="td">
-                <div class="max-w-xs whitespace-normal text-slate-600 leading-relaxed">
-                  {{ row.isi_keluhan }}
-                </div>
-              </td>
-
-              <!-- STATUS -->
-              <td class="td text-center">
+              <td class="py-2 px-3 text-slate-600 tabular-nums whitespace-nowrap">{{ row.tanggal_keluhan }}</td>
+              <td class="py-2 px-3 text-slate-600 max-w-xs truncate" :title="row.isi_keluhan">{{ row.isi_keluhan }}</td>
+              <td class="py-2 px-3 text-center">
                 <span
-                  class="badge-status"
-                  :class="
-                    row.status_tanggapan === 'sudah_ditanggapi'
-                      ? 'badge-success'
-                      : 'badge-warning'
-                  "
+                  class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold"
+                  :class="row.status_tanggapan === 'sudah_ditanggapi' ? 'bg-emerald-100 text-emerald-800 border border-emerald-200' : 'bg-amber-100 text-amber-800 border border-amber-200'"
                 >
-                  <span
-                    class="w-2 h-2 rounded-full"
-                    :class="
-                      row.status_tanggapan === 'sudah_ditanggapi'
-                        ? 'bg-emerald-500'
-                        : 'bg-orange-500'
-                    "
-                  ></span>
-
-                  {{
-                    row.status_tanggapan === 'sudah_ditanggapi'
-                      ? 'Sudah Ditanggapi'
-                      : 'Belum Ditanggapi'
-                  }}
+                  <span class="w-1.5 h-1.5 rounded-full" :class="row.status_tanggapan === 'sudah_ditanggapi' ? 'bg-emerald-600' : 'bg-amber-600'"></span>
+                  {{ row.status_tanggapan === 'sudah_ditanggapi' ? 'Sudah Ditanggapi' : 'Belum Ditanggapi' }}
                 </span>
               </td>
-
-              <!-- TANGGAPAN -->
-              <td class="td">
-                <div
-                  class="max-w-xs whitespace-normal leading-relaxed"
-                >
-                  <span
-                    v-if="row.tanggapan"
-                    class="text-slate-700"
-                  >
-                    {{ row.tanggapan }}
-                  </span>
-
-                  <span
-                    v-else
-                    class="italic text-slate-400"
-                  >
-                    Belum ada tanggapan
-                  </span>
-                </div>
+              <td class="py-2 px-3 text-slate-600 max-w-xs truncate" :title="row.tanggapan || 'Belum ada tanggapan'">
+                <span v-if="row.tanggapan" class="text-slate-700">{{ row.tanggapan }}</span>
+                <span v-else class="italic text-slate-400">Belum ada tanggapan</span>
               </td>
             </tr>
 
-            <!-- EMPTY -->
             <tr v-if="filteredRows.length === 0">
-              <td colspan="8" class="py-20 text-center">
-
-                <div class="flex flex-col items-center">
-
-                  <div
-                    class="w-24 h-24 rounded-full bg-slate-100 flex items-center justify-center text-4xl mb-4"
-                  >
-                    📭
-                  </div>
-
-                  <div class="text-lg font-bold text-slate-500">
-                    Tidak ada data keluhan
-                  </div>
-
-                  <div class="text-sm text-slate-400 mt-1">
-                    Silakan ubah filter pencarian
-                  </div>
-
-                </div>
-
+              <td colspan="8" class="py-12 text-center text-slate-400">
+                <i class="pi pi-folder-open text-2xl text-slate-300 block mb-1"></i>
+                <span class="text-xs">Tidak ada data keluhan pada filter ini</span>
               </td>
             </tr>
-
           </tbody>
         </table>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="shrink-0 px-3.5 py-2 bg-[#F8FAFC] border-t border-slate-200 text-[11.5px] text-slate-500 flex items-center justify-between">
+        <span>Total: {{ filteredRows.length }} Data Keluhan</span>
       </div>
     </div>
 
@@ -387,17 +192,19 @@ const filterKategori = ref('')
 
 /* LOAD DATA */
 const loadData = async () => {
-  const res = await api.get('/laporan/keluhan', {
-    params: {
-      start_date: startDate.value,
-      end_date: endDate.value
-    }
-  })
+  try {
+    const res = await api.get('/laporan/keluhan', {
+      params: {
+        start_date: startDate.value,
+        end_date: endDate.value
+      }
+    })
 
-  rows.value = res.data.data
-
-  periode.value =
-    `${startDate.value} s/d ${endDate.value}`
+    rows.value = res.data?.data || []
+    periode.value = `${startDate.value} s/d ${endDate.value}`
+  } catch (err) {
+    console.error('Gagal mengambil laporan keluhan:', err)
+  }
 }
 
 /* RESET */
@@ -423,20 +230,16 @@ const cetakPdf = () => {
 /* FILTERED */
 const filteredRows = computed(() => {
   return rows.value.filter(r => {
-
     const matchNo = filterNoKeluhan.value
-      ? r.no_keluhan?.toLowerCase()
-          .includes(filterNoKeluhan.value.toLowerCase())
+      ? r.no_keluhan?.toLowerCase().includes(filterNoKeluhan.value.toLowerCase())
       : true
 
     const matchNama = filterNama.value
-      ? r.nama_pasien?.toLowerCase()
-          .includes(filterNama.value.toLowerCase())
+      ? r.nama_pasien?.toLowerCase().includes(filterNama.value.toLowerCase())
       : true
 
     const matchKategori = filterKategori.value
-      ? r.kategori_keluhan?.toLowerCase() ===
-        filterKategori.value.toLowerCase()
+      ? r.kategori_keluhan?.toLowerCase() === filterKategori.value.toLowerCase()
       : true
 
     return matchNo && matchNama && matchKategori
@@ -445,58 +248,3 @@ const filteredRows = computed(() => {
 
 onMounted(loadData)
 </script>
-
-<style scoped>
-/* LABEL */
-.label {
-  @apply block text-sm font-semibold text-slate-700 mb-2;
-}
-
-/* INPUT */
-.input {
-  @apply w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none transition focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500;
-}
-
-.input-search {
-  @apply w-full rounded-2xl border border-slate-200 bg-slate-50 pl-12 pr-4 py-3 outline-none transition focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500;
-}
-
-/* TABLE */
-.th {
-  @apply px-5 py-4 font-bold text-left whitespace-nowrap;
-}
-
-.td {
-  @apply px-5 py-4 align-top;
-}
-
-/* BUTTON */
-.btn-primary {
-  @apply px-5 py-3 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold shadow-lg hover:scale-105 transition;
-}
-
-.btn-secondary {
-  @apply px-5 py-3 rounded-2xl bg-slate-200 text-slate-700 font-semibold hover:bg-slate-300 transition;
-}
-
-.btn-pdf {
-  @apply px-5 py-3 rounded-2xl bg-gradient-to-r from-rose-600 to-red-600 text-white font-semibold shadow-lg hover:scale-105 transition;
-}
-
-/* BADGE */
-.badge-indigo {
-  @apply inline-flex px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-semibold;
-}
-
-.badge-status {
-  @apply inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold;
-}
-
-.badge-success {
-  @apply bg-emerald-100 text-emerald-700;
-}
-
-.badge-warning {
-  @apply bg-orange-100 text-orange-700;
-}
-</style>
